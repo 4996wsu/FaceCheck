@@ -37,7 +37,10 @@
                         {% if user.is_authenticated %}
                         <span class= "navbar-text">Logged in as {{user.username}}|</span>
                         <li class = "nav-item">
-                            <a class = "nav-link" href = "/logout">Logout</a>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit">logout</button>
+                            </form>
                         </li>
                         {% else %}
                         <li class = "nav-item">
