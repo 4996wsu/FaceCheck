@@ -19,7 +19,20 @@ firebase_admin.initialize_app(cred)
 #  Other common variables
 db = firestore.client()
 collectionName = "infoCollection"
+class_doc = "GmqCfAAPxope9LYsnAI1"
 
+
+#  Create document in Firebase
+def create_new_doc():
+    data = {
+        'key': 'value'
+    }
+
+    doc_ref = db.collection(collectionName).document()
+    doc_ref.set(data)
+
+    print("Document ID: ", doc_ref.id)
+    
 
 #  Retrieve all docs in collection
 def get_all_docs():
@@ -43,17 +56,16 @@ def get_all_docs():
         print()
 
 
-#  Create document in firebase
-def create_new_doc():
-    data = {
-        'key': 'value'
-    }
-
-    doc_ref = db.collection(collectionName).document()
-    doc_ref.set(data)
-
-    print("Document ID: ", doc_ref.id)
-    
+#  Retrieve doc in Firebase
+def get_doc(doc_id):
+    doc_ref = db.collection(collectionName).document(doc_id)
+    doc = doc_ref.get()
+    if doc.exists:
+        return doc.to_dict()
+    else:
+        print(f"Document {doc_id} not found in {collectionName}.")
+        return None
+       
        
 # Update existing document
 def update_doc():
