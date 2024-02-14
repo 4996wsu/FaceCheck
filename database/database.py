@@ -46,7 +46,7 @@ def reset_docs():
                             '17_30_00': True,
                             '17_35_00': True
                         },
-                        '02-08-2024': {
+                        '02_08_2024': {
                             '17_30_00': True,
                             '17_35_00': False
                         } 
@@ -96,15 +96,26 @@ def get_doc(doc_id):
         return None
        
        
-# Update existing document
+#  Update existing document
 def update_doc(doc_id, key, value):
     doc_ref = db.collection(collectionName).document(doc_id)
     doc_ref.update({
         key: value
     })
     
+#  Update student attendance
+def update_student_attendance(section, name, date, time, value):
+    key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
+    update_doc(student_doc, key, value)
+
+def update_student_photo(section, name, value):
+    key = 'students.' + section + '.' + name + '.picture'
+    update_doc(student_doc, key, value)
+
 
 #  Code to execute
 reset_docs()
 get_all_docs()
-update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
+#update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
+update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
+update_student_photo('CSC_4996_001', 'hc9082', 'UPDATED IMAGE URL')
