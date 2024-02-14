@@ -5,8 +5,7 @@
 #   -------------------------------------------------------------------------------------------------
 
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
 
@@ -14,7 +13,7 @@ from pathlib import Path
 #  Connect to firebase db
 cred_fp = str(Path.cwd()) + "\database\db_credentials.json"
 cred = credentials.Certificate(cred_fp)
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
 
 #  Other common variables
 db = firestore.client()
@@ -108,9 +107,17 @@ def update_student_attendance(section, name, date, time, value):
     key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
     update_doc(student_doc, key, value)
 
-def update_student_photo(section, name, value):
+#  Update student photo
+def update_student_photo(section, name, file):
+    bucket = storage.bucket()
+    filename = section + '_' + name
+    blob = bucket.blob(filename)
+    blob.upload_from_filename(file)
+    #blob.make_public()
+    
+    # Update database
     key = 'students.' + section + '.' + name + '.picture'
-    update_doc(student_doc, key, value)
+    update_doc(student_doc, key, blob.public_url)
 
 
 #  Code to execute
@@ -118,4 +125,4 @@ reset_docs()
 get_all_docs()
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
-update_student_photo('CSC_4996_001', 'hc9082', 'UPDATED IMAGE URL')
+update_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
