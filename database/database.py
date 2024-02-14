@@ -19,17 +19,46 @@ firebase_admin.initialize_app(cred)
 #  Other common variables
 db = firestore.client()
 collectionName = "infoCollection"
-class_doc = "GmqCfAAPxope9LYsnAI1"
+class_doc = "class_doc"
+student_doc = "student_doc"
 
 
-#  Create document in Firebase
-def create_new_doc():
-    data = {
-        'key': 'value'
+#  Reset document in Firebase
+def reset_docs():
+    dataClass = {
+        'classes': {
+            'CSC_4996_001': {
+                'professor': 'mousavi',
+                'schedule': {
+                    'Tuesday': ['17_30', '18_45'],
+                    'Wednesday': ['17_30', '20_40']
+                }
+            }
+        } 
+    }
+    dataStudent = {
+        'students': {
+            'CSC_4996_001': {
+                'hc9082': {
+                    'picture': 'URL HERE',
+                    'attendance': {
+                        '02_06_2024': {
+                            '17_30_00': True,
+                            '17_35_00': True
+                        },
+                        '02-08-2024': {
+                            '17_30_00': True,
+                            '17_35_00': False
+                        } 
+                    }
+                }
+            }
+        }
     }
 
-    doc_ref = db.collection(collectionName).document()
-    doc_ref.set(data)
+    doc_ref = db.collection(collectionName)
+    doc_ref.document(class_doc).set(dataClass)
+    doc_ref.document(student_doc).set(dataStudent)
 
     print("Document ID: ", doc_ref.id)
     
@@ -56,7 +85,7 @@ def get_all_docs():
         print()
 
 
-#  Retrieve doc in Firebase
+#  Retrieve document from database and return as a dictionary
 def get_doc(doc_id):
     doc_ref = db.collection(collectionName).document(doc_id)
     doc = doc_ref.get()
@@ -68,9 +97,14 @@ def get_doc(doc_id):
        
        
 # Update existing document
-def update_doc():
-    print("Cannot update doc")
+def update_doc(doc_id, key, value):
+    doc_ref = db.collection(collectionName).document(doc_id)
+    doc_ref.update({
+        key: value
+    })
     
 
 #  Code to execute
+reset_docs()
 get_all_docs()
+update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
