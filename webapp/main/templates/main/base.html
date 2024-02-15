@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 
     <!--  HEAD  -->
     <head>
@@ -10,6 +11,13 @@
             rel="stylesheet" 
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
             crossorigin="anonymous"
+        />
+        <link 
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
+            rel="stylesheet" 
+            integrity="sha512-NjrZT9iHtMM1HL02lGijQBCfdLqTWYovvTT2g6dGTFc9Vuj6kN1iIOJN4cYlLqoyC/PGWc34QmR93U9+k2VcxA==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer" 
         />
         <title>{% block title %}FaceCheck{% endblock %}</title>
 
@@ -24,6 +32,35 @@
             .navbar-nav a:hover{
                 color: white;
             }
+            .hero-section {
+            background-image: url("{% static 'images/AI2.jpeg' %}");
+            background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh; /* Set the height of the hero section to 100% of the viewport height */
+    color: #fff;
+    background-color: black;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.hero-section p {
+    font-size: 1.25rem;
+    margin-bottom: 30px;
+}
+
+.hero-section .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.hero-section .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
         </style>
     </head>
 
