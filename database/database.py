@@ -134,7 +134,7 @@ def add_student(section, name):
     else:
         key = 'students.' + section + '.' + name + '.picture'
         update_doc(student_doc, key, "NO PHOTO")
-        print("User '" + name + "' successfully added.")
+        print("Student '" + name + "' successfully added.")
    
     
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
@@ -154,14 +154,30 @@ def update_student_photo(section, name, file):
     # Update database
     key = 'students.' + section + '.' + name + '.picture'
     update_doc(student_doc, key, blob.public_url)
+    
+def remove_student_photo(section, name, file):
+    bucket = storage.bucket()
+    filename = section + '_' + name
+    blob = bucket.blob(filename)
+    if blob.exists():
+        blob.delete()
+        key = 'students.' + section + '.' + name + '.picture'
+        update_doc(student_doc, key, "NO PHOTO")
+        print("Photo for '" + name + "' deleted successfully.")
+    else:
+        print("Error: Student '" + name + "', if they exist, has no photo in the database.")
 
 
 #  ------------------------------  TESTING CODE  ------------------------------
 reset_docs()
 get_all_docs()
+
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
 update_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+
 add_student('CSC_4996_004', 'hc2810')
 add_student('CSC_4996_001', 'hc9082')
 add_class('CSC_4996_001', 'mousavi')
