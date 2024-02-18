@@ -57,6 +57,8 @@ def reset_docs():
     }
 
     doc_ref = db.collection(collectionName)
+    doc_ref.document(class_doc).delete()
+    doc_ref.document(student_doc).delete()
     doc_ref.document(class_doc).set(dataClass)
     doc_ref.document(student_doc).set(dataStudent)
 
@@ -111,15 +113,26 @@ def update_doc(doc_id, key, value):
     doc_ref.update({
         key: value
     })
+
+#  Add new class section
+def add_class(section, prof):
+    class_dict = get_doc(class_doc)
+    
+    if lookup(section, class_dict) != None:
+        print("Error: Cannot add class '" + section + "' because the class already exists.")
+    else:
+        key = 'classes.' + section + '.professor'
+        update_doc(class_doc, key, prof)
+        print("Class '" + section + "' successfully added.")
     
 #  Add new student
 def add_student(section, name):
     student_dict = get_doc(student_doc)
-    key = 'students.' + section + '.' + name + '.picture'
     
     if lookup(name, student_dict) != None:
         print("Error: Cannot add user '" + name + "' because the user already exists.")
     else:
+        key = 'students.' + section + '.' + name + '.picture'
         update_doc(student_doc, key, "NO PHOTO")
         print("User '" + name + "' successfully added.")
    
@@ -151,3 +164,5 @@ update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', Tr
 update_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 add_student('CSC_4996_004', 'hc2810')
 add_student('CSC_4996_001', 'hc9082')
+add_class('CSC_4996_001', 'mousavi')
+add_class('CSC_4996_004', 'mousavi')
