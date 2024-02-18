@@ -22,6 +22,7 @@ class_doc = "class_doc"
 student_doc = "student_doc"
 
 
+#  ------------------------------  MAIN FUNCTIONALITY  ------------------------------
 #  Reset document in Firebase
 def reset_docs():
     dataClass = {
@@ -30,7 +31,7 @@ def reset_docs():
                 'professor': 'mousavi',
                 'schedule': {
                     'Tuesday': ['17_30', '18_45'],
-                    'Wednesday': ['17_30', '20_40']
+                    'Thursday': ['17_30', '20_40']
                 }
             }
         } 
@@ -83,7 +84,6 @@ def get_all_docs():
         print(f"Document Data: {doc_data['data']}")
         print()
 
-
 #  Retrieve document from database and return as a dictionary
 def get_doc(doc_id):
     doc_ref = db.collection(collectionName).document(doc_id)
@@ -93,7 +93,17 @@ def get_doc(doc_id):
     else:
         print(f"Document {doc_id} not found in {collectionName}.")
         return None
-       
+    
+    
+#  Recursively search dictionary
+def lookup(key, data):
+    if key in data:
+        return data[key]
+    for value in data.values():
+        if isinstance(value, dict):
+            return lookup(key, value)
+    return None
+    
        
 #  Update existing document
 def update_doc(doc_id, key, value):
@@ -102,6 +112,19 @@ def update_doc(doc_id, key, value):
         key: value
     })
     
+#  Add new student
+def add_student(section, name):
+    student_dict = get_doc(student_doc)
+    key = 'students.' + section + '.' + name + '.picture'
+    
+    if lookup(name, student_dict) != None:
+        print("Error: Cannot add user '" + name + "' because the user already exists.")
+    else:
+        update_doc(student_doc, key, "NO PHOTO")
+        print("User '" + name + "' successfully added.")
+   
+    
+#  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
 #  Update student attendance
 def update_student_attendance(section, name, date, time, value):
     key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
@@ -120,9 +143,11 @@ def update_student_photo(section, name, file):
     update_doc(student_doc, key, blob.public_url)
 
 
-#  Code to execute
+#  ------------------------------  TESTING CODE  ------------------------------
 reset_docs()
 get_all_docs()
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
 update_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+add_student('CSC_4996_004', 'hc2810')
+add_student('CSC_4996_001', 'hc9082')
