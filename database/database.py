@@ -9,6 +9,8 @@ from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
 
+from ai_model.detect import detect_faces
+
 
 #  Connect to firebase db
 cred_fp = str(Path.cwd()) + "\database\db_credentials.json"
@@ -40,7 +42,7 @@ def reset_docs():
         'students': {
             'CSC_4996_001': {
                 'hc9082': {
-                    'picture': 'URL HERE',
+                    'picture': 'NO PHOTO',
                     'attendance': {
                         '02_06_2024': {
                             '17_30_00': True,
@@ -150,6 +152,8 @@ def update_student_photo(section, name, file):
     blob = bucket.blob(filename)
     blob.upload_from_filename(file)
     #blob.make_public()
+    
+    detect_faces(file)
     
     # Update database
     key = 'students.' + section + '.' + name + '.picture'
