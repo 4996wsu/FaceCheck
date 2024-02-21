@@ -7,6 +7,8 @@ import time
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+from database import update_student_attendance
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
@@ -76,6 +78,9 @@ while True:
                 print(f"Recognized {len(recognized_names)} faces: {', '.join(recognized_names)}")
             else:
                 print("No recognized people in the frame.")
+                
+        for name in recognized_names:
+            update_student_attendance(class_section, name, '02_08_2024', '17_40_00', True)
     except Exception as e:
         print(f"Error during detection or recognition: {e}")
         continue  # Continue to the next frame

@@ -16,7 +16,7 @@ def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=
     else:
         return None
 
-cropped_face = detect_and_crop_face('photos/afnan/afnan.jpg')
+cropped_face = detect_and_crop_face('photos/hc9082/hc9082.jpg')
 if cropped_face is not None:
 
     cv2.imwrite('cropped_face.jpg', cropped_face)

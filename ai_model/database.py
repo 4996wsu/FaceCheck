@@ -143,8 +143,13 @@ def add_student(section, name):
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
 #  Update student attendance
 def update_student_attendance(section, name, date, time, value):
-    key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
-    update_doc(student_doc, key, value)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, student_dict) == None:
+        print("Error: Cannot update attendance for '" + name + "' because the user does not exist.")
+    else:
+        key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
+        update_doc(student_doc, key, value)
 
 #  Update student photo
 def update_student_photo(section, name, file):
@@ -182,12 +187,12 @@ reset_docs()
 get_all_docs()
 
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
+add_student('CSC_4996_001', 'hi4718')
 update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
-update_student_photo('CSC_4996_001', 'hc9082', 'photos/afnan/afnan.jpg')
+update_student_photo('CSC_4996_001', 'hc9082', 'photos/hc9082/hc9082.jpg')
 # remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 # remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 
-# add_student('CSC_4996_004', 'hc2810')
-# add_student('CSC_4996_001', 'hc9082')
-# add_class('CSC_4996_001', 'mousavi')
-# add_class('CSC_4996_004', 'mousavi')
+add_student('CSC_4996_004', 'hc2810')
+add_class('CSC_4996_001', 'mousavi')
+add_class('CSC_4996_004', 'mousavi')
