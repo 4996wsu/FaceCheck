@@ -9,11 +9,11 @@ from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
 
-from ai_model.preprocess import detect_and_crop_faces
+from preprocess import detect_and_crop_face
 
 
 #  Connect to firebase db
-cred_fp = str(Path.cwd()) + "\database\db_credentials.json"
+cred_fp = str(Path.cwd()) + "\db_credentials.json"
 cred = credentials.Certificate(cred_fp)
 firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
 
@@ -150,10 +150,10 @@ def update_student_photo(section, name, file):
     bucket = storage.bucket()
     filename = section + '_' + name
     blob = bucket.blob(filename)
-    blob.upload_from_filename(file)
+    blob.upload_from_file(detect_and_crop_face(file))
     #blob.make_public()
     
-    face_image = detect_and_crop_faces(file)
+    # face_image = detect_and_crop_faces(file)
     
     # Update database
     key = 'students.' + section + '.' + name + '.picture'
