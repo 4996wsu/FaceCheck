@@ -9,7 +9,7 @@ from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
 
-from ai_model.detect import detect_faces
+from ai_model.preprocess import detect_and_crop_faces
 
 
 #  Connect to firebase db
@@ -153,7 +153,7 @@ def update_student_photo(section, name, file):
     blob.upload_from_filename(file)
     #blob.make_public()
     
-    detect_faces(file)
+    face_image = detect_and_crop_faces(file)
     
     # Update database
     key = 'students.' + section + '.' + name + '.picture'
