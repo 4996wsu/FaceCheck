@@ -11,3 +11,4 @@ webapp/webapp/__pycache__/settings.cpython-310.pyc
 webapp/webapp/__pycache__/urls.cpython-310.pyc
 webapp/webapp/__pycache__/wsgi.cpython-310.pyc
 parse_testing/output.json
+ai_model/data.pt
