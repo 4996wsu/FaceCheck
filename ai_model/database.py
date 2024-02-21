@@ -8,7 +8,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
-
+import tempfile
+import cv2
 from preprocess import detect_and_crop_face
 
 
@@ -150,15 +151,19 @@ def update_student_photo(section, name, file):
     bucket = storage.bucket()
     filename = section + '_' + name
     blob = bucket.blob(filename)
-    blob.upload_from_file(detect_and_crop_face(file))
-    #blob.make_public()
     
-    # face_image = detect_and_crop_faces(file)
+    cropped_image = detect_and_crop_face(file)
+    if cropped_image is not None:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+            cv2.imwrite(temp_file.name, cropped_image)
+            blob.upload_from_filename(temp_file.name)
+        key = 'students.' + section + '.' + name + '.picture'
+        update_doc(student_doc, key, blob.public_url)
+    else:
+        print("Error: No face detected, or there was an error processing the image.")
+        
     
-    # Update database
-    key = 'students.' + section + '.' + name + '.picture'
-    update_doc(student_doc, key, blob.public_url)
-    
+#  Remove student photo
 def remove_student_photo(section, name, file):
     bucket = storage.bucket()
     filename = section + '_' + name
@@ -178,11 +183,11 @@ get_all_docs()
 
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
-update_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
-remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
-remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+update_student_photo('CSC_4996_001', 'hc9082', 'photos/afnan/afnan.jpg')
+# remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+# remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 
-add_student('CSC_4996_004', 'hc2810')
-add_student('CSC_4996_001', 'hc9082')
-add_class('CSC_4996_001', 'mousavi')
-add_class('CSC_4996_004', 'mousavi')
+# add_student('CSC_4996_004', 'hc2810')
+# add_student('CSC_4996_001', 'hc9082')
+# add_class('CSC_4996_001', 'mousavi')
+# add_class('CSC_4996_004', 'mousavi')
