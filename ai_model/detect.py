@@ -12,6 +12,7 @@ factor = 0.8  # example value, adjust as needed
 mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
 
 def detect_faces(frame):
+    mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     faces, _ = mtcnn.detect(frame_rgb)
 

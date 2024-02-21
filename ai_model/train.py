@@ -6,26 +6,24 @@ import numpy as np
 from PIL import Image
 import os
 import random
-from torchvision import transforms
-import torchvision.models as models
-import torch.nn as nn
-from torchvision.models.resnet import ResNet50_Weights
+from facenet_pytorch import MTCNN
 from tqdm import tqdm
+
 class TripletFaceDataset(Dataset):
     def __init__(self, directory, transform=None):
         self.directory = directory
         self.transform = transform
         self.classes, self.class_to_idx = self._find_classes(directory)
         self.samples = self._make_dataset(directory, self.class_to_idx)
+        self.mtcnn = MTCNN(keep_all=True, device='cuda' if torch.cuda.is_available() else 'cpu')
         self.triplets = self._generate_triplets()
 
     def _find_classes(self, dir):
-
         classes = [d.name for d in os.scandir(dir) if d.is_dir()]
         classes.sort()
         class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
         return classes, class_to_idx
-# make dataset code is partially from https://pytorch.org/vision/0.9/_modules/torchvision/datasets/folder.html
+
     def _make_dataset(self, directory, class_to_idx):
         samples = []
         for class_name in class_to_idx.keys():
@@ -57,29 +55,39 @@ class TripletFaceDataset(Dataset):
 
     def __getitem__(self, idx):
         anchor_path, positive_path, negative_path = self.triplets[idx]
-        anchor_img = Image.open(anchor_path).convert('RGB')
-        positive_img = Image.open(positive_path).convert('RGB')
-        negative_img = Image.open(negative_path).convert('RGB')
-
-        if self.transform:
-            anchor_img = self.transform(anchor_img)
-            positive_img = self.transform(positive_img)
-            negative_img = self.transform(negative_img)
+        anchor_img = self._load_image(anchor_path)
+        positive_img = self._load_image(positive_path)
+        negative_img = self._load_image(negative_path)
 
         return anchor_img, positive_img, negative_img
 
+    def _load_image(self, path):
+        img = Image.open(path).convert('RGB')
+        # Detect face, extract ROI, and apply transformations if necessary
+        img_cropped = self._extract_face(img)
+        if self.transform:
+            img_cropped = self.transform(img_cropped)
+        return img_cropped
 
-
+    def _extract_face(self, img):
+        # Detect faces in the image
+        boxes, _ = self.mtcnn.detect(img)
+        if boxes is not None:
+            # Assuming the first detected face is the subject
+            box = boxes[0]
+            img_cropped = img.crop(box)
+            return img_cropped
+        else:
+            # If no face is detected, return the original image
+            return img
 
 def load_embedding_model(model_name='resnet50', embedding_dimension=128):
     if model_name == 'resnet50':
-        weights = ResNet50_Weights.IMAGENET1K_V1
-        model = models.resnet50(weights=weights)
+        model = models.resnet50(pretrained=True)
         model.fc = nn.Linear(model.fc.in_features, embedding_dimension)
     else:
         raise ValueError("Model not supported. Please use 'resnet50'.")
     return model
-
 
 def train_with_triplet(model, dataloader, triplet_loss, optimizer, num_epochs=25, device=None):
     if device is None:
@@ -88,7 +96,6 @@ def train_with_triplet(model, dataloader, triplet_loss, optimizer, num_epochs=25
 
     for epoch in range(num_epochs):
         model.train()
-
         running_loss = 0.0
         progress_bar = tqdm(dataloader, total=len(dataloader), desc=f"Epoch {epoch+1}/{num_epochs}")
 
@@ -103,77 +110,52 @@ def train_with_triplet(model, dataloader, triplet_loss, optimizer, num_epochs=25
             negative_embeddings = model(negatives)
 
             loss = triplet_loss(anchor_embeddings, positive_embeddings, negative_embeddings)
-
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
-
-
             progress_bar.set_postfix({'loss': loss.item()})
 
         epoch_loss = running_loss / len(dataloader)
         print(f"Training Loss: {epoch_loss:.4f}")
     return model
 
-
-
-
 def get_triplet_transforms():
-    # Adjust the crop size and resize parameters for 112x112 images
+    # No need for resizing or cropping as images are already 112x112 and faces are detected by MTCNN
     train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(112),  # Crop randomly then resize to 112x112
-        transforms.RandomHorizontalFlip(),  # Random horizontal flipping
-        transforms.ToTensor(),  # Convert to tensor
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-
-    validate_transforms = transforms.Compose([
-        transforms.Resize(128),  # Resize to slightly larger than target to maintain aspect ratio
-        transforms.CenterCrop(112),  # Center crop to 112x112
-        transforms.ToTensor(),  # Convert to tensor
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize
-    ])
+    validate_transforms = train_transforms  # Same transforms for both training and validation
 
     return {
         'train': train_transforms,
         'validate': validate_transforms
     }
 
-
 def main_triplet():
-
     transforms = get_triplet_transforms()
-    train_dataset = TripletFaceDataset(directory='/content/drive/MyDrive/dataset/train4', transform=transforms['train'])
-    dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=4, pin_memory=True)
-
+    train_dataset = TripletFaceDataset(directory='dataset/train4', transform=transforms['train'])
+    dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4, pin_memory=True)
 
     model = load_embedding_model(model_name='resnet50', embedding_dimension=128)
-
     model_path = 'triplet_model_1.0.pth'
     if os.path.exists(model_path):
         model.load_state_dict(torch.load(model_path))
-        print("Loaded model weights from 'triplet_model_face_recognition_128.pth'.")
-
+        print("Loaded model weights.")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
-#https://pytorch.org/docs/stable/optim.html
     triplet_loss = nn.TripletMarginLoss(margin=1.0)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     dataloaders = {'train': dataloader}
 
-    # Train the model using triplet loss
     trained_model = train_with_triplet(model, dataloaders['train'], triplet_loss, optimizer, num_epochs=25, device=device)
 
-    # Save the updated model
     torch.save(trained_model.state_dict(), model_path)
     print(f"Model updated and saved to '{model_path}'.")
 
-
-
-
 if __name__ == '__main__':
     main_triplet()
-
