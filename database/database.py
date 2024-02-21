@@ -9,6 +9,8 @@ from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
 
+from ai_model.detect import detect_faces
+
 
 #  Connect to firebase db
 cred_fp = str(Path.cwd()) + "\database\db_credentials.json"
@@ -22,6 +24,7 @@ class_doc = "class_doc"
 student_doc = "student_doc"
 
 
+#  ------------------------------  MAIN FUNCTIONALITY  ------------------------------
 #  Reset document in Firebase
 def reset_docs():
     dataClass = {
@@ -30,7 +33,7 @@ def reset_docs():
                 'professor': 'mousavi',
                 'schedule': {
                     'Tuesday': ['17_30', '18_45'],
-                    'Wednesday': ['17_30', '20_40']
+                    'Thursday': ['17_30', '20_40']
                 }
             }
         } 
@@ -39,7 +42,7 @@ def reset_docs():
         'students': {
             'CSC_4996_001': {
                 'hc9082': {
-                    'picture': 'URL HERE',
+                    'picture': 'NO PHOTO',
                     'attendance': {
                         '02_06_2024': {
                             '17_30_00': True,
@@ -56,6 +59,8 @@ def reset_docs():
     }
 
     doc_ref = db.collection(collectionName)
+    doc_ref.document(class_doc).delete()
+    doc_ref.document(student_doc).delete()
     doc_ref.document(class_doc).set(dataClass)
     doc_ref.document(student_doc).set(dataStudent)
 
@@ -83,7 +88,6 @@ def get_all_docs():
         print(f"Document Data: {doc_data['data']}")
         print()
 
-
 #  Retrieve document from database and return as a dictionary
 def get_doc(doc_id):
     doc_ref = db.collection(collectionName).document(doc_id)
@@ -93,7 +97,17 @@ def get_doc(doc_id):
     else:
         print(f"Document {doc_id} not found in {collectionName}.")
         return None
-       
+    
+    
+#  Recursively search dictionary
+def lookup(key, data):
+    if key in data:
+        return data[key]
+    for value in data.values():
+        if isinstance(value, dict):
+            return lookup(key, value)
+    return None
+    
        
 #  Update existing document
 def update_doc(doc_id, key, value):
@@ -101,7 +115,31 @@ def update_doc(doc_id, key, value):
     doc_ref.update({
         key: value
     })
+
+#  Add new class section
+def add_class(section, prof):
+    class_dict = get_doc(class_doc)
     
+    if lookup(section, class_dict) != None:
+        print("Error: Cannot add class '" + section + "' because the class already exists.")
+    else:
+        key = 'classes.' + section + '.professor'
+        update_doc(class_doc, key, prof)
+        print("Class '" + section + "' successfully added.")
+    
+#  Add new student
+def add_student(section, name):
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, student_dict) != None:
+        print("Error: Cannot add user '" + name + "' because the user already exists.")
+    else:
+        key = 'students.' + section + '.' + name + '.picture'
+        update_doc(student_doc, key, "NO PHOTO")
+        print("Student '" + name + "' successfully added.")
+   
+    
+#  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
 #  Update student attendance
 def update_student_attendance(section, name, date, time, value):
     key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
@@ -115,14 +153,36 @@ def update_student_photo(section, name, file):
     blob.upload_from_filename(file)
     #blob.make_public()
     
+    detect_faces(file)
+    
     # Update database
     key = 'students.' + section + '.' + name + '.picture'
     update_doc(student_doc, key, blob.public_url)
+    
+def remove_student_photo(section, name, file):
+    bucket = storage.bucket()
+    filename = section + '_' + name
+    blob = bucket.blob(filename)
+    if blob.exists():
+        blob.delete()
+        key = 'students.' + section + '.' + name + '.picture'
+        update_doc(student_doc, key, "NO PHOTO")
+        print("Photo for '" + name + "' deleted successfully.")
+    else:
+        print("Error: Student '" + name + "', if they exist, has no photo in the database.")
 
 
-#  Code to execute
+#  ------------------------------  TESTING CODE  ------------------------------
 reset_docs()
 get_all_docs()
+
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
 update_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+
+add_student('CSC_4996_004', 'hc2810')
+add_student('CSC_4996_001', 'hc9082')
+add_class('CSC_4996_001', 'mousavi')
+add_class('CSC_4996_004', 'mousavi')
