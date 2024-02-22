@@ -10,6 +10,7 @@ from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from pathlib import Path
 import tempfile
 import cv2
+from datetime import datetime
 from preprocess import detect_and_crop_face
 
 
@@ -108,6 +109,16 @@ def lookup(key, data):
         if isinstance(value, dict):
             return lookup(key, value)
     return None
+
+
+#  Get current date and time
+def getDate():
+    now = datetime.now()
+    return now.strftime("%m_%d_%Y")
+
+def getTime():
+    now = datetime.now()
+    return now.strftime("%H_%M_%S")
     
        
 #  Update existing document
@@ -142,7 +153,7 @@ def add_student(section, name):
     
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
 #  Update student attendance
-def update_student_attendance(section, name, date, time, value):
+def update_student_attendance(section, name, value, date = getDate(), time = getTime()):
     student_dict = get_doc(student_doc)
     
     if lookup(name, student_dict) == None:
@@ -150,6 +161,7 @@ def update_student_attendance(section, name, date, time, value):
     else:
         key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
         update_doc(student_doc, key, value)
+        print("Student '" + name + "' marked as present on " + date + " at " + time + ".")
 
 #  Update student photo
 def update_student_photo(section, name, file):
@@ -183,12 +195,15 @@ def remove_student_photo(section, name, file):
 
 
 #  ------------------------------  TESTING CODE  ------------------------------
-reset_docs()
-get_all_docs()
+print("---------------------- START DATABASE TESTING ----------------------")
+
+#reset_docs()
+#get_all_docs()
 
 #update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 add_student('CSC_4996_001', 'hi4718')
-update_student_attendance('CSC_4996_001', 'hc9082', '02_08_2024', '17_40_00', True)
+update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
+update_student_attendance('CSC_4996_001', 'hc9082', True)
 update_student_photo('CSC_4996_001', 'hc9082', 'photos/hc9082/hc9082.jpg')
 # remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 # remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
@@ -196,3 +211,5 @@ update_student_photo('CSC_4996_001', 'hc9082', 'photos/hc9082/hc9082.jpg')
 add_student('CSC_4996_004', 'hc2810')
 add_class('CSC_4996_001', 'mousavi')
 add_class('CSC_4996_004', 'mousavi')
+
+print("---------------------- END DATABASE TESTING ----------------------")

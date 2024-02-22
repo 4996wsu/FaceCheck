@@ -79,8 +79,9 @@ while True:
             else:
                 print("No recognized people in the frame.")
                 
+        # Update attendance database for all recognized students
         for name in recognized_names:
-            update_student_attendance(class_section, name, '02_08_2024', '17_40_00', True)
+            update_student_attendance(class_section, name, True)
     except Exception as e:
         print(f"Error during detection or recognition: {e}")
         continue  # Continue to the next frame
