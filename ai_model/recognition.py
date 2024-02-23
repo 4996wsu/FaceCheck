@@ -7,7 +7,7 @@ import time
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-from database import update_student_attendance
+from database import update_student_attendance, getDate, getTime
 
 def setup_device():
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -59,8 +59,10 @@ def recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list):
     return recognized_names
 
 def update_attendance(recognized_names, class_section):
+    date = getDate()
+    time = getTime()
     for name in recognized_names:
-        update_student_attendance(class_section, name, True)
+        update_student_attendance(class_section, name, True,date,time)
 
 def main():
     device = setup_device()
