@@ -24,6 +24,7 @@ db = firestore.client()
 collectionName = "infoCollection"
 class_doc = "class_doc"
 student_doc = "student_doc"
+user_doc = "user_doc"
 
 
 #  ------------------------------  MAIN FUNCTIONALITY  ------------------------------
@@ -59,12 +60,32 @@ def reset_docs():
             }
         }
     }
+    dataUser = {
+        'users': {
+            'hc9082': {
+                'picture': 'NO PHOTO',
+                'professor': False,
+                'audit log': {
+                    '02_12_2024': ['21_18_00', "Updated photo"]
+                }
+            },
+            'mousavi': {
+                'picture': 'NO PHOTO',
+                'professor': True,
+                'audit log': {
+                    '02_16_2024': ['12_35_00', "Changed password"]
+                }
+            }
+        }
+    }
 
     doc_ref = db.collection(collectionName)
     doc_ref.document(class_doc).delete()
     doc_ref.document(student_doc).delete()
+    doc_ref.document(user_doc).delete()
     doc_ref.document(class_doc).set(dataClass)
     doc_ref.document(student_doc).set(dataStudent)
+    doc_ref.document(user_doc).set(dataUser)
 
     print("Document ID: ", doc_ref.id)
     
@@ -146,8 +167,10 @@ def add_student(section, name):
     if lookup(name, student_dict) != None:
         print("Error: Cannot add user '" + name + "' because the user already exists.")
     else:
-        key = 'students.' + section + '.' + name + '.picture'
-        update_doc(student_doc, key, "NO PHOTO")
+        studentKey = 'students.' + section + '.' + name + '.picture'
+        userKey = 'users.' + name + '.picture'
+        update_doc(student_doc, studentKey, "NO PHOTO")
+        update_doc(user_doc, userKey, "NO PHOTO")
         print("Student '" + name + "' successfully added.")
    
     
@@ -174,8 +197,10 @@ def update_student_photo(section, name, file):
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
             cv2.imwrite(temp_file.name, cropped_image)
             blob.upload_from_filename(temp_file.name)
-        key = 'students.' + section + '.' + name + '.picture'
-        update_doc(student_doc, key, blob.public_url)
+        studentKey = 'students.' + section + '.' + name + '.picture'
+        userKey = 'users.' + name + '.picture'
+        update_doc(student_doc, studentKey, blob.public_url)
+        update_doc(user_doc, userKey, blob.public_url)
     else:
         print("Error: No face detected, or there was an error processing the image.")
         
@@ -187,8 +212,10 @@ def remove_student_photo(section, name, file):
     blob = bucket.blob(filename)
     if blob.exists():
         blob.delete()
-        key = 'students.' + section + '.' + name + '.picture'
-        update_doc(student_doc, key, "NO PHOTO")
+        studentKey = 'students.' + section + '.' + name + '.picture'
+        userKey = 'users.' + name + '.picture'
+        update_doc(student_doc, studentKey, "NO PHOTO")
+        update_doc(user_doc, userKey, "NO PHOTO")
         print("Photo for '" + name + "' deleted successfully.")
     else:
         print("Error: Student '" + name + "', if they exist, has no photo in the database.")
@@ -197,19 +224,19 @@ def remove_student_photo(section, name, file):
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
 
-#reset_docs()
-#get_all_docs()
+reset_docs()
+# get_all_docs()
 
-#update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
-#add_student('CSC_4996_001', 'hi4718')
-#update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
-#update_student_attendance('CSC_4996_001', 'hc9082', True)
-#update_student_photo('CSC_4996_001', 'hc9082', 'photos/hc9082/hc9082.jpg')
+# update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
+add_student('CSC_4996_001', 'hi4718')
+# update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
+# update_student_attendance('CSC_4996_001', 'hc9082', True)
+update_student_photo('CSC_4996_001', 'hc9082', 'photos/hc9082/hc9082.jpg')
 # remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 # remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
 
-#add_student('CSC_4996_004', 'hc2810')
-#add_class('CSC_4996_001', 'mousavi')
-#add_class('CSC_4996_004', 'mousavi')
+# add_student('CSC_4996_004', 'hc2810')
+# add_class('CSC_4996_001', 'mousavi')
+# add_class('CSC_4996_004', 'mousavi')
 
 print("---------------------- END DATABASE TESTING ----------------------")
