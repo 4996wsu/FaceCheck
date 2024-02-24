@@ -7,7 +7,7 @@ def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     faces, _ = mtcnn.detect(frame_rgb)
     
-    if faces is not None and len(faces) > 0:
+    if  len(faces) == 1:
         face = faces[0]
         x1, y1, x2, y2 = [int(coord) for coord in face]
         cropped_face = frame_rgb[y1:y2, x1:x2]
