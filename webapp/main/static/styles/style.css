@@ -1,0 +1,22 @@
+.navbar-brand {
+    width: 20%;
+    height: auto;
+    
+   
+}
+.navbar-nav {
+    width: 100%;
+    justify-content: flex-end;
+    
+}
+.navbar-nav .nav-item{
+    padding-right: 2rem;
+}
+.nav-item{
+    font-size: 130%;
+}
+.navbar{
+    padding: 1rem 2rem 1rem 2rem;
+    
+    
+}
