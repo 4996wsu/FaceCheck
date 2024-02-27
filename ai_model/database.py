@@ -12,6 +12,7 @@ import tempfile
 import cv2
 from datetime import datetime
 from preprocess import detect_and_crop_face
+from preprocess import encode_face
 
 
 #  Connect to firebase db
@@ -160,7 +161,7 @@ def add_class(section, prof):
         update_doc(class_doc, key, prof)
         print("Class '" + section + "' successfully added.")
     
-#  Add new student
+#  Add new student to class
 def add_student(section, name):
     student_dict = get_doc(student_doc)
     
@@ -169,7 +170,6 @@ def add_student(section, name):
     else:
         studentKey = 'students.' + section + '.' + name + '.picture'
         userKey = 'users.' + name + '.picture'
-        update_doc(student_doc, studentKey, "NO PHOTO")
         update_doc(user_doc, userKey, "NO PHOTO")
         print("Student '" + name + "' successfully added.")
    
@@ -192,15 +192,22 @@ def update_student_photo(section, name, file):
     filename = section + '_' + name
     blob = bucket.blob(filename)
     
+    # Crop student photo & upload encoding
     cropped_image = detect_and_crop_face(file)
     if cropped_image is not None:
+        # Save cropped photo to temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
             cv2.imwrite(temp_file.name, cropped_image)
             blob.upload_from_filename(temp_file.name)
-        studentKey = 'students.' + section + '.' + name + '.picture'
-        userKey = 'users.' + name + '.picture'
-        update_doc(student_doc, studentKey, blob.public_url)
-        update_doc(user_doc, userKey, blob.public_url)
+            
+        # Save encoding
+        encoding = face_encode(cropped_image)
+        
+        # Upload photo and encoding      
+        userPhotoKey = 'users.' + name + '.picture'
+        update_doc(user_doc, userPhotoKey, blob.public_url)
+        userEncodingKey = 'users.' + name + '.encoding'
+        update_doc(user_doc, userEncodingKey, encoding)
     else:
         print("Error: No face detected, or there was an error processing the image.")
         
@@ -212,11 +219,13 @@ def remove_student_photo(section, name, file):
     blob = bucket.blob(filename)
     if blob.exists():
         blob.delete()
-        studentKey = 'students.' + section + '.' + name + '.picture'
+
+        # Remove photo and encoding
         userKey = 'users.' + name + '.picture'
-        update_doc(student_doc, studentKey, "NO PHOTO")
         update_doc(user_doc, userKey, "NO PHOTO")
         print("Photo for '" + name + "' deleted successfully.")
+        
+        # Add encoding removal here
     else:
         print("Error: Student '" + name + "', if they exist, has no photo in the database.")
 
