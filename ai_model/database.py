@@ -11,7 +11,7 @@ from pathlib import Path
 import tempfile
 import cv2
 from datetime import datetime
-from preprocess import detect_and_crop_face, face_encode
+from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from recognition import setup_device
 # from preprocess import encode_face
 
@@ -239,6 +239,7 @@ def retrieve_file(name, filetype):
     blob = bucket.blob(name + filetype)
     if blob.exists():
         doc = get_doc(user_doc)
+        print("Retrieve filetyped '" + filetype + "' for user '" + name + "'.")
         return doc['users'][name][filetype]
     print("Error: Cannot retrieve filetype '" + filetype + "' for user '" + name + "'.")
     return None
