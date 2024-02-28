@@ -66,6 +66,7 @@ def reset_docs():
         'users': {
             'hc9082': {
                 'picture': 'NO PHOTO',
+                'encoding': 'NO ENCODING',
                 'professor': False,
                 'audit log': {
                     '02_12_2024': ['21_18_00', "Updated photo"]
@@ -73,6 +74,7 @@ def reset_docs():
             },
             'mousavi': {
                 'picture': 'NO PHOTO',
+                'encoding': 'NO ENCODING',
                 'professor': True,
                 'audit log': {
                     '02_16_2024': ['12_35_00', "Changed password"]
@@ -173,6 +175,8 @@ def add_student(section, name):
         update_doc(student_doc, studentKey, "NO PHOTO")
         userKey = 'users.' + name + '.picture'
         update_doc(user_doc, userKey, "NO PHOTO")
+        userKey = 'users.' + name + '.encoding'
+        update_doc(user_doc, userKey, "NO ENCODING")
         
         print("Student '" + name + "' successfully added.")
    
@@ -234,15 +238,15 @@ def remove_student_photo(name):
 
 # Retrieve file from Firebase storage (filetype is 'picture' or 'encoding')
 def retrieve_file(name, filetype): 
-    # Check to see if the file for the user exists
-    bucket = storage.bucket()
-    blob = bucket.blob(name + filetype)
-    if blob.exists():
-        doc = get_doc(user_doc)
-        print("Retrieve filetyped '" + filetype + "' for user '" + name + "'.")
-        return doc['users'][name][filetype]
-    print("Error: Cannot retrieve filetype '" + filetype + "' for user '" + name + "'.")
-    return None
+    doc = get_doc(user_doc)
+
+    # Debug message
+    if (doc['users'][name][filetype] == 'NO ENCODING'):
+        print("Error: Cannot retrieve filetype '" + filetype + "' for user '" + name + "'.")
+    else:
+        print("Retrieved filetype '" + filetype + "' for user '" + name + "'.")
+        
+    return doc['users'][name][filetype]
 
 
 # Retrieve array of names for all students in a class section
@@ -254,10 +258,11 @@ def retrieve_names_from_class(section):
 # Retrieve all encodings for a class section
 def retrieve_encodings_from_class(section):
     names = retrieve_names_from_class(section)
-    encodings = []
+    encoding_list = []
     for name in names:
-        encodings.append(retrieve_file(name, '.pt'))
-    return encodings
+        encoding_list.append(retrieve_file(name, 'encoding'))
+        
+    return encoding_list
 
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
@@ -269,7 +274,7 @@ print("---------------------- START DATABASE TESTING ----------------------")
 # add_student('CSC_4996_001', 'hi4718')
 # update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
 # update_student_attendance('CSC_4996_001', 'hc9082', True)
-update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
+# update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
@@ -277,8 +282,8 @@ update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
 # add_class('CSC_4996_001', 'mousavi')
 # add_class('CSC_4996_004', 'mousavi')
 
-print(retrieve_file('hc9082', 'picture'))
-#print(retrieve_names())
+# print(retrieve_file('hc9082', 'picture'))
+# print(retrieve_names())
 retrieve_encodings_from_class('CSC_4996_001')
 
 print("---------------------- END DATABASE TESTING ----------------------")
