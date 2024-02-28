@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.conf import settings
 
 # Create your views here.
 def home(request):
@@ -31,7 +32,7 @@ def sign_up(request):
             send_mail(
                 'Your OTP',
                 f'Your OTP is {otp}',
-                'facecheckwayne@gmail.com',
+                settings.DEFAULT_FROM_EMAIL,
                 [form.cleaned_data.get('email')],
                 fail_silently=False,
             )
@@ -41,8 +42,6 @@ def sign_up(request):
     else:
         form = RegisterForm()
     return render(request, 'registration/sign_up.html', {'form': form})
-
-
 
 def otp_verification(request):
     if request.method == 'POST':
@@ -74,6 +73,4 @@ def otp_verification(request):
         else:
             messages.error(request, 'OTP verification failed. Please sign up again.')
             return redirect('signup')
-
     return render(request, 'registration/otp_verification.html')
-

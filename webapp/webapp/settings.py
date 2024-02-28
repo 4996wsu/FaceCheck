@@ -118,7 +118,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'facecheckwayne@gmail.com'
-EMAIL_HOST_PASSWORD = 'oirp iefx rewd ehun'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 YOUR_GENERATED_APP_PASSWORD = 'oirp iefx rewd ehun'
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
