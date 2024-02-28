@@ -23,19 +23,40 @@
         <!--  Navigation bar -->
         
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <img class="navbar-brand" src= "{% static 'images/FaceCheck.png' %}" alt="FaceCheck logo">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+          <div class="container-fluid"> <!-- Wrap navbar contents in a container -->
+              <img class="navbar-brand" src="{% static 'images/FaceCheck.png' %}" alt="FaceCheck logo">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
               </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-              <div class="navbar-nav">
-                <a class="nav-item nav-link active" href="#">Home </a>
-                <a class="nav-item nav-link" href="#">Stats</a>
-                <a class="nav-item nav-link" href="#">Enrollment</a>
-                <a class="nav-item nav-link disabled" href="#">Login</a>
-              </div>
-            </div>
-          </nav>
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                  <ul class="navbar-nav">
+                      <li class="nav-item ms-auto">
+                          <a class="nav-link d-flex align-items-center" href="/home">Home</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link d-flex align-items-center" href="/stats">Statistics</a>
+                      </li> 
+                      <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="/enrollment">Enrollment</a>
+                    </li>
+                  {% if user.is_authenticated %}
+                  <span class="navbar-text ms-auto">Logged in as {{ user.username }} |</span>
+                  <li class="nav-item">
+                      <form method="post" action="{% url 'logout' %}">
+                          {% csrf_token %}
+                          <button type="submit" class="nav-link btn btn-link">Logout</button>
+                      </form>
+                  </li>
+                  {% else %}
+                  <li class="nav-item ms-auto">
+                      <a class="nav-link" href="{% url 'login' %}">Login</a>
+                  </li>
+                  {% endif %}
+                  </ul>
+          </div>
+      </nav>
+      
+      
         <br>
         
         <div class = "container">
