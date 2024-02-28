@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
+{% load static %}
+    
     <!--  HEAD  -->
     <head>
         <meta charset="UTF-8">
@@ -43,6 +44,10 @@
                             <a class = "nav-link" href = "/stats">Statistics</a>
                         </li>
                     </ul>
+                </div>
+                <!--  FaceCheck logo **FIX THIS** -->
+                <div>
+                    <img src= "{% static 'images/FaceCheck.png' %}" alt="FaceCheck logo">
                 </div>
                 <!--  Navigate to login page  -->
                 <div>
