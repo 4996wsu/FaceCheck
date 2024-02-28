@@ -8,7 +8,8 @@ import io
 
 import firebase_admin
 from firebase_admin import credentials
-
+import torch
+import torchvision.transforms as transforms
 # Path to your Firebase service account JSON file
 cred_path = 'db_credentials.json'
 
@@ -34,8 +35,7 @@ def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-import torch
-import torchvision.transforms as transforms
+
 
 def face_encode(cropped_face, device):
     embedding_list = [] 
