@@ -20,18 +20,26 @@ cred_path = 'db_credentials.json'
 def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709):
     mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
     frame = cv2.imread(image_path)
+    if frame is None:
+        raise FileNotFoundError(f"The specified image_path does not exist or is not accessible: {image_path}")
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     faces, _ = mtcnn.detect(frame_rgb)
     
-    if  len(faces) == 1:
+    if faces is not None and len(faces) == 1:
         face = faces[0]
         x1, y1, x2, y2 = [int(coord) for coord in face]
+        # Ensure coordinates are within image bounds
+        x1, y1 = max(0, x1), max(0, y1)
+        x2, y2 = min(frame_rgb.shape[1], x2), min(frame_rgb.shape[0], y2)
+        if x2 <= x1 or y2 <= y1:
+            return None  # Invalid crop dimensions
         cropped_face = frame_rgb[y1:y2, x1:x2]
+        if cropped_face.size == 0:
+            return None  # Cropped face is empty
         cropped_face_bgr = cv2.cvtColor(cropped_face, cv2.COLOR_RGB2BGR)
         return cropped_face_bgr
     else:
         return None
-    
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
