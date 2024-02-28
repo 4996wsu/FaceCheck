@@ -14,8 +14,8 @@ import torchvision.transforms as transforms
 cred_path = 'db_credentials.json'
 
 # Initialize the Firebase Admin SDK
-cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
+#cred = credentials.Certificate(cred_path)
+#firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
 
 def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709):
     mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
@@ -85,8 +85,8 @@ cropped_face = detect_and_crop_face('photos/hc9082/hc9082.jpg')
 name_list=['hc9082']
 
 if cropped_face is not None:
-    embedding_list=face_encode(cropped_face, device)
-    make_pt_file(embedding_list, name_list)
+    #embedding_list=face_encode(cropped_face, device)
+    #make_pt_file(embedding_list, name_list)
     cv2.imwrite('cropped_face.jpg', cropped_face)
 else:
     print("No face detected.")

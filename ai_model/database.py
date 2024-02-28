@@ -12,7 +12,7 @@ import tempfile
 import cv2
 from datetime import datetime
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
-from recognition import setup_device
+import torch
 # from preprocess import encode_face
 
 
@@ -204,7 +204,7 @@ def update_student_photo(name, file):
             imageBlob.upload_from_filename(temp_file.name)
             
         # Save encoding to temporary location and upload
-        embedding_link = make_pt_file(face_encode(cropped_image, setup_device), name_list)
+        embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
         # Upload photo and encoding      
         userPhotoKey = 'users.' + name + '.picture'
