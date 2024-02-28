@@ -193,7 +193,7 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
 def update_student_photo(name, file):
     bucket = storage.bucket()
     imageBlob = bucket.blob(name + "_photo")
-    encodingBlob = bucket.blob(name + "_encoding")
+    name_list = [name]
     
     # Crop student photo & upload encoding
     cropped_image = detect_and_crop_face(file)
@@ -204,16 +204,13 @@ def update_student_photo(name, file):
             imageBlob.upload_from_filename(temp_file.name)
             
         # Save encoding to temporary location and upload
-        encoding = face_encode(cropped_image)
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pt') as temp_file:
-            cv2.imwrite(temp_file.name, encoding)
-            encodingBlob.upload_from_filename(temp_file.name)
+        embedding_link = make_pt_file(face_encode(cropped_image, setup_device), name_list)
         
         # Upload photo and encoding      
         userPhotoKey = 'users.' + name + '.picture'
         update_doc(user_doc, userPhotoKey, imageBlob.public_url)
         userEncodingKey = 'users.' + name + '.encoding'
-        update_doc(user_doc, userEncodingKey, encodingBlob.public_url)
+        update_doc(user_doc, userEncodingKey, embedding_link)
     else:
         print("Error: No face detected, or there was an error processing the image.")
         
@@ -239,7 +236,7 @@ def remove_student_photo(name):
 def retrieve_file(name, filetype): 
     # Check to see if the file for the user exists
     bucket = storage.bucket()
-    blob = bucket.blob(name + "_" + filetype)
+    blob = bucket.blob(name + filetype)
     if blob.exists():
         doc = get_doc(user_doc)
         return doc['users'][name][filetype]
@@ -258,7 +255,7 @@ def retrieve_encodings_from_class(section):
     names = retrieve_names_from_class(section)
     encodings = []
     for name in names:
-        encodings.append(retrieve_file(name, 'encoding'))
+        encodings.append(retrieve_file(name, '.pt'))
     return encodings
 
 #  ------------------------------  TESTING CODE  ------------------------------
