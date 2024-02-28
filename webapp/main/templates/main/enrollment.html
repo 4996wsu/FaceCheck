@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Statistics Page{% endblock %}
+
+{% block content %}
+<h1>Enroll Yourself</h1>
+<!-- Enroll Now Button -->
+<button id="enrollButton">Enroll Now</button>
+
+<!-- Hidden file input for image upload -->
+<input type="file" id="imageUpload" accept=".img, .jpg, .jpeg" style="display: none;"/>
+
+<script>
+    // JavaScript to handle button click and show file input
+    document.getElementById('enrollButton').addEventListener('click', function() {
+        document.getElementById('imageUpload').click(); // Simulate click on the file input
+    });
+
+    // Optional: Add an event listener to handle the file once selected
+    document.getElementById('imageUpload').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Here, you can handle the file. For example, you might want to upload it to a server.
+            console.log("File selected:", file.name);
+            // Implement the upload logic here
+        }
+    });
+</script>
+{% endblock %}

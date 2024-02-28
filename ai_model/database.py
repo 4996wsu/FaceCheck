@@ -11,7 +11,8 @@ from pathlib import Path
 import tempfile
 import cv2
 from datetime import datetime
-from preprocess import detect_and_crop_face
+from preprocess import detect_and_crop_face, face_encode
+from recognition import setup_device
 # from preprocess import encode_face
 
 

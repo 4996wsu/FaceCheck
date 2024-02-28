@@ -20,3 +20,5 @@ def sign_up(request):
         form = RegisterForm()
     
     return render(request, 'registration/sign_up.html', {"form": form})
+def enroll(request):
+    return render(request, 'main/enrollment.html')  

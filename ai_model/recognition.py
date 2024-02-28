@@ -7,6 +7,7 @@ import time
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+# Assuming 'update_student_attendance', 'getDate', and 'getTime' are defined in 'database.py'
 from database import update_student_attendance, getDate, getTime
 
 def setup_device():
@@ -32,12 +33,14 @@ def prepare_data(device, mtcnn, resnet):
         img = img.convert('RGB')
         face, prob = mtcnn(img, return_prob=True)
         if face is not None and prob > 0.92:
+            # Assuming MTCNN returns a list of faces, take the first one
+            face = face[0]  # Adjusted to ensure the tensor has the correct shape
             emb = resnet(face.unsqueeze(0).to(device))
             embedding_list.append(emb.detach())
             name_list.append(idx_to_class[idx])
 
     torch.save([embedding_list, name_list], 'data.pt')
-    return [embedding_list, name_list]
+    return embedding_list, name_list
 
 def recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list):
     img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -62,7 +65,7 @@ def update_attendance(recognized_names, class_section):
     date = getDate()
     time = getTime()
     for name in recognized_names:
-        update_student_attendance(class_section, name, True,date,time)
+        update_student_attendance(class_section, name, True, date, time)
 
 def main():
     device = setup_device()
