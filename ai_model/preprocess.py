@@ -89,12 +89,12 @@ def make_pt_file(embedding_list, name_list):
     print(url)
     return url
     
-cropped_face = detect_and_crop_face('photos/hc9082/hc9082.jpg')
-name_list=['hc9082']
+#cropped_face = detect_and_crop_face('photos/hc9082/hc9082.jpg')
+#name_list=['hc9082']
 
-if cropped_face is not None:
+#if cropped_face is not None:
     #embedding_list=face_encode(cropped_face, device)
     #make_pt_file(embedding_list, name_list)
     cv2.imwrite('cropped_face.jpg', cropped_face)
-else:
+#else:
     print("No face detected.")

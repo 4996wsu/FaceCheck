@@ -277,7 +277,7 @@ print("---------------------- START DATABASE TESTING ----------------------")
 # update_student_attendance('CSC_4996_001', 'hc9082', True)
 #update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
 #update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
-update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
+#update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
@@ -287,6 +287,6 @@ update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
 
 # print(retrieve_file('hc9082', 'picture'))
 # print(retrieve_names())
-retrieve_encodings_from_class('CSC_4996_001')
+#retrieve_encodings_from_class('CSC_4996_001')
 
 print("---------------------- END DATABASE TESTING ----------------------")

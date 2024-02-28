@@ -8,3 +8,5 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["username","email","password1", "password2"]
+class ImageUploadForm(forms.Form):
+    image = forms.ImageField(label='Upload image')
