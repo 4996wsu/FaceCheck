@@ -12,7 +12,7 @@ import tempfile
 import cv2
 from datetime import datetime
 from preprocess import detect_and_crop_face
-from preprocess import encode_face
+# from preprocess import encode_face
 
 
 #  Connect to firebase db
@@ -169,8 +169,10 @@ def add_student(section, name):
         print("Error: Cannot add user '" + name + "' because the user already exists.")
     else:
         studentKey = 'students.' + section + '.' + name + '.picture'
+        update_doc(student_doc, studentKey, "NO PHOTO")
         userKey = 'users.' + name + '.picture'
         update_doc(user_doc, userKey, "NO PHOTO")
+        
         print("Student '" + name + "' successfully added.")
    
     
@@ -187,36 +189,38 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
         print("Student '" + name + "' marked as present on " + date + " at " + time + ".")
 
 #  Update student photo
-def update_student_photo(section, name, file):
+def update_student_photo(name, file):
     bucket = storage.bucket()
-    filename = section + '_' + name
-    blob = bucket.blob(filename)
+    imageBlob = bucket.blob(name + "_photo")
+    encodingBlob = bucket.blob(name + "_encoding")
     
     # Crop student photo & upload encoding
     cropped_image = detect_and_crop_face(file)
     if cropped_image is not None:
-        # Save cropped photo to temporary location
+        # Save cropped photo to temporary location and upload
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
             cv2.imwrite(temp_file.name, cropped_image)
-            blob.upload_from_filename(temp_file.name)
+            imageBlob.upload_from_filename(temp_file.name)
             
-        # Save encoding
+        # Save encoding to temporary location and upload
         encoding = face_encode(cropped_image)
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pt') as temp_file:
+            cv2.imwrite(temp_file.name, encoding)
+            encodingBlob.upload_from_filename(temp_file.name)
         
         # Upload photo and encoding      
         userPhotoKey = 'users.' + name + '.picture'
-        update_doc(user_doc, userPhotoKey, blob.public_url)
+        update_doc(user_doc, userPhotoKey, imageBlob.public_url)
         userEncodingKey = 'users.' + name + '.encoding'
-        update_doc(user_doc, userEncodingKey, encoding)
+        update_doc(user_doc, userEncodingKey, encodingBlob.public_url)
     else:
         print("Error: No face detected, or there was an error processing the image.")
         
     
 #  Remove student photo
-def remove_student_photo(section, name, file):
+def remove_student_photo(name):
     bucket = storage.bucket()
-    filename = section + '_' + name
-    blob = bucket.blob(filename)
+    blob = bucket.blob(name + "_photo")
     if blob.exists():
         blob.delete()
 
@@ -230,22 +234,52 @@ def remove_student_photo(section, name, file):
         print("Error: Student '" + name + "', if they exist, has no photo in the database.")
 
 
+# Retrieve file from Firebase storage (filetype is 'picture' or 'encoding')
+def retrieve_file(name, filetype): 
+    # Check to see if the file for the user exists
+    bucket = storage.bucket()
+    blob = bucket.blob(name + "_" + filetype)
+    if blob.exists():
+        doc = get_doc(user_doc)
+        return doc['users'][name][filetype]
+    print("Error: Cannot retrieve filetype '" + filetype + "' for user '" + name + "'.")
+    return None
+
+
+# Retrieve array of names for all students in a class section
+def retrieve_names_from_class(section): 
+    doc = get_doc(student_doc)    
+    return list(doc['students'][section].keys())
+    
+    
+# Retrieve all encodings for a class section
+def retrieve_encodings_from_class(section):
+    names = retrieve_names_from_class(section)
+    encodings = []
+    for name in names:
+        encodings.append(retrieve_file(name, 'encoding'))
+    return encodings
+
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
 
-reset_docs()
+# reset_docs()
 # get_all_docs()
 
 # update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
-add_student('CSC_4996_001', 'hi4718')
+# add_student('CSC_4996_001', 'hi4718')
 # update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
 # update_student_attendance('CSC_4996_001', 'hc9082', True)
-update_student_photo('CSC_4996_001', 'hc9082', 'photos/hc9082/hc9082.jpg')
-# remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
-# remove_student_photo('CSC_4996_001', 'hc9082', 'C:/Users/aafna/Desktop/photo.jpeg')
+update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
+# remove_student_photo('hc9082')
+# remove_student_photo('hc9082')
 
 # add_student('CSC_4996_004', 'hc2810')
 # add_class('CSC_4996_001', 'mousavi')
 # add_class('CSC_4996_004', 'mousavi')
+
+print(retrieve_file('hc9082', 'picture'))
+#print(retrieve_names())
+retrieve_encodings_from_class('CSC_4996_001')
 
 print("---------------------- END DATABASE TESTING ----------------------")
