@@ -1,4 +1,8 @@
 from django.shortcuts import render, redirect
+
+from database import update_student_photo
+from preprocess import detect_and_crop_face, face_encode, make_pt_file
+
 from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render
@@ -11,6 +15,7 @@ import tempfile
 from django.shortcuts import render, redirect
 from .forms import ImageUploadForm
 from django.http import HttpResponse
+
 # Create your views here.
 def home(request):
     return render(request, 'main/home.html')
@@ -46,6 +51,7 @@ def upload_image_to_firebase(file):
         file.read(),
         content_type=file.content_type
     )
+    blob.make_public()
     return blob.public_url
 
 def enroll(request):
@@ -54,6 +60,8 @@ def enroll(request):
         if form.is_valid():
             image = form.cleaned_data['image']
             image_url = upload_image_to_firebase(image)
+            update_student_photo('hc9082', image_url)
+            print("Successfully uploaded image to database")
             return HttpResponse(f"Image Uploaded Successfully. URL: {image_url}")
         else:
             return HttpResponse("Invalid form.")
