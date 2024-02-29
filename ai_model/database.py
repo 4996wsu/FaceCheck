@@ -261,9 +261,11 @@ def retrieve_encodings_from_class(section):
     names = retrieve_names_from_class(section)
     encoding_list = []
     for name in names:
-        encoding_list.append(retrieve_file(name, 'encoding'))
+        retrieved_encoding = retrieve_file(name, 'encoding')
+        if retrieved_encoding == 'NO ENCODING':
+            encoding_list.append(retrieved_encoding)
         
-    return encoding_list
+    return encoding_list 
 
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
