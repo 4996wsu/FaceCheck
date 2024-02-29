@@ -61,7 +61,6 @@ def delete_file_from_firebase(file_name):
     blob = bucket.blob(file_name)
     blob.delete()
 
-
 def enroll(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
