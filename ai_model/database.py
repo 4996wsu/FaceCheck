@@ -36,6 +36,7 @@ def reset_docs():
         'classes': {
             'CSC_4996_001': {
                 'professor': 'mousavi',
+                'class_encoding': 'NO ENCODING',
                 'schedule': {
                     'Tuesday': ['17_30', '18_45'],
                     'Thursday': ['17_30', '20_40']
@@ -193,10 +194,28 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
         update_doc(student_doc, key, value)
         print("Student '" + name + "' marked as present on " + date + " at " + time + ".")
 
+
+#  Update class encoding
+def update_class_encoding(section, file):
+    bucket = storage.bucket()
+    blob = bucket.blob(section + "_encoding")
+    blob.make_public()
+    
+    # Save embedding to temporary location and upload
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pt') as temp_file:
+        cv2.imwrite(temp_file.name, file)
+        blob.upload_from_filename(temp_file.name)
+        
+    # Upload
+    key = 'classes.' + section + '.encoding'
+    update_doc(class_doc, key, blob.public_url)
+
+
 #  Update student photo
 def update_student_photo(name, file):
     bucket = storage.bucket()
     imageBlob = bucket.blob(name + "_photo")
+    imageBlob.make_public()
     name_list = [name]
     
     # Crop student photo & upload encoding
@@ -248,6 +267,18 @@ def retrieve_file(name, filetype):
         print("Retrieved filetype '" + filetype + "' for user '" + name + "'.")
         
     return doc['users'][name][filetype]
+
+# Retrieve class embedding file from Firebase storage
+def retrieve_class_embedding(section): 
+    doc = get_doc(class_doc)
+
+    # Debug message
+    if (doc['classes'][section]['class_encoding'] == 'NO ENCODING'):
+        print("Error: Cannot retrieve filetype class encoding for class '" + section + "'.")
+    else:
+        print("Retrieved class encoding for class '" + section + "'.")
+        
+    return doc['classes'][section]['class_encoding']
 
 
 # Retrieve array of names for all students in a class section
