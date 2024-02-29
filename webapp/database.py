@@ -152,8 +152,10 @@ def update_student_photo(name, file):
         userEncodingKey = 'users.' + name + '.encoding'
         update_doc(user_doc, userEncodingKey, embedding_link)
         print("Face uploaded.")
+        return 'Success'
     else:
         print("Error: No face detected, or there was an error processing the image.")
+        return None
         
     
 #  Remove student photo

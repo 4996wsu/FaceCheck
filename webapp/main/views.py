@@ -69,9 +69,16 @@ def enroll(request):
             image = form.cleaned_data['image']
             image_url = upload_image_to_firebase(image)
             name = request.user.username
-            update_student_photo(name, image_url)
+            
+            result = update_student_photo(name, image_url)
             delete_file_from_firebase(image.name)
-            # Add success message            
+            # Success message and error handling        
+            
+            if result == None:
+                messages.warning(request, 'Photo is invalid. Please upload a photo with one face in it.')
+            else:
+                messages.warning(request, 'Successfully uploaded photo.')
+            
             return render(request, 'main/enrollment.html', {'form': form})
 
         else:
