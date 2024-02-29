@@ -262,14 +262,14 @@ def retrieve_encodings_from_class(section):
     encoding_list = []
     for name in names:
         retrieved_encoding = retrieve_file(name, 'encoding')
-        if retrieved_encoding == 'NO ENCODING':
+        if retrieved_encoding != 'NO ENCODING':
             encoding_list.append(retrieved_encoding)
-        
+    print(encoding_list)
     return encoding_list 
 
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
-
+retrieve_encodings_from_class('CSC_4996_001')
 # reset_docs()
 # get_all_docs()
 

@@ -143,7 +143,6 @@ def update_student_photo(name, file):
             cv2.imwrite(temp_file.name, cropped_image)
             imageBlob.upload_from_filename(temp_file.name)
             
-        # Save encoding to temporary location and upload
         embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
         # Upload photo and encoding      
@@ -198,9 +197,9 @@ def retrieve_encodings_from_class(section):
     encoding_list = []
     for name in names:
         retrieved_encoding = retrieve_file(name, 'encoding')
-        if retrieved_encoding == 'NO ENCODING':
+        if retrieved_encoding != 'NO ENCODING':
             encoding_list.append(retrieved_encoding)
-        
+    
     return encoding_list 
 
 #  ------------------------------  TESTING CODE  ------------------------------
