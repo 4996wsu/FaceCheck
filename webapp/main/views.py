@@ -42,10 +42,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.contrib import messages
 
 def upload_image_to_firebase(file):
     # Create a Firebase Storage reference
     bucket = storage.bucket()
+
     blob = bucket.blob( file.name)
     blob.upload_from_string(
         file.read(),
@@ -54,15 +56,24 @@ def upload_image_to_firebase(file):
     blob.make_public()
     return blob.public_url
 
+def delete_file_from_firebase(file_name):
+    bucket = storage.bucket()
+    blob = bucket.blob(file_name)
+    blob.delete()
+
+
 def enroll(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
             image = form.cleaned_data['image']
             image_url = upload_image_to_firebase(image)
-            update_student_photo('hc9082', image_url)
-            print("Successfully uploaded image to database")
-            return HttpResponse(f"Image Uploaded Successfully. URL: {image_url}")
+            name = request.user.username
+            update_student_photo(name, image_url)
+            delete_file_from_firebase(image.name)
+            # Add success message            
+            return render(request, 'main/enrollment.html', {'form': form})
+
         else:
             return HttpResponse("Invalid form.")
     else:
