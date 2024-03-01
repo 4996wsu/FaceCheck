@@ -300,17 +300,19 @@ def retrieve_encodings_from_class(section):
 
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
-retrieve_encodings_from_class('CSC_4996_001')
 # reset_docs()
+
+# retrieve_encodings_from_class('CSC_4996_001')
+retrieve_class_embedding('CSC_4996_001')
 # get_all_docs()
 
 # update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
 # add_student('CSC_4996_001', 'hi6576')
 # update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
 # update_student_attendance('CSC_4996_001', 'hc9082', True)
-#update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
-#update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
-#update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
+update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
+update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
+update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
