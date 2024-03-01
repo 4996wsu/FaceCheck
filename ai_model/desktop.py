@@ -33,20 +33,12 @@ def resource_path(relative_path):
 
 def class_section_validation(class_section):
     
-    # revised code
     doc = get_doc("class_doc")
     class_list = list(doc['classes'].keys())
     if class_section in class_list:
-        return True
-    return False
-    
-    # old code
-    doc_ref = db.collection('classes').document("class_doc")
-    doc=doc_ref.get()
-    if doc.exists:
-        print(f'Document data: {doc.to_dict()}' )
-        return True, doc.to_dict()
+        return True, doc['classes'][class_section]
     return False, None
+
 class_section_validation('CSC_4996_001')
 
 def time_validation(class_info):
@@ -70,6 +62,7 @@ def time_validation(class_info):
 def attempt_start_attendance():
     class_section = class_section_entry.get().upper()
     exists, class_data = class_section_validation(class_section)
+    print(class_data)
     
     if not exists:
         messagebox.showerror("Error", "Class section does not exist. Please enter a valid one.")
