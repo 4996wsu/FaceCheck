@@ -8,6 +8,7 @@ import os
 import sys
 import threading  # For running the attendance process without freezing the GUI
 import time
+from database import get_doc
 from recognition import setup_device, load_models, prepare_data, recognize_faces, update_attendance
 from firebase_admin import firestore, credentials, initialize_app
 from pathlib import Path
@@ -31,6 +32,15 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def class_section_validation(class_section):
+    
+    # revised code
+    doc = get_doc("class_doc")
+    class_list = list(doc['classes'].keys())
+    if class_section in class_list:
+        return True
+    return False
+    
+    # old code
     doc_ref = db.collection('classes').document("class_doc")
     doc=doc_ref.get()
     if doc.exists:
