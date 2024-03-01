@@ -78,6 +78,7 @@ def start_attendance(class_section):
     def attendance_process():
         device = setup_device()
         mtcnn, resnet = load_models(device)
+        
         embedding_list, name_list = prepare_data(device, mtcnn, resnet)
         cam = cv2.VideoCapture(0)
 
