@@ -10,6 +10,7 @@ urlpatterns = [
     path('stats', views.stats, name= 'stats'),
     path('sign-up', views.sign_up, name= 'sign_up'),
     path('logout/', LogoutView.as_view(next_page='/home'), name='logout'),
+     path('otp-verification/', views.otp_verification, name='otp_verification')
 ]
 
 urlpatterns += staticfiles_urlpatterns()
