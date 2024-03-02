@@ -24,3 +24,5 @@ class RegisterForm(UserCreationForm):
         if not email.endswith('@wayne.edu'):
             raise ValidationError('You must use a wayne.edu email address')
         return email
+class ImageUploadForm(forms.Form):
+    image = forms.ImageField(label='Upload image')

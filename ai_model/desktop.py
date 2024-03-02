@@ -1,13 +1,31 @@
 import tkinter as tk
-from tkinter import Label, Button
+from tkinter import Label, Button, Entry, messagebox
 from PIL import Image, ImageTk
 import cv2
-import numpy as np
 import torch
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import os
 import sys
+import threading  # For running the attendance process without freezing the GUI
+import time
+from database import combine_pt_files,download_file_combine
+from database import retrieve_encodings_from_class,retrieve_class_embedding,retrieve_encodings_from_class,update_class_encoding,download_pt_file_student
+from database import get_doc
+from recognition import setup_device, load_models, prepare_data, recognize_faces, update_attendance
+from firebase_admin import firestore, credentials, initialize_app
+from pathlib import Path
+import firebase_admin
+from datetime import datetime, timedelta
+import numpy as np
 
+
+# Only initialize the app if it hasn't been initialized already
+if not firebase_admin._apps:
+    cred_path = 'db_credentials.json'  # Ensure the credential file path is correct
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
+
+db = firestore.client()
 # Function to handle resource paths (for PyInstaller)
 def resource_path(relative_path):
     try:
@@ -16,64 +34,95 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
+def class_section_validation(class_section):
+    
+    doc = get_doc("class_doc")
+    class_list = list(doc['classes'].keys())
+    if class_section in class_list:
+        return True, doc['classes'][class_section]
+    return False, None
+
+class_section_validation('CSC_4996_001')
+
+def time_validation(class_info):
+    now = datetime.now()
+    week_day = now.strftime("%A")
+    if week_day in class_info['schedule']:  # This line is corrected
+        class_start_new = class_info['schedule'][week_day][0].replace('.', ':')
+        class_end_new = class_info['schedule'][week_day][1].replace('.', ':')
+
+        class_start_time = datetime.strptime(class_start_new, '%H:%M')
+        class_end_time = datetime.strptime(class_end_new, '%H:%M')
+
+        class_start_time = now.replace(hour=class_start_time.hour, minute=class_start_time.minute, second=0, microsecond=0)
+        class_end_time = now.replace(hour=class_end_time.hour, minute=class_end_time.minute, second=0, microsecond=0)
+
+        if class_start_time - timedelta(minutes=15) <= now <= class_end_time:
+            return True
+    return False
+
+
+
+
+
+# GUI function to handle start attendance
+def attempt_start_attendance():
+    class_section = class_section_entry.get().upper()
+    exists, class_data = class_section_validation(class_section)
+    
+    if not exists:
+        messagebox.showerror("Error", "Class section does not exist. Please enter a valid one.")
+        return
+    
+    # Assuming time_validation is not needed for this fix, but you can uncomment and adjust as necessary.
+    # if not time_validation(class_data):
+    #     messagebox.showerror("Error", "It is not the time for this class. Please check the schedule.")
+    #     return
+
+    # Proceed if class encoding exists, otherwise combine files and start attendance
+    if retrieve_class_embedding(class_section) != "NO ENCODING":
+        download_file_combine(retrieve_class_embedding(class_section), f'{class_section}.pt')
+    else:
+        combine_pt_files(class_section)
+
+    # Start the attendance process
+    threading.Thread(target=start_attendance, args=(class_section,)).start()
 # Function to start attendance process
-def start_attendance():
-    # Load face encodings and names
-    data = np.load('face_encodings.npy', allow_pickle=True).item()
-    names = list(data.keys())
-    encodings = [torch.Tensor(encoding) for encoding in list(data.values())]
+# Function to start attendance process, adjusted to work with combined data.
+def start_attendance(class_section):
+    def attendance_process():
+        device = setup_device()
+        mtcnn, resnet = load_models(device)
+        
+        # Assuming `prepare_data` is adjusted to load the combined .pt file correctly.
+        embedding_list, name_list = torch.load('hi4718.pt', map_location=device)
+        print(embedding_list)
+        print(name_list)
+        
+        cam = cv2.VideoCapture(0)
+        while True:
+            ret, frame = cam.read()
+            if not ret:
+                print("Failed to grab frame, try again")
+                continue
 
-    # Initialize MTCNN and InceptionResnetV1
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    mtcnn = MTCNN(image_size=160, margin=0, keep_all=True, device=device)
-    resnet = InceptionResnetV1(pretrained=None).eval().to(device)
+            recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
+            if recognized_names:
+                print(f"Recognized {len(recognized_names)} faces: {', '.join(recognized_names)}")
+                update_attendance(recognized_names, class_section)  # Removed .get() as class_section is already a string
+            else:
+                print("No recognized people in the frame.")
 
-    # Load the fine-tuned model
-    model_path = 'trained_face_encoding_model_2.pt'  # Update this path to your fine-tuned model
-    resnet.load_state_dict(torch.load(model_path, map_location=device))
-    resnet.classify = False  # Ensure the model is set to return embeddings
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-    cam = cv2.VideoCapture(0)
+            time.sleep(10)  # Wait for 10 seconds before capturing the next frame
 
-    while True:
-        ret, frame = cam.read()
-        if not ret:
-            print("Fail to grab frame, try again")
-            break
+        cam.release()
+        cv2.destroyAllWindows()
 
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        img = Image.fromarray(frame_rgb)
+    threading.Thread(target=attendance_process).start()
 
-        # Detect faces
-        boxes, _ = mtcnn.detect(img)
-        if boxes is not None:
-            faces = mtcnn(img)
-
-            for face, box in zip(faces, boxes):
-                face = face.to(device)  # Ensure the face tensor is on the same device as the model
-                emb = resnet(face.unsqueeze(0)).detach().cpu()
-
-                # Compare face encoding with known encodings
-                dists = [torch.norm(emb - encoding, p=2).item() for encoding in encodings]
-                min_dist = min(dists)
-                idx = dists.index(min_dist)
-
-                name = "Unknown"
-                if min_dist < 0.9:  # Threshold for matching, adjust based on your fine-tuning results
-                    name = names[idx]
-
-                # Draw rectangle and name
-                box = np.array(box).astype(int)  # Convert box coordinates to integers
-                frame = cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
-                cv2.putText(frame, name, (box[0], box[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-
-        cv2.imshow("Attendance", frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    cam.release()
-    cv2.destroyAllWindows()
 
 # GUI setup
 root = tk.Tk()
@@ -86,7 +135,13 @@ photo = ImageTk.PhotoImage(my_image)
 image_label = Label(root, image=photo)
 image_label.pack(pady=20)
 
-attendance_button = Button(root, text="Start Attendance", command=start_attendance, font=("Helvetica", 16))
-attendance_button.pack(pady=40)
+class_section_label = Label(root, text="Enter Class Section:", font=("Helvetica", 12))
+class_section_label.pack()
+
+class_section_entry = Entry(root, font=("Helvetica", 12))
+class_section_entry.pack()
+
+attendance_button = Button(root, text="Start Attendance", font=("Helvetica", 16), command=attempt_start_attendance)
+attendance_button.pack(pady=20)
 
 root.mainloop()

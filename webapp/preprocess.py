@@ -10,6 +10,12 @@ import firebase_admin
 from firebase_admin import credentials
 import torch
 import torchvision.transforms as transforms
+
+import requests
+from io import BytesIO
+from PIL import Image
+import numpy as np
+
 # Path to your Firebase service account JSON file
 cred_path = 'db_credentials.json'
 
@@ -19,11 +25,22 @@ cred_path = 'db_credentials.json'
 
 def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709):
     mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
-    frame = cv2.imread(image_path)
-    if frame is None:
-        raise FileNotFoundError(f"The specified image_path does not exist or is not accessible: {image_path}")
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # frame = cv2.imread(image_path)
+    # if frame is None:
+    #     raise FileNotFoundError(f"The specified image_path does not exist or is not accessible: {image_path}")
+    # frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # faces, _ = mtcnn.detect(frame_rgb)
+    
+    response = requests.get(image_path)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"The specified image_path cannot be downloaded: {image_path}")
+    image_bytes = BytesIO(response.content)
+    image = Image.open(image_bytes)
+    
+    image_rgb = image.convert('RGB')
+    frame_rgb = np.array(image_rgb)
     faces, _ = mtcnn.detect(frame_rgb)
+    
     
     if faces is not None and len(faces) == 1:
         face = faces[0]
