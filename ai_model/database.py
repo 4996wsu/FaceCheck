@@ -3,7 +3,9 @@
 #   This file handles all the database functions involving Firebase.
 #
 #   -------------------------------------------------------------------------------------------------
-
+import torch
+import requests
+from io import BytesIO
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
@@ -263,7 +265,7 @@ def retrieve_class_embedding(section):
         print("Error: Cannot retrieve filetype class encoding for class '" + section + "'.")
     else:
         print("Retrieved class encoding for class '" + section + "'.")
-        
+    print(doc['classes'][section]['class_encoding'])
     return doc['classes'][section]['class_encoding']
 
 
@@ -284,26 +286,13 @@ def retrieve_encodings_from_class(section):
     print(encoding_list)
     return encoding_list 
 
-import torch
-import requests
-from io import BytesIO
 
-def download_pt_file(url):
+def download_pt_file_student(url):
     response = requests.get(url)
     response.raise_for_status()
     buffer = BytesIO(response.content)
     embedding, name = torch.load(buffer, map_location='cpu')
     return embedding[0], name[0]
-
-
-def upload_pt_to_firebase(file_path, blob_name):
-    bucket = storage.bucket()
-    blob = bucket.blob(blob_name)
-    blob.upload_from_filename(file_path)
-    blob.make_public()
-    print(blob.public_url)
-    return blob.public_url
-
 
 def update_class_encoding(section, file):
     bucket = storage.bucket()
@@ -315,28 +304,36 @@ def update_class_encoding(section, file):
     key = 'classes.' + section + '.class_encoding'
     update_doc(class_doc, key, blob.public_url)
 
-
-
 def combine_pt_files(section):
     combined_embedding_list = []
     combined_name_list = []
 
     urls = retrieve_encodings_from_class(section)
     for url in urls:
-        embedding, name = download_pt_file(url)
+        embedding, name = download_pt_file_student(url)
         combined_embedding_list.append(embedding)
         combined_name_list.append(name)
-    
+    print(combined_embedding_list)
     combined_data = {'embedding_list': combined_embedding_list, 'name_list': combined_name_list}
-    torch.save(combined_data, f'{section}.pt')
+    torch.save([combined_embedding_list,combined_name_list], f'{section}.pt')
     update_class_encoding(section, f'{section}.pt')
 
+
+def download_file_combine(url, section):
+    with requests.get(url, stream=True) as response:
+        response.raise_for_status()
+        with open(section, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+    
+    print(f"File downloaded and saved as {section}")
 # Example usage:
 
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
 # reset_docs()
-
+section='CSC_4996_001'
+retrieve_class_embedding(section)
 # retrieve_encodings_from_class('CSC_4996_001')
 #combine_pt_files('CSC_4996_001')
 # get_all_docs()

@@ -18,7 +18,13 @@ def load_models(device):
     resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
     return mtcnn, resnet
 
-def prepare_data(device, mtcnn, resnet):
+def prepare_data(device, section):
+    if os.path.exists(f'{section}.pt'):
+        return torch.load(f'{section}.pt', map_location=device)
+    return None
+
+#test function
+def prepare_data_test(device, mtcnn, resnet):
     if os.path.exists('data.pt'):
         return torch.load('data.pt', map_location=device)
     
@@ -67,29 +73,31 @@ def update_attendance(recognized_names, class_section):
     for name in recognized_names:
         update_student_attendance(class_section, name, True, date, time)
 
-def main():
-    device = setup_device()
-    mtcnn, resnet = load_models(device)
-    embedding_list, name_list = prepare_data(device, mtcnn, resnet)
-    class_section = "CSC_4996_001"
-    cam = cv2.VideoCapture(0)
+# def main():
+#     device = setup_device()
+#     mtcnn, resnet = load_models(device)
+#     embedding_list, name_list = prepare_data(device, mtcnn, resnet)
+#     class_section = "CSC_4996_001"
+#     cam = cv2.VideoCapture(0)
 
-    while True:
-        time.sleep(10)
-        ret, frame = cam.read()
-        if not ret:
-            print("Failed to grab frame, try again")
-            continue
+#     while True:
+#         time.sleep(10)
+#         ret, frame = cam.read()
+#         if not ret:
+#             print("Failed to grab frame, try again")
+#             continue
 
-        try:
-            recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
-            if recognized_names:
-                print(f"Recognized {len(recognized_names)} faces: {', '.join(recognized_names)}")
-                update_attendance(recognized_names, class_section)
-            else:
-                print("No recognized people in the frame.")
-        except Exception as e:
-            print(f"Error during detection or recognition: {e}")
+#         try:
+#             recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
+#             if recognized_names:
+#                 print(f"Recognized {len(recognized_names)} faces: {', '.join(recognized_names)}")
+#                 update_attendance(recognized_names, class_section)
+#             else:
+#                 print("No recognized people in the frame.")
+#         except Exception as e:
+#             print(f"Error during detection or recognition: {e}")
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
+
+

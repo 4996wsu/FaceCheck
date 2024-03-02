@@ -8,7 +8,8 @@ import os
 import sys
 import threading  # For running the attendance process without freezing the GUI
 import time
-from database import retrieve_encodings_from_class
+from database import combine_pt_files,download_file_combine
+from database import retrieve_encodings_from_class,retrieve_class_embedding,retrieve_encodings_from_class,update_class_encoding,download_pt_file_student
 from database import get_doc
 from recognition import setup_device, load_models, prepare_data, recognize_faces, update_attendance
 from firebase_admin import firestore, credentials, initialize_app
@@ -68,26 +69,37 @@ def time_validation(class_info):
 def attempt_start_attendance():
     class_section = class_section_entry.get().upper()
     exists, class_data = class_section_validation(class_section)
-    print(class_data)
     
     if not exists:
         messagebox.showerror("Error", "Class section does not exist. Please enter a valid one.")
         return
     
-    if time_validation(class_data):
-        threading.Thread(target=start_attendance, args=(class_section,)).start()
-    else:
-        messagebox.showerror("Error", "It is not the time for this class. Please check the schedule.")
+    # Assuming time_validation is not needed for this fix, but you can uncomment and adjust as necessary.
+    # if not time_validation(class_data):
+    #     messagebox.showerror("Error", "It is not the time for this class. Please check the schedule.")
+    #     return
 
+    # Proceed if class encoding exists, otherwise combine files and start attendance
+    if retrieve_class_embedding(class_section) != "NO ENCODING":
+        download_file_combine(retrieve_class_embedding(class_section), f'{class_section}.pt')
+    else:
+        combine_pt_files(class_section)
+
+    # Start the attendance process
+    threading.Thread(target=start_attendance, args=(class_section,)).start()
 # Function to start attendance process
+# Function to start attendance process, adjusted to work with combined data.
 def start_attendance(class_section):
     def attendance_process():
         device = setup_device()
         mtcnn, resnet = load_models(device)
         
-        embedding_list, name_list = prepare_data(device, mtcnn, resnet)
+        # Assuming `prepare_data` is adjusted to load the combined .pt file correctly.
+        embedding_list, name_list = torch.load('hi4718.pt', map_location=device)
+        print(embedding_list)
+        print(name_list)
+        
         cam = cv2.VideoCapture(0)
-
         while True:
             ret, frame = cam.read()
             if not ret:
@@ -97,7 +109,7 @@ def start_attendance(class_section):
             recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
             if recognized_names:
                 print(f"Recognized {len(recognized_names)} faces: {', '.join(recognized_names)}")
-                update_attendance(recognized_names, class_section.get())  # Use the class_section from Entry widget
+                update_attendance(recognized_names, class_section)  # Removed .get() as class_section is already a string
             else:
                 print("No recognized people in the frame.")
 
@@ -109,8 +121,8 @@ def start_attendance(class_section):
         cam.release()
         cv2.destroyAllWindows()
 
-    # Start attendance process in a separate thread to prevent GUI freezing
     threading.Thread(target=attendance_process).start()
+
 
 # GUI setup
 root = tk.Tk()
