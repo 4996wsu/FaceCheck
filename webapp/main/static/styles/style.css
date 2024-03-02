@@ -58,12 +58,12 @@ body {
     background-size: cover;
     background-position: center;
     background-attachment: fixed; /* This will give a parallax-like effect */
+    background-color: #000000;
 }
 
-/* Remove the hero-banner background since it's now on the body */
 .hero-banner {
     background: none;
-    color: white; /* Adjust text color for readability */
+    color: rgb(0, 0, 0); /* Adjust text color for readability */
     text-shadow: 0 0 8px rgba(0,0,0,0.7); /* Optional: text shadow for better readability on a busy background */
     min-height: 100vh; /* Full viewport height */
     display: flex;
