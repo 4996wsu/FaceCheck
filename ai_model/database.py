@@ -207,7 +207,7 @@ def update_class_encoding(section, file):
         blob.upload_from_filename(temp_file.name)
         
     # Upload
-    key = 'classes.' + section + '.class_encoding'
+    key = 'classes.' + section + '.encoding'
     update_doc(class_doc, key, blob.public_url)
 
 
