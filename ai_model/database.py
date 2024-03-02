@@ -196,6 +196,7 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
 
 
 
+
 #  Update student photo
 def update_student_photo(name, file):
     bucket = storage.bucket()
