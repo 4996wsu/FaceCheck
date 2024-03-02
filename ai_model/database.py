@@ -195,9 +195,6 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
         print("Student '" + name + "' marked as present on " + date + " at " + time + ".")
 
 
-#  Update class encoding
-
-
 
 #  Update student photo
 def update_student_photo(name, file):
