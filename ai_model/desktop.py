@@ -8,12 +8,14 @@ import os
 import sys
 import threading  # For running the attendance process without freezing the GUI
 import time
+from database import retrieve_encodings_from_class
 from database import get_doc
 from recognition import setup_device, load_models, prepare_data, recognize_faces, update_attendance
 from firebase_admin import firestore, credentials, initialize_app
 from pathlib import Path
 import firebase_admin
 from datetime import datetime, timedelta
+import numpy as np
 
 
 # Only initialize the app if it hasn't been initialized already
@@ -57,6 +59,10 @@ def time_validation(class_info):
         if class_start_time - timedelta(minutes=15) <= now <= class_end_time:
             return True
     return False
+
+
+
+
 
 # GUI function to handle start attendance
 def attempt_start_attendance():

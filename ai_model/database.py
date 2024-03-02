@@ -196,19 +196,7 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
 
 
 #  Update class encoding
-def update_class_encoding(section, file):
-    bucket = storage.bucket()
-    blob = bucket.blob(section + "_encoding")
-    blob.make_public()
-    
-    # Save embedding to temporary location and upload
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.pt') as temp_file:
-        cv2.imwrite(temp_file.name, file)
-        blob.upload_from_filename(temp_file.name)
-        
-    # Upload
-    key = 'classes.' + section + '.encoding'
-    update_doc(class_doc, key, blob.public_url)
+
 
 
 #  Update student photo
@@ -286,7 +274,7 @@ def retrieve_names_from_class(section):
     doc = get_doc(student_doc)    
     return list(doc['students'][section].keys())
     
-    
+import numpy as np 
 # Retrieve all encodings for a class section
 def retrieve_encodings_from_class(section):
     names = retrieve_names_from_class(section)
@@ -298,12 +286,61 @@ def retrieve_encodings_from_class(section):
     print(encoding_list)
     return encoding_list 
 
+import torch
+import requests
+from io import BytesIO
+
+def download_pt_file(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    buffer = BytesIO(response.content)
+    embedding, name = torch.load(buffer, map_location='cpu')
+    return embedding[0], name[0]
+
+
+def upload_pt_to_firebase(file_path, blob_name):
+    bucket = storage.bucket()
+    blob = bucket.blob(blob_name)
+    blob.upload_from_filename(file_path)
+    blob.make_public()
+    print(blob.public_url)
+    return blob.public_url
+
+
+def update_class_encoding(section, file):
+    bucket = storage.bucket()
+    blob = bucket.blob(section + ".pt")
+    blob.upload_from_filename(file)
+    blob.make_public()
+
+    # Upload
+    key = 'classes.' + section + '.class_encoding'
+    update_doc(class_doc, key, blob.public_url)
+
+
+
+def combine_pt_files(section):
+    combined_embedding_list = []
+    combined_name_list = []
+
+    urls = retrieve_encodings_from_class(section)
+    for url in urls:
+        embedding, name = download_pt_file(url)
+        combined_embedding_list.append(embedding)
+        combined_name_list.append(name)
+    
+    combined_data = {'embedding_list': combined_embedding_list, 'name_list': combined_name_list}
+    torch.save(combined_data, f'{section}.pt')
+    update_class_encoding(section, f'{section}.pt')
+
+# Example usage:
+
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
 # reset_docs()
 
 # retrieve_encodings_from_class('CSC_4996_001')
-retrieve_class_embedding('CSC_4996_001')
+combine_pt_files('CSC_4996_001')
 # get_all_docs()
 
 # update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
