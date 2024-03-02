@@ -340,7 +340,7 @@ print("---------------------- START DATABASE TESTING ----------------------")
 # reset_docs()
 
 # retrieve_encodings_from_class('CSC_4996_001')
-combine_pt_files('CSC_4996_001')
+#combine_pt_files('CSC_4996_001')
 # get_all_docs()
 
 # update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
