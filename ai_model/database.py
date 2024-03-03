@@ -61,6 +61,32 @@ def reset_docs():
                             '17_35_00': False
                         } 
                     }
+                },
+                'hi4718': {
+                    'picture': 'NO PHOTO',
+                    'attendance': {
+                        '02_06_2024': {
+                            '17_30_00': False,
+                            '17_35_00': False
+                        },
+                        '02_08_2024': {
+                            '17_30_00': True,
+                            '17_35_00': True
+                        } 
+                    }
+                },
+                'hi6576': {
+                    'picture': 'NO PHOTO',
+                    'attendance': {
+                        '02_06_2024': {
+                            '17_30_00': True,
+                            '17_35_00': False
+                        },
+                        '02_08_2024': {
+                            '17_30_00': False,
+                            '17_35_00': False
+                        } 
+                    }
                 }
             }
         }
@@ -68,6 +94,22 @@ def reset_docs():
     dataUser = {
         'users': {
             'hc9082': {
+                'picture': 'NO PHOTO',
+                'encoding': 'NO ENCODING',
+                'professor': False,
+                'audit log': {
+                    '02_12_2024': ['21_18_00', "Updated photo"]
+                }
+            },
+            'hi4718': {
+                'picture': 'NO PHOTO',
+                'encoding': 'NO ENCODING',
+                'professor': False,
+                'audit log': {
+                    '02_12_2024': ['21_18_00', "Updated photo"]
+                }
+            },
+            'hi6576': {
                 'picture': 'NO PHOTO',
                 'encoding': 'NO ENCODING',
                 'professor': False,
@@ -93,6 +135,10 @@ def reset_docs():
     doc_ref.document(class_doc).set(dataClass)
     doc_ref.document(student_doc).set(dataStudent)
     doc_ref.document(user_doc).set(dataUser)
+    
+    update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
+    update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
+    update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
 
     print("Document ID: ", doc_ref.id)
     
@@ -331,9 +377,9 @@ def download_file_combine(url, section):
 
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
-# reset_docs()
-section='CSC_4996_001'
-retrieve_class_embedding(section)
+reset_docs()
+# section='CSC_4996_001'
+# retrieve_class_embedding(section)
 # retrieve_encodings_from_class('CSC_4996_001')
 #combine_pt_files('CSC_4996_001')
 # get_all_docs()
