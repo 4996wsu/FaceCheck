@@ -13,6 +13,9 @@
         table {
             margin-top: 1rem;
         }
+        th, tr {
+            padding-right: 1rem;
+        }
     </style>
 
     <!-- STATISTICS PAGE CODE -->
@@ -36,10 +39,6 @@
     
     <table id = "stats">
         <thead id="thead">
-            <tr>
-                <th>Access ID</th>
-                <th>Attendance</th>
-            </tr>
         </thead>
         <tbody id="tbody">
         </tbody>
@@ -71,11 +70,39 @@
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach(doc=>{
             let data = doc.data();
+            let table = document.getElementById('stats')
 
-            //  Save identifying keys
+            //  Save identifier keys
+            let date = '03_02_2024'
             let students = Object.keys(data.students.CSC_4996_001);
+            students.sort();
             console.log(students);
 
+
+            //  Table header
+            let header  =  `<tr>
+                <th>Access ID</th>`;
+
+            let timestamps = Object.keys(data.students.CSC_4996_001[students[0]]['attendance'][date]); 
+            timestamps.sort();
+            for (let key of timestamps) {
+                let timeArr = key.split("_");
+                if (parseInt(timeArr[0]) > 12) {
+                    timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
+                    timeArr[2] = "PM"
+                }
+                else {
+                    timeArr[2] = "AM"
+                }
+                let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
+                header += '<th>' + time + '</th>';
+            }
+
+            // add header to table
+            table.innerHTML += header
+
+
+            //  Table contents
             let row = ""
 
             //  Loop through students
@@ -88,17 +115,20 @@
                     row  = `<tr>
                                 <td>${currentStudent}</td>`;
 
-                    let attendance = data.students.CSC_4996_001[currentStudent]['attendance']['02_08_2024'];
+                    let attendance = data.students.CSC_4996_001[currentStudent]['attendance'][date];
 
                     let timestamps = Object.keys(attendance);
                     for (let key of timestamps) {
-                        let path = attendance[key];
-                        row += '<td>' + path + '</td>';
+                        let value = ""
+                        if (attendance[key] === true)
+                            value = "\u2714";
+                        else
+                            value = "\u274C";
+                        row += '<td>' + value + '</td>';
                     }
                     row += '</tr>'
 
                     // add rows to table
-                    let table = document.getElementById('stats')
                     table.innerHTML += row
 
                 } else {
