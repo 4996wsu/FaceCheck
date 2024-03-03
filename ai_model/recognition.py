@@ -76,7 +76,7 @@ def update_attendance(recognized_names, class_section):
         update_student_attendance(class_section, name, True, date, time)
         
     # Mark absent students (Removes present students from a list of all students first)
-    students = retrieve_names_from_class()
+    students = retrieve_names_from_class(class_section)
     for name in students[:]:
         if name in recognized_names:
             students.remove(name)
