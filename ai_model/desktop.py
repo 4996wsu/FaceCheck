@@ -95,7 +95,7 @@ def start_attendance(class_section):
         mtcnn, resnet = load_models(device)
         
         # Assuming `prepare_data` is adjusted to load the combined .pt file correctly.
-        embedding_list, name_list = torch.load('hi4718.pt', map_location=device)
+        embedding_list, name_list = torch.load(f'{class_section}.pt', map_location=device)
         print(embedding_list)
         print(name_list)
         
