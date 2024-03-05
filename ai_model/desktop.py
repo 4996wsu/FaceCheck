@@ -89,18 +89,20 @@ def attempt_start_attendance():
     threading.Thread(target=start_attendance, args=(class_section,)).start()
 # Function to start attendance process
 # Function to start attendance process, adjusted to work with combined data.
+attendance_running = False
 def start_attendance(class_section):
     def attendance_process():
+        global attendance_running
+
+        attendance_running = True
         device = setup_device()
         mtcnn, resnet = load_models(device)
         
-        # Assuming `prepare_data` is adjusted to load the combined .pt file correctly.
         embedding_list, name_list = torch.load(f'{class_section}.pt', map_location=device)
-        print(embedding_list)
-        print(name_list)
-        
-        cam = cv2.VideoCapture(0)
-        while True:
+        cam = cv2.VideoCapture(1)
+        # if not cam.isOpened():  # If the camera at index 1 is not available
+        #     cam = cv2.VideoCapture(0) 
+        while attendance_running:
             ret, frame = cam.read()
             if not ret:
                 print("Failed to grab frame, try again")
@@ -109,7 +111,7 @@ def start_attendance(class_section):
             recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
             if recognized_names:
                 print(f"Recognized {len(recognized_names)} faces: {', '.join(recognized_names)}")
-                update_attendance(recognized_names, class_section)  # Removed .get() as class_section is already a string
+                update_attendance(recognized_names, class_section)
             else:
                 print("No recognized people in the frame.")
 
@@ -122,12 +124,17 @@ def start_attendance(class_section):
         cv2.destroyAllWindows()
 
     threading.Thread(target=attendance_process).start()
-
+def stop_attendance():
+    global attendance_running
+    attendance_running = False
+    class_section_entry.delete(0, tk.END)
+    os.remove('CSC_4996_001.pt')
+    messagebox.showinfo("Attendance", "Attendance has ended.")  
 
 # GUI setup
 root = tk.Tk()
 root.title("Enrollment and Attendance App")
-root.geometry("800x600")
+root.geometry("1000x900")
 
 my_image = Image.open(resource_path("FaceCheckLogo.png"))
 photo = ImageTk.PhotoImage(my_image)
@@ -143,5 +150,7 @@ class_section_entry.pack()
 
 attendance_button = Button(root, text="Start Attendance", font=("Helvetica", 16), command=attempt_start_attendance)
 attendance_button.pack(pady=20)
+end_attendance_button = Button(root, text="End Attendance", font=("Helvetica", 16), command=stop_attendance)
+end_attendance_button.pack(pady=20)
 
 root.mainloop()

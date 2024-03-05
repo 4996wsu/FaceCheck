@@ -29,6 +29,7 @@
                   <span class="navbar-toggler-icon"></span>
               </button>
               <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                {% if  user.is_authenticated %}
                   <ul class="navbar-nav">
                       <li class="nav-item ms-auto">
                           <a class="nav-link d-flex align-items-center" href="/home">Home</a>
@@ -39,6 +40,7 @@
                       <li class="nav-item">
                         <a class="nav-link d-flex align-items-center" href="/enroll">Enrollment</a>
                     </li>
+                    {% endif %}
                   {% if user.is_authenticated %}
                   <span class="navbar-text ms-auto">Logged in as {{ user.username }} |</span>
                   <li class="nav-item">
