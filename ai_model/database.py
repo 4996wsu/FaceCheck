@@ -240,7 +240,7 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
     else:
         key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
         update_doc(student_doc, key, value)
-        print("Student '" + name + "' marked as present on " + date + " at " + time + ".")
+        print("Student '" + name + " marked as " + str(value) + " on " + date + " at " + time + ".")
 
 
 
