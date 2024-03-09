@@ -35,14 +35,14 @@
     <!-- STATISTICS PAGE CODE -->
     <h1>Statistics</h1>
 
-    <label for="class_id_select">Select a Class ID:</label>
+    <label for="class_id_select">Class ID:</label>
     <select name="class_id_select" id="class_id_select">
         <option value="javascript">------------</option>
         <option value="javascript">CSC 4996 001</option>
         <option value="javascript">CSC 4996 004</option>
     </select>
 
-    <label for="semester_select">Select a Semester:</label>
+    <label for="semester_select">Semester:</label>
     <select name="class_id_select" id="class_id_select">
         <option value="javascript">------------</option>
         <option value="javascript">Spring/Summer 2023</option>
@@ -50,8 +50,8 @@
         <option value="javascript">Winter 2024</option>
     </select>
 
-    <label for="date_select">Select a Date:</label>
-    <select name="date_select" id="date_select" onkeyup = "change_date()">
+    <label for="date_select">Date:</label>
+    <select name="date_select" id="date_select" onchange = "change_date()">
         <option value="default">------------</option>
     </select>
 
@@ -108,7 +108,7 @@
             let error_msg = document.getElementById('errors');
 
             //  Save identifier keys and write initial table based on inputs
-            let date = '03_07_2024';
+            let date = 'None';
             let class_id = 'CSC_4996_001';
             let students = Object.keys(data.students[class_id]);
             if (students.length > 0) {
@@ -116,14 +116,14 @@
                 date_list.sort();
                 write_date_menu(date_list);
             }
-            write_table(students);
+            //write_table(students);
 
             //  Handle date drop-down menu
             function write_date_menu(date_list) {
                 removeOptions(document.getElementById('date_select'));
                 var default_option = document.createElement('option');
                 default_option.value = 0;
-                default_option.innerHTML = "------------"
+                default_option.innerHTML = "-- Click to select date --"
                 default_option.disabled = true;
                 default_option.selected = true;
                 default_option.style.display = 'none';
@@ -131,12 +131,19 @@
 
                 for (var i = 0; i < date_list.length; i++) {
                     var option = document.createElement('option');
-                    option.value = i + 1;
+                    option.value = date_list[i];
                     let dateArr = date_list[i].split("_");
                     option.innerHTML = dateArr[0] + "/" + dateArr[1] + "/" + dateArr[2];
                     date_select.appendChild(option);
                 }
             }
+
+            function change_date() {
+                let input = document.getElementById('date_select').value;
+                date = input;
+                search_student();
+            }
+            window.change_date = change_date;
 
             //  Handle search bar
             function search_student() {
@@ -215,7 +222,7 @@
                     let currentStudent = students[student]
 
                     if (data.students.CSC_4996_001[currentStudent]['attendance'] !== undefined) {
-                        console.log("Checking: " + currentStudent)
+                        //console.log("Checking: " + currentStudent)
 
                         row  = `<tr>
                                     <td class = "headcol">${currentStudent}</td>`;
