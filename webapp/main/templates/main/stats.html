@@ -43,7 +43,7 @@
     </select>
 
     <label for="semester_select">Semester:</label>
-    <select name="class_id_select" id="class_id_select">
+    <select name="semester_select" id="semester_select">
         <option value="javascript">------------</option>
         <option value="javascript">Spring/Summer 2023</option>
         <option value="javascript">Fall 2023</option>
@@ -52,7 +52,7 @@
 
     <label for="date_select">Date:</label>
     <select name="date_select" id="date_select" onchange = "change_date()">
-        <option value="default">------------</option>
+        <option value="default">-- Click to select date --</option>
     </select>
 
     <!-- SEARCH BAR -->
@@ -61,6 +61,13 @@
         onkeyup = "search_student()"
         type = "text" name = "search"
         placeholder = "Ex: hc9082">
+
+    <label for="filter_select">Search by:</label>
+    <select name="filter_select" id="filter_select" onchange = "change_filter()">
+        <option value="accessid">Access ID</option>
+        <option value="fname">First name</option>
+        <option value="lname">Last name</option>
+    </select>
     <hr>
     <a id = "errors"></a>
 
@@ -105,6 +112,7 @@
             let data = studentSnapshot.data();
             let date_select = document.getElementById("date_select")
             let table = document.getElementById('stats');
+            let filter = document.getElementById('filter_select').value;
             let error_msg = document.getElementById('errors');
 
             //  Save identifier keys and write initial table based on inputs
@@ -118,7 +126,7 @@
             }
             //write_table(students);
 
-            //  Handle date drop-down menu
+            //  Handle date menu
             function write_date_menu(date_list) {
                 removeOptions(document.getElementById('date_select'));
                 var default_option = document.createElement('option');
@@ -144,6 +152,12 @@
                 search_student();
             }
             window.change_date = change_date;
+
+            //  Handle search filter menu
+            function change_filter() {
+                filter = document.getElementById('filter_select').value;
+                search_student();
+            }
 
             //  Handle search bar
             function search_student() {
@@ -196,6 +210,10 @@
                     let timeArr = key.split("_");
                     if (parseInt(timeArr[0]) > 12) {
                         timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
+                        timeArr[2] = "PM"
+                    }
+                    else if (parseInt(timeArr[0]) === 12) {
+                        timeArr[0] = parseInt(timeArr[0]) + "";
                         timeArr[2] = "PM"
                     }
                     else {
