@@ -9,10 +9,23 @@
         }
         body {
             color: white;
-            background-image:none;
-            background-color:#131313;
+            background-image: none;
+            background-color: #131313;
         }
-        table {
+        .headcol {
+            position: absolute;
+            width: 5.5em;
+            background-color: #131313;
+        }
+        .col {
+            white-space: nowrap;
+        }
+        .firstcol {
+            white-space: nowrap;
+            margin-left: 10em;
+        }
+        .firstcol:before {
+            content: '...';
         }
         th, tr {
             padding-right: 1rem;
@@ -38,10 +51,8 @@
     </select>
 
     <label for="date_select">Select a Date:</label>
-    <select name="date_select" id="date_select">
-        <option value="javascript">------------</option>
-        <option value="javascript">02/06/2024</option>
-        <option value="javascript">02/08/2024</option>
+    <select name="date_select" id="date_select" onkeyup = "change_date()">
+        <option value="default">------------</option>
     </select>
 
     <!-- SEARCH BAR -->
@@ -56,10 +67,8 @@
     <!-- STATS TABLE BASE -->
     <div style="overflow-x:auto;">
         <table id = "stats">
-            <thead id="thead">
-            </thead>
-            <tbody id="tbody">
-            </tbody>
+            <thead id="thead"></thead>
+            <tbody id="tbody"></tbody>
         </table>
     </div>
     
@@ -67,6 +76,13 @@
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+
+        function removeOptions(selectElement) {
+            var i, len = selectElement.options.length - 1;
+            for(i = len; i >= 0; i--) {
+               selectElement.remove(i);
+            }
+         }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
@@ -87,19 +103,40 @@
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         if (studentSnapshot.exists()){
             let data = studentSnapshot.data();
+            let date_select = document.getElementById("date_select")
             let table = document.getElementById('stats');
             let error_msg = document.getElementById('errors');
 
-            //  Save identifier keys and write initial table
+            //  Save identifier keys and write initial table based on inputs
             let date = '03_07_2024';
             let class_id = 'CSC_4996_001';
             let students = Object.keys(data.students[class_id]);
             if (students.length > 0) {
-                let dateList = Object.keys(data.students[class_id][students[0]]['attendance']);
-                console.log(dateList);
+                let date_list = Object.keys(data.students[class_id][students[0]]['attendance']);
+                date_list.sort();
+                write_date_menu(date_list);
             }
             write_table(students);
 
+            //  Handle date drop-down menu
+            function write_date_menu(date_list) {
+                removeOptions(document.getElementById('date_select'));
+                var default_option = document.createElement('option');
+                default_option.value = 0;
+                default_option.innerHTML = "------------"
+                default_option.disabled = true;
+                default_option.selected = true;
+                default_option.style.display = 'none';
+                date_select.appendChild(default_option);
+
+                for (var i = 0; i < date_list.length; i++) {
+                    var option = document.createElement('option');
+                    option.value = i + 1;
+                    let dateArr = date_list[i].split("_");
+                    option.innerHTML = dateArr[0] + "/" + dateArr[1] + "/" + dateArr[2];
+                    date_select.appendChild(option);
+                }
+            }
 
             //  Handle search bar
             function search_student() {
@@ -140,10 +177,11 @@
                 error_msg.innerHTML = "";
                 empty_table();
                 students.sort();
+                let first_col = true;
 
-                //  Table header
+                //  ----- Table header -----
                 let header  =  `<tr>
-                    <th>Access ID</th>`;
+                    <th class = "headcol">Access ID</th>`;
 
                 let timestamps = Object.keys(data.students[class_id][students[0]]['attendance'][date]); 
                 timestamps.sort();
@@ -157,13 +195,20 @@
                         timeArr[2] = "AM"
                     }
                     let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
-                    header += '<th>' + time + '</th>';
+                    
+                    //  Add margin if first entry, otherwise use normal margins
+                    if (first_col) {
+                        header += '<th class = "firstcol">' + time + '</th>';
+                        first_col = false;
+                    }
+                    else
+                        header += '<th class = "col">' + time + '</th>';
                 }
-                // add header to table
                 table.innerHTML += header
 
-                //  Table contents
+                //  ----- Table contents -----
                 let row = ""
+                first_col = true;
 
                 //  Loop through students
                 for (let student in students) {
@@ -173,7 +218,7 @@
                         console.log("Checking: " + currentStudent)
 
                         row  = `<tr>
-                                    <td>${currentStudent}</td>`;
+                                    <td class = "headcol">${currentStudent}</td>`;
 
                         let attendance = data.students.CSC_4996_001[currentStudent]['attendance'][date];
 
@@ -184,11 +229,16 @@
                                 value = "\u2714";
                             else
                                 value = "\u274C";
-                            row += '<td>' + value + '</td>';
+                            
+                            //  Add margin if first entry, otherwise use normal margins
+                            if (first_col) {
+                                row += '<td class = "firstcol">' + value + '</td>';
+                                first_col = false;
+                            }
+                            else
+                                row += '<td class = "col">' + value + '</td>';
                         }
                         row += '</tr>'
-
-                        // add rows to table
                         table.innerHTML += row
 
                     } else {
