@@ -62,11 +62,14 @@ def reset_docs():
             'CSC_4996_001_W_2024': {
                 'hc9082': {
                     'attendance': {
-                        '02_06_2024': {
+                        '00_00_0000': {
+                            '00_00_00': True
+                        },
+                        '03_05_2024': {
                             '17_30_00': True,
                             '17_35_00': True
                         },
-                        '02_08_2024': {
+                        '03_07_2024': {
                             '17_30_00': True,
                             '17_35_00': False
                         } 
@@ -74,11 +77,14 @@ def reset_docs():
                 },
                 'hi4718': {
                     'attendance': {
-                        '02_06_2024': {
+                        '00_00_0000': {
+                            '00_00_00': True
+                        },
+                        '03_05_2024': {
                             '17_30_00': False,
                             '17_35_00': False
                         },
-                        '02_08_2024': {
+                        '03_07_2024': {
                             '17_30_00': True,
                             '17_35_00': True
                         } 
@@ -86,11 +92,14 @@ def reset_docs():
                 },
                 'hi6576': {
                     'attendance': {
-                        '02_06_2024': {
+                        '00_00_0000': {
+                            '00_00_00': True
+                        },
+                        '03_05_2024': {
                             '17_30_00': True,
                             '17_35_00': False
                         },
-                        '02_08_2024': {
+                        '03_07_2024': {
                             '17_30_00': False,
                             '17_35_00': False
                         } 
@@ -432,11 +441,11 @@ section = 'CSC_4996_001_W_2024'
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
-add_student_to_class(section, 'hz2948')
-add_student('hz2948', 'John', 'Doe', 'student')
-add_student('hz2948', 'John', 'Doe', 'student')
-add_student_to_class(section, 'hz2948')
-add_student_to_class(section, 'hz2948')
+# add_student_to_class(section, 'hz2948')
+# add_student('hz2948', 'John', 'Doe', 'student')
+# add_student('hz2948', 'John', 'Doe', 'student')
+# add_student_to_class(section, 'hz2948')
+# add_student_to_class(section, 'hz2948')
 # add_class('CSC_4996_001', 'mousavi')
 # add_class('CSC_4996_004', 'mousavi')
 

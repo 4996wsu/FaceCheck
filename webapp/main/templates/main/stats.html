@@ -13,19 +13,15 @@
             background-color: #131313;
         }
         .headcol {
-            position: absolute;
+            position: sticky;
+            left: 0;
             width: 5.5em;
             background-color: #131313;
+            z-index: 1;
         }
         .col {
+            position: relative;
             white-space: nowrap;
-        }
-        .firstcol {
-            white-space: nowrap;
-            margin-left: 10em;
-        }
-        .firstcol:before {
-            content: '...';
         }
         th, tr {
             padding-right: 1rem;
@@ -117,7 +113,7 @@
 
             //  Save identifier keys and write initial table based on inputs
             let date = 'None';
-            let class_id = 'CSC_4996_001';
+            let class_id = 'CSC_4996_001_W_2024';
             let students = Object.keys(data.students[class_id]);
             if (students.length > 0) {
                 let date_list = Object.keys(data.students[class_id][students[0]]['attendance']);
@@ -137,7 +133,9 @@
                 default_option.style.display = 'none';
                 date_select.appendChild(default_option);
 
-                for (var i = 0; i < date_list.length; i++) {
+                //  00/00/0000 is an empty date in the database, added just to initialize
+                //  a new student. The loop starts from 1 to avoid including this date.
+                for (var i = 1; i < date_list.length; i++) {
                     var option = document.createElement('option');
                     option.value = date_list[i];
                     let dateArr = date_list[i].split("_");
@@ -146,6 +144,7 @@
                 }
             }
 
+            //  Handle date change menu
             function change_date() {
                 let input = document.getElementById('date_select').value;
                 date = input;
@@ -198,12 +197,12 @@
                 error_msg.innerHTML = "";
                 empty_table();
                 students.sort();
-                let first_col = true;
 
                 //  ----- Table header -----
                 let header  =  `<tr>
                     <th class = "headcol">Access ID</th>`;
 
+                //  List all timestamps
                 let timestamps = Object.keys(data.students[class_id][students[0]]['attendance'][date]); 
                 timestamps.sort();
                 for (let key of timestamps) {
@@ -222,30 +221,24 @@
                     let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
                     
                     //  Add margin if first entry, otherwise use normal margins
-                    if (first_col) {
-                        header += '<th class = "firstcol">' + time + '</th>';
-                        first_col = false;
-                    }
-                    else
-                        header += '<th class = "col">' + time + '</th>';
+                    header += '<th class = "col">' + time + '</th>';
                 }
                 table.innerHTML += header
 
                 //  ----- Table contents -----
                 let row = ""
-                first_col = true;
 
                 //  Loop through students
                 for (let student in students) {
                     let currentStudent = students[student]
 
-                    if (data.students.CSC_4996_001[currentStudent]['attendance'] !== undefined) {
+                    if (data.students[class_id][currentStudent]['attendance'] !== undefined) {
                         //console.log("Checking: " + currentStudent)
 
                         row  = `<tr>
                                     <td class = "headcol">${currentStudent}</td>`;
 
-                        let attendance = data.students.CSC_4996_001[currentStudent]['attendance'][date];
+                        let attendance = data.students[class_id][currentStudent]['attendance'][date];
 
                         let timestamps = Object.keys(attendance);
                         for (let key of timestamps) {
@@ -255,13 +248,7 @@
                             else
                                 value = "\u274C";
                             
-                            //  Add margin if first entry, otherwise use normal margins
-                            if (first_col) {
-                                row += '<td class = "firstcol">' + value + '</td>';
-                                first_col = false;
-                            }
-                            else
-                                row += '<td class = "col">' + value + '</td>';
+                            row += '<td class = "col">' + value + '</td>';
                         }
                         row += '</tr>'
                         table.innerHTML += row
