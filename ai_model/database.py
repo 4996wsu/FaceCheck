@@ -1,6 +1,6 @@
 #   -------------------------------------------------------------------------------------------------
 #
-#   This file handles all the database functions involving Firebase.
+#   This file handles all the database functions involving Firebase for the DESKTOP APP.
 #
 #   -------------------------------------------------------------------------------------------------
 import torch
@@ -36,21 +36,31 @@ user_doc = "user_doc"
 def reset_docs():
     dataClass = {
         'classes': {
-            'CSC_4996_001': {
+            'CSC_4996_001_W_2024': {
+                'class_name': 'Senior Capstone Project Section 001',
                 'professor': 'mousavi',
                 'class_encoding': 'NO ENCODING',
+                'encoding_update': False,
                 'schedule': {
                     'Tuesday': ['17_30', '18_45'],
                     'Thursday': ['17_30', '20_40']
+                }
+            },
+            'CSC_4500_002_S_2024': {
+                'class_name': 'Theoretical Computer Science Section 002',
+                'professor': 'mousavi',
+                'class_encoding': 'NO ENCODING',
+                'encoding_update': False,
+                'schedule': {
+                    'Monday': ['17_00', '19_30'],
                 }
             }
         } 
     }
     dataStudent = {
         'students': {
-            'CSC_4996_001': {
+            'CSC_4996_001_W_2024': {
                 'hc9082': {
-                    'picture': 'NO PHOTO',
                     'attendance': {
                         '02_06_2024': {
                             '17_30_00': True,
@@ -63,7 +73,6 @@ def reset_docs():
                     }
                 },
                 'hi4718': {
-                    'picture': 'NO PHOTO',
                     'attendance': {
                         '02_06_2024': {
                             '17_30_00': False,
@@ -76,7 +85,6 @@ def reset_docs():
                     }
                 },
                 'hi6576': {
-                    'picture': 'NO PHOTO',
                     'attendance': {
                         '02_06_2024': {
                             '17_30_00': True,
@@ -94,33 +102,41 @@ def reset_docs():
     dataUser = {
         'users': {
             'hc9082': {
+                'fname': 'Aafnan',
+                'lname': 'Mahmood',
                 'picture': 'NO PHOTO',
                 'encoding': 'NO ENCODING',
-                'professor': False,
+                'role': 'student',
                 'audit log': {
                     '02_12_2024': ['21_18_00', "Updated photo"]
                 }
             },
             'hi4718': {
+                'fname': 'Ahmed',
+                'lname': 'Minhaj',
                 'picture': 'NO PHOTO',
                 'encoding': 'NO ENCODING',
-                'professor': False,
+                'role': 'student',
                 'audit log': {
                     '02_12_2024': ['21_18_00', "Updated photo"]
                 }
             },
             'hi6576': {
+                'fname': 'Mohamad',
+                'lname': 'Hachem',
                 'picture': 'NO PHOTO',
                 'encoding': 'NO ENCODING',
-                'professor': False,
+                'role': 'student',
                 'audit log': {
                     '02_12_2024': ['21_18_00', "Updated photo"]
                 }
             },
             'mousavi': {
+                'fname': 'Seyed Ziae',
+                'lname': 'Mousavi Mojab',
                 'picture': 'NO PHOTO',
                 'encoding': 'NO ENCODING',
-                'professor': True,
+                'role': 'professor',
                 'audit log': {
                     '02_16_2024': ['12_35_00', "Changed password"]
                 }
@@ -213,21 +229,45 @@ def add_class(section, prof):
         update_doc(class_doc, key, prof)
         print("Class '" + section + "' successfully added.")
     
-#  Add new student to class
-def add_student(section, name):
-    student_dict = get_doc(student_doc)
+#  Add new student to **DATABASE**
+def add_student(accessid, fname, lname, role):
+    user_dict = get_doc(user_doc)
     
-    if lookup(name, student_dict) != None:
-        print("Error: Cannot add user '" + name + "' because the user already exists.")
+    if lookup(accessid, user_dict) != None:
+        print("Error: Cannot add user '" + accessid + "' because the user already exists.")
     else:
-        studentKey = 'students.' + section + '.' + name + '.picture'
-        update_doc(student_doc, studentKey, "NO PHOTO")
-        userKey = 'users.' + name + '.picture'
-        update_doc(user_doc, userKey, "NO PHOTO")
-        userKey = 'users.' + name + '.encoding'
-        update_doc(user_doc, userKey, "NO ENCODING")
+        key = 'users.' + accessid + '.fname'
+        update_doc(user_doc, key, fname)
+        key = 'users.' + accessid + '.lname'
+        update_doc(user_doc, key, lname)
+        key = 'users.' + accessid + '.picture'
+        update_doc(user_doc, key, "NO PHOTO")
+        key = 'users.' + accessid + '.encoding'
+        update_doc(user_doc, key, "NO ENCODING")
+        key = 'users.' + accessid + '.role'
+        update_doc(user_doc, key, role)
+        log_arr = [getTime(), "Created account"]
+        key = 'users.' + accessid + '.audit_log.' + getDate()
+        update_doc(user_doc, key, log_arr)
         
-        print("Student '" + name + "' successfully added.")
+        print("Student '" + accessid + "' successfully added.")
+        
+#  Add new student to **CLASS**
+def add_student_to_class(section, accessid):
+    student_dict = get_doc(student_doc)
+    user_dict = get_doc(user_doc)
+    
+    if lookup(accessid, student_dict['students'][section]) != None:
+        print("Error: Cannot add user '" + accessid + "' because the user is already in " + section + ".")
+    elif lookup(accessid, user_dict) == None:
+        print("Error: Cannot add user '" + accessid + "' because the user does not exist.")
+    else:
+        key = 'students.' + section + '.' + accessid + '.attendance.00_00_0000.00_00_00'
+        update_doc(student_doc, key, True)
+        classKey = 'classes.' + section + '.encoding_update'
+        update_doc(class_doc, classKey, True)
+        
+        print("Student '" + accessid + "' successfully added to " + section + ".")
    
     
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
@@ -241,8 +281,6 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
         key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
         update_doc(student_doc, key, value)
         print("Student '" + name + " marked as " + str(value) + " on " + date + " at " + time + ".")
-
-
 
 
 #  Update student photo
@@ -378,10 +416,10 @@ def download_file_combine(url, section):
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
 reset_docs()
-# section='CSC_4996_001'
+section = 'CSC_4996_001_W_2024'
 # retrieve_class_embedding(section)
 # retrieve_encodings_from_class('CSC_4996_001')
-#combine_pt_files('CSC_4996_001')
+# combine_pt_files('CSC_4996_001')
 # get_all_docs()
 
 # update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
@@ -394,12 +432,17 @@ reset_docs()
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
-# add_student('CSC_4996_004', 'hc2810')
+add_student_to_class(section, 'hz2948')
+add_student('hz2948', 'John', 'Doe', 'student')
+add_student('hz2948', 'John', 'Doe', 'student')
+add_student_to_class(section, 'hz2948')
+add_student_to_class(section, 'hz2948')
 # add_class('CSC_4996_001', 'mousavi')
 # add_class('CSC_4996_004', 'mousavi')
 
 # print(retrieve_file('hc9082', 'picture'))
 # print(retrieve_names())
-#retrieve_encodings_from_class('CSC_4996_001')
+# retrieve_encodings_from_class('CSC_4996_001')
+
 
 print("---------------------- END DATABASE TESTING ----------------------")
