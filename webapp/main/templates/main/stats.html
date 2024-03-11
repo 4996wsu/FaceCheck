@@ -31,24 +31,21 @@
     <!-- STATISTICS PAGE CODE -->
     <h1>Statistics</h1>
 
-    <label for="semester_select">Semester:</label>
+    <label for="semester_select">Semester: </label>
     <select name="semester_select" id="semester_select">
-        <option value="javascript">------------</option>
-        <option value="javascript">Spring/Summer 2023</option>
-        <option value="javascript">Fall 2023</option>
-        <option value="javascript">Winter 2024</option>
+        <option value="default">N/A</option>
     </select>
+    <a>&emsp;</a>
 
-    <label for="class_id_select">Class ID:</label>
+    <label for="class_id_select">Class ID: </label>
     <select name="class_id_select" id="class_id_select">
-        <option value="javascript">------------</option>
-        <option value="javascript">CSC 4996 001</option>
-        <option value="javascript">CSC 4996 004</option>
+        <option value="default">N/A</option>
     </select>
+    <a>&emsp;</a>
 
-    <label for="date_select">Date:</label>
+    <label for="date_select">Date: </label>
     <select name="date_select" id="date_select" onchange = "change_date()">
-        <option value="default">-- Click to select date --</option>
+        <option value="default">N/A</option>
     </select>
 
     <!-- SEARCH BAR -->
@@ -56,16 +53,18 @@
     <input id = "searchbar"
         onkeyup = "search_student()"
         type = "text" name = "search"
+        maxlength = "20"
         placeholder = "Ex: hc9082">
+    <a>&emsp;</a>
 
-    <label for="filter_select">Search by:</label>
+    <label for="filter_select">Search by: </label>
     <select name="filter_select" id="filter_select" onchange = "change_filter()">
         <option value="accessid">Access ID</option>
         <option value="fname">First name</option>
         <option value="lname">Last name</option>
     </select>
     <hr>
-    <a id = "errors"></a>
+    <a id = "errors">Select a semester, class, and date to show attendance data.</a>
 
     <!-- STATS TABLE BASE -->
     <div style="overflow-x:auto;">
@@ -126,6 +125,7 @@
             //  Write contents of the semester menu
             function write_semester_menu() {
                 if (classes.length > 0) {
+                    // Create default value
                     removeOptions(document.getElementById('semester_select'));
                     var default_option = document.createElement('option');
                     default_option.value = 0;
@@ -182,6 +182,7 @@
 
             //  Write contents of class ID menu :: *****ADD PROFESSOR CHECK HERE*****
             function write_class_menu() {
+                // Create default value
                 removeOptions(document.getElementById('class_id_select'));
                 let class_list = Object.keys(classData.classes);
                 class_list.sort();
@@ -209,6 +210,7 @@
                     let date_list = Object.keys(studentData.students[class_id][students[0]]['attendance']);
                     date_list.sort();
 
+                    // Create default value
                     removeOptions(document.getElementById('date_select'));
                     var default_option = document.createElement('option');
                     default_option.value = 0;
@@ -236,8 +238,13 @@
             //  Handle date change menu
             function change_date() {
                 let input = document.getElementById('date_select').value;
-                date = input;
-                search_student();
+                if (input != "N/A") {
+                    date = input;
+                    search_student();
+                }
+                else {
+                    console.log("Cannot change date: No dates present")
+                }
             }
             window.change_date = change_date;
 
@@ -252,10 +259,10 @@
                 let input = document.getElementById('searchbar').value;
                 students = Object.keys(studentData.students[class_id]);
 
-                if (input === "") {
+                if (input === "" && (document.getElementById('date_select').value != 0)) {
                     write_table(students);
                 }
-                else {
+                if (document.getElementById('date_select').value != 0) {
                     input = input.toLowerCase();
                     let found_students = [];
                 
@@ -271,6 +278,9 @@
                         empty_table();
                         error_msg.innerHTML = "No users found.";
                     }
+                }
+                else {
+                    error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
                 }
             }
             window.search_student = search_student;
