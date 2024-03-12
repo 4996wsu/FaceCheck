@@ -54,11 +54,11 @@ h2 {
 
 /* Apply the background to the whole page */
 body {
-    background-image: url('/static/images/background.jpg');
+    background-image: url('/static/images/background.jpg'); 
     background-size: cover;
     background-position: center;
-    background-attachment: fixed; /* This will give a parallax-like effect */
-    background-color: #000000;
+    background-attachment: fixed; /* This will give a parallax-like effect */ 
+    background-color: #1e1e1e;
 }
 
 .hero-banner {
@@ -69,4 +69,18 @@ body {
     display: flex;
     align-items: center; /* Center content vertically */
     justify-content: center; /* Center content horizontally */
+}
+.username {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+    font-size: 130%;
+}
+.subtext {
+    font-size: 14px;
+    color: #666; /* Adjust color as needed */
+    margin-top: 5px; /* Adjust margin as needed */
 }

@@ -17,6 +17,7 @@
                         {{ form|crispy }}
                         <input type="checkbox" id="showPassword"> Show Password
                         <p>Don't have an account? Create one <a href="{% url 'sign_up' %}">Here</a></p>
+                        <p>Forgot your password? Reset it <a href="{% url 'password_reset' %}">Here</a></p>
                         <button type="submit" class="btn btn-primary">Login</button>
                     </form>
                 </div>

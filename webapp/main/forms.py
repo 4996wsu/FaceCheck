@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post
+from .models import Post, UserProfile
 from django.core.exceptions import ValidationError
 
 class RegisterForm(UserCreationForm):
@@ -24,5 +24,11 @@ class RegisterForm(UserCreationForm):
         if not email.endswith('@wayne.edu'):
             raise ValidationError('You must use a wayne.edu email address')
         return email
+
 class ImageUploadForm(forms.Form):
     image = forms.ImageField(label='Upload image')
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['photo']

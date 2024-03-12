@@ -16,7 +16,14 @@
                         {% csrf_token %}
                         {{ form|crispy }}
                         <input type="checkbox" id="showPassword"> Show Password
-                        <p>Have an account? Login <a href="{% url 'login' %}">Here</a></p>
+                    </form>
+                    <br>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ user_form.as_p }}
+                        {{ profile_form.as_p }}
+                        <p class="subtext">*Photo is required for registration</p>
+                        <p> Have an account? Login <a href="{% url 'login' %}">Here</a></p>
                         <button type="submit" class="btn btn-primary">Register</button>
                     </form>
                 </div>

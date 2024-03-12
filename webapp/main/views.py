@@ -3,8 +3,8 @@ from django.shortcuts import render, redirect
 
 from database import update_student_photo
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
-
-from .forms import RegisterForm
+from django.contrib.auth.forms import PasswordResetForm
+from .forms import RegisterForm, ProfileForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -43,28 +43,22 @@ def stats(request):
 def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)  # Don't save the user yet
-            otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
-            request.session['otp'] = otp  # Store the OTP in the session
-            request.session['username'] = form.cleaned_data.get('username')
-            request.session['email'] = form.cleaned_data.get('email')
-            request.session['password'] = form.cleaned_data.get('password1')
-            request.session['otp_time'] = str(datetime.now())  # Store the current time
-            send_mail(
-                'Your OTP',
-                f'Your OTP is {otp}',
-                settings.DEFAULT_FROM_EMAIL,
-                [form.cleaned_data.get('email')],
-                fail_silently=False,
-            )
-            return redirect('otp_verification')  # Redirect to OTP verification view
+        profile_form = ProfileForm(request.POST, request.FILES)
+        if form.is_valid() and profile_form.is_valid():
+            user = form.save(commit=False)
+            user.save()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            profile.save()
+            messages.success(request, 'Account created successfully. Please log in.')
+            return redirect('login')
         else:
-            print(form.errors)
+            messages.error(request, 'Invalid form submission.')
     else:
         form = RegisterForm()
+        profile_form = ProfileForm()
 
-    return render(request, 'registration/sign_up.html', {'form': form})
+    return render(request, 'registration/sign_up.html', {'form': form, 'profile_form': profile_form})
 
 def otp_verification(request):
     if request.method == 'POST':
@@ -146,3 +140,18 @@ def enroll(request):
         form = ImageUploadForm()
     return render(request, 'main/enrollment.html', {'form': form})
 
+
+def reset_password_request(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            form.save(request=request)
+            messages.success(request, 'An email has been sent with instructions to reset your password.')
+            return redirect('login')
+    else:
+        form = PasswordResetForm()
+    return render(request, 'registration/password_reset.html', {'form': form})
+
+def reset_password_confirm(request, uidb64, token):
+    # Add your password reset confirmation logic here
+    pass
