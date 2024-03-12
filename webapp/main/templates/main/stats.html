@@ -30,7 +30,7 @@
             position: sticky;
             white-space: nowrap;
             left: 0;
-            width: 12em;
+            width: 10em;
             background-color: #131313;
             z-index: 1;
         }
@@ -38,16 +38,14 @@
             position: relative;
             white-space: nowrap;
         }
+        .col_name {
+            position: relative;
+            white-space: nowrap;
+            width: 10em;
+        }
         th, tr {
             padding-right: 1rem;
         }
-        /*
-        #input_fields {
-            margin: auto;
-            width: fit-content;
-            text-align: center;
-        }
-        */
     </style>
 
     <!-- STATISTICS PAGE CODE -->
@@ -367,11 +365,23 @@
                     input = input.toLowerCase();
                     let found_students = [];
                 
-                    for (let i = 0; i < students.length; i++) {
-                        if (students[i].toLowerCase().includes(input)) {
-                            found_students.push(students[i]);
+                    //  Check for substring based on filter
+                    if (filter === 'accessid') {
+                        for (let i = 0; i < students.length; i++) {
+                            if (students[i].toLowerCase().includes(input)) {
+                                found_students.push(students[i]);
+                            }
                         }
                     }
+                    else if (filter === 'fname' || filter === 'lname') {
+                        for (let i = 0; i < students.length; i++) {
+                            let currentStudent = students[i];
+                            if (userData['users'][currentStudent][filter].toLowerCase().includes(input)) {
+                                found_students.push(students[i]);
+                            }
+                        }
+                    }
+
                     if (found_students.length > 0) {
                         write_table(found_students);
                     }
@@ -428,7 +438,7 @@
                 if (filter === 'accessid') {
                     header  =  `<tr>
                                         <th class = "headcol_id">Access ID</th>
-                                        <th class = "col">Name</th>`;
+                                        <th class = "col_name">Name</th>`;
                 }
                 else if (filter === 'fname' || filter === 'lname') {
                     header  =  `<tr>
@@ -482,7 +492,7 @@
                         if (filter === 'accessid') {
                             row  = `<tr>
                                 <td class = "headcol_id">${currentStudent}</td>
-                                <td class = "col">${userData.users[currentStudent]['fname'] + " " + 
+                                <td class = "col_name">${userData.users[currentStudent]['fname'] + " " + 
                                     userData.users[currentStudent]['lname']}</td>`;
                         }
                         else if (filter === 'fname') {
