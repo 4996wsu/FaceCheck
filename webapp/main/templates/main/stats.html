@@ -164,7 +164,7 @@
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
         const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
-        if (studentSnapshot.exists() && classSnapshot.exists()){
+        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
             let studentData = studentSnapshot.data();
             let classData = classSnapshot.data();
             let userData = userSnapshot.data();
