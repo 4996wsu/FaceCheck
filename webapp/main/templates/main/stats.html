@@ -18,33 +18,71 @@
             background-image: none;
             background-color: #131313;
         }
-        .headcol_id {
+
+        @media (min-width: 1280px) {
+            #indented_label {
+                margin-left: 1em;
+            }
+        }
+
+        @media (max-width: 1279px) {
+            #indented_label::before {
+                white-space: pre;
+                display: block;
+            }
+
+            #semester_select,
+            #class_id_select,
+            #date_select,
+            #searchbar,
+            #filter_select {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 0.5em;
+            }
+
+            .input-field {
+                display: grid; 
+                grid-template-columns: auto 1fr; 
+                gap: 0.5em; 
+                align-items: center; 
+            }
+        
+            .input-field label {
+                text-align: right; 
+            }
+        
+            .input-field select {
+                width: 100%; 
+            }
+        }
+
+        /*  TABLE FORMATTING STYLES  */
+        #stats_table {
+            margin-bottom: 3em;
+        }
+        th, tr {
+            padding-right: 1rem;
+        }
+        .headcol_id, .headcol_name {
             position: sticky;
             white-space: nowrap;
             left: 0;
-            width: 5.5em;
             background-color: #131313;
             z-index: 1;
+        }
+        .headcol_id {
+            width: 5.5em;
         }
         .headcol_name {
-            position: sticky;
-            white-space: nowrap;
-            left: 0;
             width: 10em;
-            background-color: #131313;
-            z-index: 1;
         }
-        .col {
+        .col, .col_name {
             position: relative;
             white-space: nowrap;
         }
         .col_name {
-            position: relative;
-            white-space: nowrap;
             width: 10em;
-        }
-        th, tr {
-            padding-right: 1rem;
         }
     </style>
 
@@ -55,15 +93,13 @@
         <select name="semester_select" id="semester_select" onchange = "change_semester()">
             <option value="default">N/A</option>
         </select>
-        <a>&emsp;</a>
 
-        <label for="class_id_select">Class: </label>
+        <label for="class_id_select" id="indented_label">Class: </label>
         <select name="class_id_select" id="class_id_select" disabled onchange = "change_class()">
             <option value="default">N/A</option>
         </select>
-        <a>&emsp;</a>
 
-        <label for="date_select">Date: </label>
+        <label for="date_select" id="indented_label">Date: </label>
         <select name="date_select" id="date_select" onchange = "change_date()" disabled>
             <option value="default">N/A</option>
         </select>
@@ -75,9 +111,8 @@
             type = "text" name = "search"
             maxlength = "20"
             placeholder = "Ex: hc9082">
-        <a>&emsp;</a>
 
-        <label for="filter_select">Search/sort by: </label>
+        <label for="filter_select" id="indented_label">Search/sort by: </label>
         <select name="filter_select" id="filter_select" onchange = "change_filter()">
             <option value="accessid">Access ID</option>
             <option value="fname">First name</option>
@@ -89,7 +124,7 @@
     <a id = "errors">Select a semester, class, and date to show attendance data.</a>
 
     <!-- STATS TABLE BASE -->
-    <div style="overflow-x:auto;">
+    <div id = "stats_table" style="overflow-x:auto;">
         <table id = "stats">
             <thead id="thead"></thead>
             <tbody id="tbody"></tbody>
