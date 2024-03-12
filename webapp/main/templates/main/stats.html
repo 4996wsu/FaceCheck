@@ -452,7 +452,7 @@
                 }
 
                 if (filter === 'accessid') 
-                    studentInfoArr.sort((a, b) => a.id - b.id);
+                    studentInfoArr.sort((a, b) => a.id.localeCompare(b.id));
                 else if (filter === 'fname') 
                     studentInfoArr.sort((a, b) => a.fname.localeCompare(b.fname));
                 else if (filter === 'lname') 
