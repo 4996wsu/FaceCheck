@@ -384,7 +384,14 @@
             //  Handle search filter menu
             function change_filter() {
                 filter = document.getElementById('filter_select').value;
-                console.log("Filter: " + filter);
+                console.log("Selected filter: " + filter);
+                let searchbar = document.getElementById('searchbar');
+                if (filter === 'accessid')
+                    searchbar.placeholder = "Ex: hc9082";
+                else if (filter === 'fname')
+                    searchbar.placeholder = "Enter first name";
+                else if (filter === 'lname')
+                    searchbar.placeholder = "Enter last name";
                 search_student();
             }
             window.change_filter = change_filter;
