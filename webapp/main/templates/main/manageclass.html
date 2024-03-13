@@ -1,5 +1,5 @@
 {% extends 'main/base.html'%}
-{% block title %}Statistics Page{% endblock %}
+{% block title %}Manage Class{% endblock %}
 
 {% block content %}
     <!-- TEMPORARY STYLE SHEET, DELETE LATER -->
@@ -87,7 +87,7 @@
     </style>
 
     <!-- STATISTICS PAGE CODE -->
-    <h2>Statistics</h2><hr>
+    <h2>Manage Class</h2><hr>
     <div id = "input_fields">
         <label for="semester_select">Semester: </label>
         <select name="semester_select" id="semester_select" onchange = "change_semester()">
@@ -96,11 +96,6 @@
 
         <label for="class_id_select" id="indented_label">Class: </label>
         <select name="class_id_select" id="class_id_select" disabled onchange = "change_class()">
-            <option value="default">N/A</option>
-        </select>
-
-        <label for="date_select" id="indented_label">Date: </label>
-        <select name="date_select" id="date_select" onchange = "change_date()" disabled>
             <option value="default">N/A</option>
         </select>
 
@@ -121,7 +116,7 @@
     </div>
 
     <hr>
-    <a id = "errors">Select a semester, class, and date to show attendance data.</a>
+    <a id = "errors">Select a semester and class to manage a class.</a>
 
     <!-- STATS TABLE BASE -->
     <div id = "stats_table" style="overflow-x:auto;">
@@ -168,7 +163,6 @@
             let studentData = studentSnapshot.data();
             let classData = classSnapshot.data();
             let userData = userSnapshot.data();
-            let date_select = document.getElementById("date_select");
             let semester_select = document.getElementById("semester_select");
             let class_select = document.getElementById("class_id_select");
             let table = document.getElementById('stats');
@@ -178,7 +172,6 @@
             //  Save identifier keys and write initial table based on inputs
             var username = "{{ user.username }}";
             console.log("Logged in as:", username);
-            let date = 'N/A';
             let semester = 'N/A';
             let class_id = 'N/A';
             var students;   //  This is initialized with a value after a class is chosen
@@ -253,18 +246,7 @@
                     class_id = 'N/A';
                     write_class_menu();
                     class_select.removeAttribute("disabled");
-                    date_select.setAttribute("disabled", "disabled");
 
-                    // Create default value for date select
-                    removeOptions(date_select);
-                    var default_option = document.createElement('option');
-                    default_option.value = 0;
-                    default_option.innerHTML = "N/A"
-                    default_option.disabled = true;
-                    default_option.selected = true;
-                    default_option.style.display = 'none';
-                    date_select.appendChild(default_option);
-                    date = "N/A";
                     search_student();
                 }
                 else {
@@ -323,10 +305,7 @@
                         console.log(class_id);
                         students = Object.keys(studentData.students[class_id]);
                         console.log("Number of students: " + students.length);
-                        date = 'N/A';
-                        write_date_menu();
-                        date_select.removeAttribute("disabled");
-                        error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
+                        search_student();
                     }
                     else {
                         console.log("Error: Class '" + input + "' does not exist in the attendance database.");
@@ -338,50 +317,6 @@
                 }
             }
             window.change_class = change_class;
-
-            //  Write contents of date menu
-            function write_date_menu() {
-                if (students.length > 0) {
-                    let date_list = Object.keys(studentData.students[class_id][students[0]]['attendance']);
-                    date_list.sort();
-
-                    // Create default value
-                    removeOptions(date_select);
-                    var default_option = document.createElement('option');
-                    default_option.value = 0;
-                    default_option.innerHTML = "-- Click to select date --"
-                    default_option.disabled = true;
-                    default_option.selected = true;
-                    default_option.style.display = 'none';
-                    date_select.appendChild(default_option);
-
-                    //  00/00/0000 is an empty date in the database, added just to initialize
-                    //  a new student. The loop starts from 1 to avoid including this date.
-                    for (var i = 1; i < date_list.length; i++) {
-                        var option = document.createElement('option');
-                        option.value = date_list[i];
-                        let dateArr = date_list[i].split("_");
-                        option.innerHTML = dateArr[0] + "/" + dateArr[1] + "/" + dateArr[2];
-                        date_select.appendChild(option);
-                    }
-                }
-                else {
-                    console.log("Error: There are no dates to show.");
-                }
-            }
-
-            //  Handle date select menu
-            function change_date() {
-                let input = date_select.value;
-                if (input != "N/A") {
-                    date = input;
-                    search_student();
-                }
-                else {
-                    console.log("Cannot change date: No dates present")
-                }
-            }
-            window.change_date = change_date;
 
             //  Handle search filter menu
             function change_filter() {
@@ -402,10 +337,10 @@
             function search_student() {
                 let input = document.getElementById('searchbar').value;
 
-                if (input === "" && (date != 'N/A')) {
+                if (input === "" && (class_id != 'N/A')) {
                     write_table(students);
                 }
-                else if (date != 'N/A') {
+                else if (class_id != 'N/A') {
                     input = input.toLowerCase();
                     let found_students = [];
                 
@@ -435,7 +370,7 @@
                     }
                 }
                 else {
-                    error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
+                    error_msg.innerHTML = "Select a semester and class to manage a class.";
                     empty_table();
                 }
             }
@@ -474,7 +409,8 @@
             function write_table(accessIDs) {
                 error_msg.innerHTML = "";
                 empty_table();
-
+                
+                /*
                 let students = sort_by_filter(accessIDs);
 
                 let header = '';
@@ -578,7 +514,7 @@
                     } else {
                         console.log("No records for " + currentStudent);
                     }
-                }
+                } */
             }
 
         }

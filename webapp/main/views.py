@@ -40,6 +40,10 @@ def home(request):
 
 def stats(request):
     return render(request, 'main/stats.html')
+
+def manageclass(request):
+    return render(request, 'main/manageclass.html')
+
 def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
