@@ -4,6 +4,7 @@
 {% block content %}
     <!-- TEMPORARY STYLE SHEET, DELETE LATER -->
     <style>
+        /* GENERIC STYLES */
         h2 {
             margin-bottom: 1rem;
             text-align: center;
@@ -19,6 +20,59 @@
             background-color: #131313;
         }
 
+        /* TAB STYLES */
+        .tab {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .tab button {
+            flex: 1; /* Make the buttons evenly stretch */
+            background-color: #f2f2f2;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tab button.active {
+            background-color: #ddddddd4;
+        }
+        
+        .tab button:hover {
+            background-color: #ddddddef;
+        }
+        
+        .tab-content {
+            display: none;
+            border-top: 2px solid transparent;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-content h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .tab-content p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        @media screen and (max-width: 768px) {
+            .tab button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+
+        /*  TABLE FORMATTING STYLES  */
         @media (min-width: 1280px) {
             #indented_label {
                 margin-left: 1em;
@@ -57,7 +111,6 @@
             }
         }
 
-        /*  TABLE FORMATTING STYLES  */
         #stats_table {
             margin-bottom: 3em;
         }
@@ -88,6 +141,15 @@
 
     <!-- STATISTICS PAGE CODE -->
     <h2>Manage Class</h2><hr>
+
+    <!-- TABS -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'tab_manage_class')" id="defaultOpen">Manage Students</button>
+        <button class="tablinks" onclick="openTab(event, 'tab_add_students')">Add New Students</button>
+    </div>
+    
+
+    <!-- INPUT FIELDS -->
     <div id = "input_fields">
         <label for="semester_select">Semester: </label>
         <select name="semester_select" id="semester_select" onchange = "change_semester()">
@@ -99,39 +161,135 @@
             <option value="default">N/A</option>
         </select>
 
-        <!-- SEARCH BAR -->
-        <br><br><a>Search for a student: </a>
-        <input id = "searchbar"
-            onkeyup = "search_student()"
-            type = "text" name = "search"
-            maxlength = "20"
-            placeholder = "Ex: hc9082">
 
-        <label for="filter_select" id="indented_label">Search/sort by: </label>
-        <select name="filter_select" id="filter_select" onchange = "change_filter()">
-            <option value="accessid">Access ID</option>
-            <option value="fname">First name</option>
-            <option value="lname">Last name</option>
-        </select>
-    </div>
+        <!-- TAB CONTENT -->
+        <div id="tab_manage_class" class="tab-content active">
+            <!-- SEARCH BAR -->
+            <br><a>Search for a student: </a>
+            <input id = "searchbar"
+                onkeyup = "search_student()"
+                type = "text" name = "search"
+                maxlength = "20"
+                placeholder = "Ex: hc9082">
 
-    <hr>
-    <a id = "errors">Select a semester and class to manage a class.</a>
+            <label for="filter_select" id="indented_label">Search/sort by: </label>
+            <select name="filter_select" id="filter_select" onchange = "change_filter()">
+                <option value="accessid">Access ID</option>
+                <option value="fname">First name</option>
+                <option value="lname">Last name</option>
+            </select>
 
-    <!-- STATS TABLE BASE -->
-    <div id = "stats_table" style="overflow-x:auto;">
-        <table id = "stats">
-            <thead id="thead"></thead>
-            <tbody id="tbody"></tbody>
-        </table>
+            <hr>
+            <a id = "errors">Select a semester and class to manage a class.</a>
+
+            <!-- STATS TABLE BASE -->
+            <div id = "stats_table" style="overflow-x:auto;">
+                <table id = "stats">
+                    <thead id="thead"></thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab_add_students" class="tab-content">
+            <hr>
+            <table id="add_student_table">
+                <thead>
+                    <tr>
+                        <th>Access ID</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button onclick="addStudentRow()">+</button>
+            <button onclick="submitTable()">Submit</button>
+        </div>
     </div>
     
 
     <!-- JAVASCIPT CODE -->
     <script type="module">
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+
+        // Open different tabs
+        function openTab(evt, tabName) {
+            // Get all elements with class="tab-content" and hide them
+            var tabContent = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+        
+            // Get all elements with class="tablinks" and remove the class "active"
+            var tabLinks = document.getElementsByClassName("tablinks");
+            for (var i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+            }
+        
+            // Show the current tab content, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        window.openTab = openTab;
+        
+        //  Open image preview
+        function openImagePreview(imageUrl, studentName) {
+            // Create overlay/modal element
+            var overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.zIndex = '9999';
+        
+            // Create container for image and caption
+            var container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.top = '50%';
+            container.style.left = '50%';
+            container.style.transform = 'translate(-50%, -50%)';
+            container.style.textAlign = 'center';
+        
+            // Create image element
+            var image = document.createElement('img');
+            image.src = imageUrl;
+            image.style.maxWidth = '80%';
+            image.style.maxHeight = '80%';
+            image.style.display = 'block';
+            image.style.margin = '0 auto';
+        
+            // Create caption element
+            var caption = document.createElement('p');
+            caption.textContent = "Photo for " + studentName;
+            caption.style.color = '#fff';
+            caption.style.fontFamily = 'Arial, sans-serif';
+            caption.style.fontSize = '16px';
+        
+            // Append image and caption to container
+            container.appendChild(image);
+            container.appendChild(caption);
+        
+            // Append container to overlay
+            overlay.appendChild(container);
+        
+            // Append overlay to body
+            document.body.appendChild(overlay);
+        
+            // Close overlay when clicked
+            overlay.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+        }
+        window.openImagePreview = openImagePreview;
+
+        // Show the default tab on page load
+        document.getElementById("defaultOpen").click();
 
         function removeOptions(selectElement) {
             var i, len = selectElement.options.length - 1;
@@ -154,7 +312,8 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
-        const colRef = collection(db, "infoCollection")
+        const storage = getStorage();
+        const colRef = collection(db, "infoCollection");
 
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
@@ -338,7 +497,7 @@
                 let input = document.getElementById('searchbar').value;
 
                 if (input === "" && (class_id != 'N/A')) {
-                    write_table(students);
+                    write_manage_table(students);
                 }
                 else if (class_id != 'N/A') {
                     input = input.toLowerCase();
@@ -362,7 +521,7 @@
                     }
 
                     if (found_students.length > 0) {
-                        write_table(found_students);
+                        write_manage_table(found_students);
                     }
                     else {
                         empty_table();
@@ -382,7 +541,7 @@
                     table.removeChild(table.firstChild);
             }
 
-            //  Sort students based on filter and return access ID order. Used for write_table()
+            //  Sort students based on filter and return access ID order. Used for write_manage_table()
             function sort_by_filter(accessIDs) {
                 let studentInfoArr = [];
 
@@ -406,117 +565,124 @@
             }
 
             //  Create table
-            function write_table(accessIDs) {
+            async function write_manage_table(accessIDs) {
                 error_msg.innerHTML = "";
-                empty_table();
-                
-                /*
+            
+                // Create an array to store promises for fetching photo URLs
+                const photoPromises = [];
+
                 let students = sort_by_filter(accessIDs);
-
-                let header = '';
-                //  ----- Table header -----
-                if (filter === 'accessid') {
-                    header  =  `<tr>
-                                        <th class = "headcol_id">Access ID</th>
-                                        <th class = "col_name">Name</th>`;
-                }
-                else if (filter === 'fname' || filter === 'lname') {
-                    header  =  `<tr>
-                                        <th class = "headcol_name">Name</th>
-                                        <th class = "col">Access ID</th>`;
-                }
-
-                //  Find student with the most timestamps
-                var student_index = 0;
-                var highest_length = 0;
-                for (var i = 0; i < students.length; i++) {
-                    let s = Object.keys(studentData.students[class_id][students[i]]['attendance'][date]).length
-                    if (s > highest_length) {
-                        highest_length = s;
-                        student_index = i;
+            
+                // Loop through students
+                for (let currentStudent of students) {
+                    let data = userData.users[currentStudent];
+                    if (data) {
+                        // Get student photo URL
+                        const photoPromise = new Promise(async (resolve, reject) => {
+                            try {
+                                const storageRef = ref(storage, currentStudent + "_photo");
+                                const photoUrl = await getDownloadURL(storageRef);
+                                resolve({ photoUrl, student: currentStudent });
+                            } catch (error) {
+                                console.error("Error getting photo URL:", error);
+                                resolve({ photoUrl: null, student: currentStudent });
+                            }
+                        });
+            
+                        photoPromises.push(photoPromise);
                     }
                 }
-
-                //  List all timestamps
-                let timestamps = Object.keys(studentData.students[class_id][students[student_index]]['attendance'][date]); 
-                timestamps.sort();
-                for (let key of timestamps) {
-                    let timeArr = key.split("_");
-                    if (parseInt(timeArr[0]) > 12) {
-                        timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
-                        timeArr[2] = "PM"
-                    }
-                    else if (parseInt(timeArr[0]) === 12) {
-                        timeArr[0] = parseInt(timeArr[0]) + "";
-                        timeArr[2] = "PM"
-                    }
-                    else {
-                        timeArr[2] = "AM"
-                    }
-                    let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
-                    
-                    //  Add margin if first entry, otherwise use normal margins
-                    header += '<th class = "col">' + time + '</th>';
-                }
-                table.innerHTML += header
-
-                //  ----- Table contents -----
-                let row = ""
-
-                //  Loop through students
-                for (let student in students) {
-                    let currentStudent = students[student]
-
-                    if (studentData.students[class_id][currentStudent]['attendance'] !== undefined) {
-                        //  Change table contents based on filter
+            
+                // Wait for all photo fetching promises to resolve
+                Promise.all(photoPromises)
+                    .then(results => {
+                        // Clear the table content before adding new entries
+                        empty_table();
+            
+                        let header = '';
+                        // ----- Table header -----
                         if (filter === 'accessid') {
-                            row  = `<tr>
-                                <td class = "headcol_id">${currentStudent}</td>
-                                <td class = "col_name">${userData.users[currentStudent]['fname'] + " " + 
-                                    userData.users[currentStudent]['lname']}</td>`;
+                            header = `<tr>
+                                                <th class = "headcol_id">Access ID</th>
+                                                <th class = "col_name">Name</th>`;
+                        } else if (filter === 'fname' || filter === 'lname') {
+                            header = `<tr>
+                                                <th class = "headcol_name">Name</th>
+                                                <th class = "col">Access ID</th>`;
                         }
-                        else if (filter === 'fname') {
-                            row  = `<tr>
-                                <td class = "headcol_name">${userData.users[currentStudent]['fname'] + " " + 
-                                    userData.users[currentStudent]['lname']}</td>
-                                <td class = "col">${currentStudent}</td>`;
-                        }
-                        else if (filter === 'lname') {
-                            row  = `<tr>
-                                <td class = "headcol_name">${userData.users[currentStudent]['lname'] + ", " + 
-                                    userData.users[currentStudent]['fname']}</td>
-                                <td class = "col">${currentStudent}</td>`;
-                        }
-
-                        let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
-
-                        let student_timestamps = Object.keys(attendance);
-                        student_timestamps.sort();
-                        for (let key of timestamps) {
-                            let value = ""
-                            // This if statement checks if a student does not have a timestamp for a given time,
-                            // in case there was an error processing attendance for a given time.
-                            if (student_timestamps.includes(key)) {
-                                if (attendance[key] === true)
-                                    value = "\u2714";
-                                else
-                                    value = "\u274C";
+                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th></tr>';
+                        table.innerHTML += header;
+            
+                        // Loop through results and add them to table rows accordingly
+                        for (let i = 0; i < results.length; i++) {
+                            const { photoUrl, student } = results[i];
+                            let data = userData.users[student];
+                            if (data) {
+                                let row = '';
+                                if (filter === 'accessid') {
+                                    row = `<tr>
+                                                <td class = "headcol_id">${student}</td>
+                                                <td class = "col_name">${userData.users[student]['fname'] + " " +
+                                                    userData.users[student]['lname']}</td>`;
+                                } 
+                                else if (filter === 'fname') {
+                                    row = `<tr>
+                                                <td class = "headcol_name">${userData.users[student]['fname'] + " " +
+                                                    userData.users[student]['lname']}</td>
+                                                <td class = "col">${student}</td>`;
+                                } 
+                                else if (filter === 'lname') {
+                                    row = `<tr>
+                                                <td class = "headcol_name">${userData.users[student]['lname'] + ", " +
+                                                    userData.users[student]['fname']}</td>
+                                                <td class = "col">${student}</td>`;
+                                }
+            
+                                row +=
+                                    `   <td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
+                                        View Photo</button></td>
+                                    </tr>`;
+            
+                                table.innerHTML += row;
                             }
-                            else {
-                                console.log("Error: missing timestamp for " + currentStudent + ".");
-                            }
-                            
-                            row += '<td class = "col">' + value + '</td>';
                         }
-                        row += '</tr>'
-                        table.innerHTML += row
-
-                    } else {
-                        console.log("No records for " + currentStudent);
-                    }
-                } */
+                    })
+                    .catch(error => {
+                        console.error("Error fetching photo URLs:", error);
+                    });
             }
 
+            //  Add row to new student table
+            function addStudentRow() {
+                var table = document.getElementById("add_student_table").getElementsByTagName('tbody')[0];
+                var newRow = table.insertRow();
+                var cell1 = newRow.insertCell(0);
+                var cell2 = newRow.insertCell(1);
+                var idInput = document.createElement("input");
+                idInput.type = "text";
+                cell1.appendChild(idInput);
+                var deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "&#x1F5D1";
+                deleteButton.onclick = function() {
+                    // Find the parent row and delete it
+                    var row = this.parentNode.parentNode;
+                    row.parentNode.removeChild(row);
+                };
+                cell2.appendChild(deleteButton);
+            }
+            window.addStudentRow = addStudentRow;
+            //  Submit new student request
+            function submitTable() {
+                var table = document.getElementById("add_student_table");
+                var data = [];
+                for (var i = 1; i < table.rows.length; i++) {
+                    var accessid = table.rows[i].cells[0].getElementsByTagName("input")[0].value;
+                    data.push({ "accessid": accessid });
+                }
+                // DO SOMETHING
+                console.log(data);
+            }
+            window.submitTable = submitTable;
         }
     </script>
 {% endblock %}
