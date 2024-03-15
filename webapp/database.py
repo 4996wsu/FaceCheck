@@ -180,6 +180,20 @@ def update_student_photo(name, file):
         print("Error: No face detected, or there was an error processing the image.")
         return None
         
+
+# Update photo status for professor to approve
+def update_photo_status(section, name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    elif lookup(name, student_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+    else:
+        key = 'students.' + section + '.' + name + '.picture_status'
+        update_doc(student_doc, key, value)
+        
     
 #  Remove student photo
 def remove_student_photo(name):
@@ -229,3 +243,9 @@ def retrieve_encodings_from_class(section):
             encoding_list.append(retrieved_encoding)
     
     return encoding_list 
+
+
+# Set flag that class encoding needs update
+def update_class_encoding_status(section, status):
+    key = 'classes.' + section + '.class_encoding_update'
+    update_doc(class_doc, key, status)
