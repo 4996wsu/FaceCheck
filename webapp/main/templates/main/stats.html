@@ -475,6 +475,11 @@
                 error_msg.innerHTML = "";
                 empty_table();
 
+                //  Remove "class_photos" from the accessIDs list since it is not a real student, then sort students
+                if (accessIDs.includes("class_photos")) {
+                    const index = accessIDs.indexOf("class_photos");
+                    accessIDs.splice(index, 1);
+                }
                 let students = sort_by_filter(accessIDs);
 
                 let header = '';
