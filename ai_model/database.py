@@ -40,7 +40,7 @@ def reset_docs():
                 'class_name': 'Senior Capstone Project Section 001',
                 'professor': 'mousavi',
                 'class_encoding': 'NO ENCODING',
-                'encoding_update': False,
+                'class_encoding_update': False,
                 'schedule': {
                     'Tuesday': ['17_30', '18_45'],
                     'Thursday': ['17_30', '20_40']
@@ -50,7 +50,7 @@ def reset_docs():
                 'class_name': 'Theoretical Computer Science Section 002',
                 'professor': 'mousavi',
                 'class_encoding': 'NO ENCODING',
-                'encoding_update': False,
+                'class_encoding_update': False,
                 'schedule': {
                     'Monday': ['17_00', '19_30'],
                 }
@@ -61,48 +61,73 @@ def reset_docs():
         'students': {
             'CSC_4996_001_W_2024': {
                 'hc9082': {
+                    'picture_status': 'N/A',
                     'attendance': {
                         '00_00_0000': {
-                            '00_00_00': True
+                            '00_00_00': True,
+                            'Overall': True
                         },
                         '03_05_2024': {
                             '17_30_00': True,
-                            '17_35_00': True
+                            '17_35_00': True,
+                            'Overall': True
                         },
                         '03_07_2024': {
                             '17_30_00': True,
-                            '17_35_00': False
+                            '17_35_00': False,
+                            'Overall': True
                         } 
                     }
                 },
                 'hi4718': {
+                    'picture_status': 'N/A',
                     'attendance': {
                         '00_00_0000': {
-                            '00_00_00': True
+                            '00_00_00': True,
+                            'Overall': True
                         },
                         '03_05_2024': {
                             '17_30_00': False,
-                            '17_35_00': False
+                            '17_35_00': False,
+                            'Overall': False
                         },
                         '03_07_2024': {
                             '17_30_00': True,
-                            '17_35_00': True
+                            '17_35_00': True,
+                            'Overall': True
                         } 
                     }
                 },
                 'hi6576': {
+                    'picture_status': 'N/A',
                     'attendance': {
                         '00_00_0000': {
-                            '00_00_00': True
+                            '00_00_00': True,
+                            'Overall': True
                         },
                         '03_05_2024': {
                             '17_30_00': True,
-                            '17_35_00': False
+                            '17_35_00': False,
+                            'Overall': True
                         },
                         '03_07_2024': {
                             '17_30_00': False,
-                            '17_35_00': False
+                            '17_35_00': False,
+                            'Overall': False
                         } 
+                    }
+                },
+                'class_photos': {
+                    '00_00_0000': {
+                        '00_00_00': 'NO PHOTO'
+                    },
+                    '03_05_2024': {
+                        '17_30_00': 'NO PHOTO',
+                        '17_35_00': 'NO PHOTO'
+                    },
+                    '03_07_2024': {
+                        '17_30_00': 'NO PHOTO',
+                        '17_35_00': 'NO PHOTO'
                     }
                 }
             }
@@ -291,6 +316,16 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
         update_doc(student_doc, key, value)
         print("Student '" + name + " marked as " + str(value) + " on " + date + " at " + time + ".")
 
+#  Update a student's overall attendance
+def update_overall_attendance(section, name, value, date = getDate()):
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, student_dict) == None:
+        print("Error: Cannot update overall attendance for '" + name + "' because the user does not exist.")
+    else:
+        key = 'students.' + section + '.' + name + '.attendance.' + date + '.Overall'
+        update_doc(student_doc, key, value)
+        print("Student '" + name + " marked as " + str(value) + " OVERALL on " + date + ".")
 
 #  Update student photo
 def update_student_photo(name, file):
@@ -318,7 +353,20 @@ def update_student_photo(name, file):
         print("Face uploaded.")
     else:
         print("Error: No face detected, or there was an error processing the image.")
-        
+
+
+# Update photo status for professor to approve        
+def update_photo_status(section, name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    elif lookup(name, student_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+    else:
+        key = 'students.' + section + '.' + name + '.picture_status'
+        update_doc(student_doc, key, value)
     
 #  Remove student photo
 def remove_student_photo(name):
@@ -330,6 +378,8 @@ def remove_student_photo(name):
         # Remove photo and encoding
         userKey = 'users.' + name + '.picture'
         update_doc(user_doc, userKey, "NO PHOTO")
+        userKey = 'users.' + name + '.encoding'
+        update_doc(user_doc, userKey, "NO ENCODING")
         print("Photo for '" + name + "' deleted successfully.")
         
         # Add encoding removal here
@@ -387,15 +437,28 @@ def download_pt_file_student(url):
     embedding, name = torch.load(buffer, map_location='cpu')
     return embedding[0], name[0]
 
+#  Update class encoding
 def update_class_encoding(section, file):
-    bucket = storage.bucket()
-    blob = bucket.blob(section + ".pt")
-    blob.upload_from_filename(file)
-    blob.make_public()
+    doc = getDoc(class_doc)
+    if doc['classes'][section]['update_class_encoding'] == True:
+        bucket = storage.bucket()
+        blob = bucket.blob(section + ".pt")
+        blob.upload_from_filename(file)
+        blob.make_public()
+        # Update encoding status to show encoding update is no longer needed
+        update_class_encoding_status(section, False)
 
-    # Upload
-    key = 'classes.' + section + '.class_encoding'
-    update_doc(class_doc, key, blob.public_url)
+        # Upload
+        key = 'classes.' + section + '.class_encoding'
+        update_doc(class_doc, key, blob.public_url)
+    else:
+        print("Error: Encoding update is not needed for '" + section + "'.")
+
+# Set flag that class encoding needs update
+def update_class_encoding_status(section, value):
+    key = 'classes.' + section + '.class_encoding_update'
+    update_doc(class_doc, key, value)
+
 
 def combine_pt_files(section):
     combined_embedding_list = []

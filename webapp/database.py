@@ -191,6 +191,8 @@ def remove_student_photo(name):
         # Remove photo and encoding
         userKey = 'users.' + name + '.picture'
         update_doc(user_doc, userKey, "NO PHOTO")
+        userKey = 'users.' + name + '.encoding'
+        update_doc(user_doc, userKey, "NO ENCODING")
         print("Photo for '" + name + "' deleted successfully.")
         
         # Add encoding removal here
