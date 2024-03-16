@@ -6,6 +6,7 @@ import os
 import time
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+import numpy as np
 
 # Assuming 'update_student_attendance', 'getDate', and 'getTime' are defined in 'database.py'
 from database import update_student_attendance, getDate, getTime, retrieve_names_from_class
@@ -49,23 +50,40 @@ def prepare_data_test(device, mtcnn, resnet):
     return embedding_list, name_list
 
 def recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list):
+    # Convert the captured frame from BGR to RGB
     img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    boxes, _ = mtcnn.detect(img)
-    faces = mtcnn(img)
+    
+    img_cropped_list, prob_list = mtcnn(img, return_prob=True)
+    
     recognized_names = []
-
-    if faces is not None:
-        for face in faces:
-            emb = resnet(face.to(device).unsqueeze(0))
-            dist_list = [torch.dist(emb, ebd).item() for ebd in embedding_list]
-            min_dist = min(dist_list)
-            if min_dist < 0.90:
+    if img_cropped_list is not None:
+        boxes, _ = mtcnn.detect(img)
+        
+        for i, prob in enumerate(prob_list):
+            if prob > 0.90:  # If the detection probability is high enough
+                emb = resnet(img_cropped_list[i].unsqueeze(0).to(device)).detach()
+                
+                dist_list = [torch.dist(emb, emb_db).item() for emb_db in embedding_list]
+                
+                min_dist = min(dist_list)
                 min_dist_idx = dist_list.index(min_dist)
-                recognized_names.append(name_list[min_dist_idx])
+                
+                if min_dist < 1.2:# Attention: Here the threshold is 1.2, it is just a number I pick up
+                    recognized_name = name_list[min_dist_idx]
+                else:
+                    recognized_name = "Unknown"
+                
+                recognized_names.append(recognized_name)
+                
+                box = boxes[i].astype(int)
+                # Draw the bounding box and name on the frame
+                frame = cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (255,0,0), 2)
+                frame = cv2.putText(frame, f"{recognized_name} ", (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 1, cv2.LINE_AA)
             else:
-                recognized_names.append("Unknown")
-
-    return recognized_names
+                # If probability is low, consider the face as not detected/reliable enough
+                #recognized_names.append("Unknown")
+                continue
+    return recognized_names, frame
 
 def update_attendance(recognized_names, class_section):
     date = getDate()
@@ -82,7 +100,10 @@ def update_attendance(recognized_names, class_section):
             students.remove(name)
     for name in students:
         update_student_attendance(class_section, name, False, date, time)
-        
+
+
+
+
 
 # def main():
 #     device = setup_device()

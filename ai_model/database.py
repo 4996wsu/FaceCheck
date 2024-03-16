@@ -483,11 +483,41 @@ def download_file_combine(url, section):
                 file.write(chunk)
     
     print(f"File downloaded and saved as {section}")
-# Example usage:
 
+def get_low_attendance_students(section):
+    doc = get_doc('student_doc')
+    if doc is None:  
+        print("No document found")
+        return []
+    students = doc['students'].get(section, {})  
+    low_attendance_students = []
+    for student_id, student_data in students.items():
+        if student_id == 'class_photos':
+            continue
+        total_sessions = 0
+        attended_sessions = 0
+        for date, sessions in student_data['attendance'].items():
+            for _, attended in sessions.items():
+                total_sessions += 1
+                if attended:
+                    attended_sessions += 1
+        attendance_rate = (attended_sessions / total_sessions) * 100 if total_sessions > 0 else 0
+        print(student_id,attended_sessions)
+        if attendance_rate <= 50:  
+            low_attendance_students.append(student_id)
+    return low_attendance_students
+
+
+# Example usage
+section = 'CSC_4996_001_W_2024'
+#low_attendance_students = get_low_attendance_students(section)
+#print("Students with <= 10% attendance:", low_attendance_students)
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
-reset_docs()
+#reset_docs()
+# section='CSC_4996_001'
+
+#reset_docs()
 section = 'CSC_4996_001_W_2024'
 # retrieve_class_embedding(section)
 # retrieve_encodings_from_class('CSC_4996_001')
