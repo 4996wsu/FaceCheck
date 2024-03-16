@@ -1,6 +1,6 @@
 #   -------------------------------------------------------------------------------------------------
 #
-#   This file handles all the database functions involving Firebase.
+#   This file handles all the database functions involving Firebase for the WEB APP.
 #
 #   -------------------------------------------------------------------------------------------------
 
@@ -100,21 +100,45 @@ def add_class(section, prof):
         update_doc(class_doc, key, prof)
         print("Class '" + section + "' successfully added.")
     
-#  Add new student to class
-def add_student(section, name):
-    student_dict = get_doc(student_doc)
+#  Add new student to **DATABASE**
+def add_student(accessid, fname, lname, role):
+    user_dict = get_doc(user_doc)
     
-    if lookup(name, student_dict) != None:
-        print("Error: Cannot add user '" + name + "' because the user already exists.")
+    if lookup(accessid, user_dict) != None:
+        print("Error: Cannot add user '" + accessid + "' because the user already exists.")
     else:
-        studentKey = 'students.' + section + '.' + name + '.picture'
-        update_doc(student_doc, studentKey, "NO PHOTO")
-        userKey = 'users.' + name + '.picture'
-        update_doc(user_doc, userKey, "NO PHOTO")
-        userKey = 'users.' + name + '.encoding'
-        update_doc(user_doc, userKey, "NO ENCODING")
+        key = 'users.' + accessid + '.fname'
+        update_doc(user_doc, key, fname)
+        key = 'users.' + accessid + '.lname'
+        update_doc(user_doc, key, lname)
+        key = 'users.' + accessid + '.picture'
+        update_doc(user_doc, key, "NO PHOTO")
+        key = 'users.' + accessid + '.encoding'
+        update_doc(user_doc, key, "NO ENCODING")
+        key = 'users.' + accessid + '.role'
+        update_doc(user_doc, key, role)
+        log_arr = [getTime(), "Created account"]
+        key = 'users.' + accessid + '.audit_log.' + getDate()
+        update_doc(user_doc, key, log_arr)
         
-        print("Student '" + name + "' successfully added.")
+        print("Student '" + accessid + "' successfully added.")
+        
+#  Add new student to **CLASS**
+def add_student_to_class(section, accessid):
+    student_dict = get_doc(student_doc)
+    user_dict = get_doc(user_doc)
+    
+    if lookup(accessid, student_dict['students'][section]) != None:
+        print("Error: Cannot add user '" + accessid + "' because the user is already in " + section + ".")
+    elif lookup(accessid, user_dict) == None:
+        print("Error: Cannot add user '" + accessid + "' because the user does not exist.")
+    else:
+        key = 'students.' + section + '.' + accessid + '.attendance.00_00_0000.00_00_00'
+        update_doc(student_doc, key, True)
+        classKey = 'classes.' + section + '.encoding_update'
+        update_doc(class_doc, classKey, True)
+        
+        print("Student '" + accessid + "' successfully added to " + section + ".")
    
     
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
@@ -156,6 +180,20 @@ def update_student_photo(name, file):
         print("Error: No face detected, or there was an error processing the image.")
         return None
         
+
+# Update photo status for professor to approve
+def update_photo_status(section, name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    elif lookup(name, student_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+    else:
+        key = 'students.' + section + '.' + name + '.picture_status'
+        update_doc(student_doc, key, value)
+        
     
 #  Remove student photo
 def remove_student_photo(name):
@@ -167,6 +205,8 @@ def remove_student_photo(name):
         # Remove photo and encoding
         userKey = 'users.' + name + '.picture'
         update_doc(user_doc, userKey, "NO PHOTO")
+        userKey = 'users.' + name + '.encoding'
+        update_doc(user_doc, userKey, "NO ENCODING")
         print("Photo for '" + name + "' deleted successfully.")
         
         # Add encoding removal here
@@ -204,28 +244,8 @@ def retrieve_encodings_from_class(section):
     
     return encoding_list 
 
-#  ------------------------------  TESTING CODE  ------------------------------
-print("---------------------- START DATABASE TESTING ----------------------")
 
-# reset_docs()
-# get_all_docs()
-
-# update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
-# add_student('CSC_4996_001', 'hi6576')
-# update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
-# update_student_attendance('CSC_4996_001', 'hc9082', True)
-#update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
-#update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
-#update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
-# remove_student_photo('hc9082')
-# remove_student_photo('hc9082')
-
-# add_student('CSC_4996_004', 'hc2810')
-# add_class('CSC_4996_001', 'mousavi')
-# add_class('CSC_4996_004', 'mousavi')
-
-# print(retrieve_file('hc9082', 'picture'))
-# print(retrieve_names())
-#retrieve_encodings_from_class('CSC_4996_001')
-
-print("---------------------- END DATABASE TESTING ----------------------")
+# Set flag that class encoding needs update
+def update_class_encoding_status(section, status):
+    key = 'classes.' + section + '.class_encoding_update'
+    update_doc(class_doc, key, status)
