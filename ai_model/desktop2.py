@@ -8,7 +8,7 @@ import os
 import sys
 import threading
 import time
-from database import combine_pt_files, download_file_combine, retrieve_encodings_from_class, retrieve_class_embedding, retrieve_encodings_from_class, update_class_encoding, download_pt_file_student, get_doc, get_low_attendance_students
+from database import combine_pt_files, download_file_combine, retrieve_encodings_from_class, retrieve_class_embedding, retrieve_encodings_from_class, update_class_encoding, download_pt_file_student, get_doc, get_low_attendance_students,update_overall_attendance,getDate
 from recognition import setup_device, load_models, prepare_data, recognize_faces, update_attendance
 from firebase_admin import firestore, credentials, initialize_app
 from pathlib import Path
@@ -161,10 +161,21 @@ def show_low_attendance_options(student_ids):
     submit_button.pack(pady=20)
 
 def process_selections():
+    # Assuming 'section' is available globally or fetched from another source
+    global class_section_entry
+    section = class_section_entry.get()
     selected_students = [student_id for student_id, var in checkbox_vars.items() if var.get() == 1]
+    all_students = checkbox_vars.keys()
+
+    # Process each student, setting attendance based on selection
+    for student_id in all_students:
+        isSelected = student_id in selected_students
+        # Assuming 'getDate()' returns the current date in the desired format
+        update_overall_attendance(section, student_id, isSelected, getDate())
+
     print("Selected students:", selected_students)
-    # Further processing here
     reset_ui()
+
 
 def reset_ui():
     clear_window()
@@ -177,15 +188,15 @@ def clear_window():
     for widget in root.pack_slaves():
         widget.pack_forget()
 
-def attempt_start_attendance():
-    class_section = class_section_entry.get()
-    if class_section:
-        class_section_label.config(text=class_section)
-        attendance_button.pack_forget()
-        end_attendance_button.pack(pady=20)
-        start_attendance(class_section)
-    else:
-        messagebox.showerror("Error", "Please enter a class section.")
+# def attempt_start_attendance():
+#     class_section = class_section_entry.get()
+#     if class_section:
+#         class_section_label.config(text=class_section)
+#         attendance_button.pack_forget()
+#         end_attendance_button.pack(pady=20)
+#         start_attendance(class_section)
+#     else:
+#         messagebox.showerror("Error", "Please enter a class section.")
 
 root = tk.Tk()
 root.title("Enrollment and Attendance App")
