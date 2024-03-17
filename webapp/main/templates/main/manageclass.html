@@ -193,17 +193,19 @@
 
         <div id="tab_add_students" class="tab-content">
             <hr>
+            <label for="add_student_table">
+                Enter each student's Access ID to add them to the class.
+            </label>
             <table id="add_student_table">
                 <thead>
                     <tr>
                         <th>Access ID</th>
-                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
-            <button onclick="addStudentRow()">+</button>
+            <button onclick="addStudentRow()">&plus;</button>
             <button onclick="submitTable()">Submit</button>
         </div>
     </div>
@@ -336,6 +338,7 @@
             var students;   //  This is initialized with a value after a class is chosen
             let classes = Object.keys(classData.classes);
             let users = Object.keys(userData.users);
+            addStudentRow();
             write_semester_menu();
 
             //  Write contents of the semester menu
@@ -643,10 +646,17 @@
                                                 <td class = "col">${student}</td>`;
                                 }
             
-                                row +=
-                                    `   <td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
-                                        View Photo</button></td>
-                                    </tr>`;
+                                if (userData.users[student]['picture'] === "NO PHOTO") {
+                                    row += 
+                                        `   <td class="col">No Photo</button></td>
+                                        </tr>`;
+                                }
+                                else {
+                                    row +=
+                                        `   <td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
+                                            View Photo</button></td>
+                                        </tr>`;
+                                }
             
                                 table.innerHTML += row;
                             }
@@ -665,6 +675,7 @@
                 var cell2 = newRow.insertCell(1);
                 var idInput = document.createElement("input");
                 idInput.type = "text";
+                idInput.placeholder = "Ex: hc9082";
                 cell1.appendChild(idInput);
                 var deleteButton = document.createElement("button");
                 deleteButton.innerHTML = "&#x1F5D1";
@@ -680,14 +691,53 @@
             function submitTable() {
                 var table = document.getElementById("add_student_table");
                 var data = [];
-                for (var i = 1; i < table.rows.length; i++) {
+                for (var i = table.rows.length - 1; i > 0; i--) {
                     var accessid = table.rows[i].cells[0].getElementsByTagName("input")[0].value;
-                    data.push({ "accessid": accessid });
+                    
+                    // Check if the accessid is empty, else push to data
+                    if (accessid.trim() === "") {
+                        if (table.rows.length > 2)
+                            table.deleteRow(i);
+                    } 
+                    else {
+                        data.push({ "accessid": accessid });
+                    }
                 }
-                // DO SOMETHING
-                console.log(data);
+                addNewStudents(data);
             }
             window.submitTable = submitTable;
+
+            function addNewStudents(data) {
+                console.log(data);
+                for (let student in data) {
+                    let ID = data[student].accessid;
+                    if (ID in userData.users) {
+                        if (ID in studentData.students[class_id]) {
+                            console.log(ID + " exists.");
+                            const newStudent = {
+                                'students': {
+                                    [class_id]: {
+                                        [ID]: {
+                                            'attendance': {
+                                                '00_00_0000': {
+                                                    '00_00_00': true,
+                                                    'Overall': true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                        else {
+                            console.log(ID + " is not a student in " + class_id + ".");
+                        }
+                    }
+                    else {
+                        console.log(ID + " does not exist.");
+                    }
+                }
+            }
         }
     </script>
 {% endblock %}
