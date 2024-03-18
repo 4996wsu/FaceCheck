@@ -415,12 +415,18 @@ def retrieve_class_embedding(section):
 # Retrieve array of names for all students in a class section
 def retrieve_names_from_class(section): 
     doc = get_doc(student_doc)    
-    return list(doc['students'][section].keys())
+    names = list(doc['students'][section].keys()) 
+    
+    # Remove class_photos from names since it is not an actual student
+    if "class_photos" in names:
+        names.remove("class_photos")
+        
+    return names
     
 import numpy as np 
 # Retrieve all encodings for a class section
 def retrieve_encodings_from_class(section):
-    names = retrieve_names_from_class(section)
+    names = retrieve_names_from_class(section)    
     encoding_list = []
     for name in names:
         retrieved_encoding = retrieve_file(name, 'encoding')
