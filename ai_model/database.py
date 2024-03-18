@@ -446,7 +446,7 @@ def download_pt_file_student(url):
 #  Update class encoding
 def update_class_encoding(section, file):
     doc = get_doc(class_doc)
-    if doc['classes'][section]['update_class_encoding'] == True:
+    if doc['classes'][section]['class_encoding_update'] == True:
         bucket = storage.bucket()
         blob = bucket.blob(section + ".pt")
         blob.upload_from_filename(file)
