@@ -109,6 +109,7 @@ def start_attendance(class_section):
             if not ret:
                 print("Failed to grab frame, try again")
                 continue
+            cv2.imshow('frame', frame)
 
             recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
             
@@ -122,7 +123,7 @@ def start_attendance(class_section):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-            time.sleep(10)
+            time.sleep(50)
 
         cam.release()
         cv2.destroyAllWindows()

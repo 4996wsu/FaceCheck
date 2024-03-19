@@ -85,9 +85,7 @@ def recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list):
                 continue
     return recognized_names, frame
 
-def update_attendance(recognized_names, class_section):
-    date = getDate()
-    time = getTime()
+def update_attendance(recognized_names, class_section,date ,time):
     
     # Mark present students
     for name in recognized_names:

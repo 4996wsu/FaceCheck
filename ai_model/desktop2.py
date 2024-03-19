@@ -96,7 +96,7 @@ def attempt_start_attendance():
 
 
 
-
+from database import update_class_photo,getTime
 def start_attendance(class_id):
     global attendance_running
     attendance_running = True
@@ -111,21 +111,25 @@ def start_attendance(class_id):
 
         last_update_time = datetime.now() - timedelta(minutes=3)
         recognized_names = []
-
+        
         while attendance_running:
             ret, frame = cam.read()
             if not ret:
                 print("Failed to grab frame, try again")
                 continue
-
             current_time = datetime.now()
+            print(current_time)
+            
             temp_recognized_names, annotated_frame = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
             recognized_names.extend(temp_recognized_names)
             cv2.imshow('Live Attendance Monitoring', annotated_frame)
 
             if (current_time - last_update_time) >= timedelta(seconds=10):
+                date= getDate()
+                time=getTime()
                 print(f"Updating attendance for {len(set(recognized_names))} faces")
-                update_attendance(set(recognized_names), class_id)
+                update_class_photo(class_id, frame,date,time)
+                update_attendance(set(recognized_names), class_id,date,time)
                 recognized_names = []
                 last_update_time = current_time
 
@@ -246,7 +250,7 @@ def clear_window():
 # UI Setup
 root = tk.Tk()
 root.title("Enrollment and Attendance App")
-root.geometry("1000x900")
+root.geometry("1000x600")
 
 # Image display
 my_image = Image.open(resource_path("FaceCheckLogo.png"))
@@ -254,7 +258,7 @@ photo = ImageTk.PhotoImage(my_image)
 image_label = Label(root, image=photo)
 image_label.pack(pady=20)
 
-class_id_label = Label(root, text="Class ID: Not Selected", font=("Helvetica", 12))
+class_id_label = Label(root, text="Select Your Class Information", font=("Helvetica", 12))
 class_id_label.pack()
 
 # Dropdown menus for class detail selection

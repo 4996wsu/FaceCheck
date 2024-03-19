@@ -356,13 +356,13 @@ def update_student_photo(name, file):
 
 
 #  Update class photo
-def update_class_photo(section, file, date = getDate(), time = getTime()):
+def update_class_photo(section, frame, date = getDate(), time = getTime()):
     bucket = storage.bucket()
     imageBlob = bucket.blob(section + "/" + date + "/" + time + "_photo")
     
     # Crop student photo & upload encoding
     with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
-        cv2.imwrite(temp_file.name, file)
+        cv2.imwrite(temp_file.name, frame)
         imageBlob.upload_from_filename(temp_file.name)
     imageBlob.make_public()
         
