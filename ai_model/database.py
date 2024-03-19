@@ -355,13 +355,10 @@ def update_student_photo(name, file):
         print("Error: No face detected, or there was an error processing the image.")
 
 
-    #  Update class photo
+#  Update class photo
 def update_class_photo(section, file, date = getDate(), time = getTime()):
     bucket = storage.bucket()
-    print("Check 1")
-    imageBlob = bucket.blob(section + "_" + date + "_" + time + "_photo")
-    print("PATH: " + section + "_" + date + "_" + time + "_photo")
-    print("Check 2")
+    imageBlob = bucket.blob(section + "/" + date + "/" + time + "_photo")
     
     # Crop student photo & upload encoding
     with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
@@ -369,11 +366,10 @@ def update_class_photo(section, file, date = getDate(), time = getTime()):
         imageBlob.upload_from_filename(temp_file.name)
     imageBlob.make_public()
         
-    print("Check 3")
     # Upload photo and encoding      
     key = 'students.' + section + '.class_photos.' + date + '.' + time + '.picture'
     update_doc(student_doc, key, imageBlob.public_url)
-    print("Face uploaded.")
+    print("Class photo uploaded for" + date + " at " + time + ".")
 
 
 # Update photo status for professor to approve        
@@ -632,8 +628,8 @@ section = 'CSC_4996_001_W_2024'
 # update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
 # update_student_attendance('CSC_4996_001', 'hc9082', True)
 # update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
-update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
-update_class_photo(section, 'photos/hi6576/hi6576.jpg')
+# update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
+# update_class_photo(section, 'photos/hi6576/hi6576.jpg')
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
