@@ -82,7 +82,11 @@ def attempt_start_attendance():
         messagebox.showerror("Error", "Class ID does not exist. Please enter a valid one.")
         return
 
-    global_class_id = class_id  # Save the constructed class_id globally
+    global_class_id = class_id
+    if retrieve_class_embedding(class_id) != "NO ENCODING":
+        download_file_combine(retrieve_class_embedding(class_id), f'{class_id}.pt')
+    else:
+        combine_pt_files(class_id)  # Save the constructed class_id globally
 
     class_id_label.config(text=f"Class ID: {class_id}")
     attendance_button.pack_forget()
@@ -98,10 +102,11 @@ def start_attendance(class_id):
     attendance_running = True
 
     def attendance_process():
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        global_class_id = class_id  # Ensure access to the global variable
+        device = setup_device()
         mtcnn, resnet = load_models(device)
-        load_data = torch.load(f'{class_id}.pt', map_location=device)
-        embedding_list, name_list = load_data[0], load_data[1]
+        
+        embedding_list, name_list = torch.load(f'{class_id}.pt', map_location=device)
         cam = cv2.VideoCapture(0)
 
         last_update_time = datetime.now() - timedelta(minutes=3)
