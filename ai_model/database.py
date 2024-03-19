@@ -490,32 +490,108 @@ def download_file_combine(url, section):
     
     print(f"File downloaded and saved as {section}")
 
+from datetime import datetime
+
 def get_low_attendance_students(section):
+    # Get today's date in the same format as your attendance records
+
+
+    first_today_str = datetime.now().strftime('%m-%d-%Y')
+    today_str = first_today_str.replace("-", "_")
+    print("today_str",today_str)
+    
     doc = get_doc('student_doc')
-    if doc is None:  
+    print(doc)
+    if doc is None:
         print("No document found")
         return []
-    students = doc['students'].get(section, {})  
+
+    students = doc['students'].get(section, {})
     low_attendance_students = []
     for student_id, student_data in students.items():
+        print("student_id",student_id)
         if student_id == 'class_photos':
             continue
-        total_sessions = 0
-        attended_sessions = 0
-        for date, sessions in student_data['attendance'].items():
-            for _, attended in sessions.items():
-                total_sessions += 1
-                if attended:
-                    attended_sessions += 1
-        attendance_rate = (attended_sessions / total_sessions) * 100 if total_sessions > 0 else 0
-        print(student_id,attended_sessions)
-        if attendance_rate <= 50:  
+        # Initialize counts for today
+        total_sessions_today = 0
+        attended_sessions_today = 0
+        # Check if today's date is in the attendance records
+        today_sessions = student_data['attendance'].get(today_str, {})
+        print("today_sessions",today_sessions)
+        for _, attended in today_sessions.items():
+            total_sessions_today += 1
+            if attended:
+                attended_sessions_today += 1
+        
+        # Calculate attendance rate for today
+        attendance_rate_today = (attended_sessions_today / total_sessions_today) * 100 if total_sessions_today > 0 else 0
+        
+        # Print attendance info for debugging
+        print(f"Student ID: {student_id}, Attended Sessions Today: {attended_sessions_today}, Total Sessions Today: {total_sessions_today}, Attendance Rate Today: {attendance_rate_today}%")
+        
+        # Decide if the student has low attendance today
+        if attendance_rate_today <= 50:###AATTENTION 50% is just a number I picked up AND IT IS A THRESHOLD
+            print(f"Student {student_id} has low attendance today ({attendance_rate_today}%)")
             low_attendance_students.append(student_id)
+            print("low_attendance_students",low_attendance_students)
+    names = retrieve_names_from_class(section)
+    result = [name for name in names if name not in low_attendance_students]
+    print(  "result",result)
+
+        # for name in result:
+        #     update_overall_attendance(section, name, True, today_str)
+        
+
     return low_attendance_students
-
-
-# Example usage
 section = 'CSC_4996_001_W_2024'
+#get_low_attendance_students(section)
+#names = retrieve_names_from_class(section)
+# Assuming the get_doc function is defined and works as intended
+
+def parse_class_ids_from_firebase(doc_id):
+    # Retrieve the document from Firebase
+    doc = get_doc(doc_id)
+    
+    if not doc or 'classes' not in doc:
+        print("Document not found or does not contain 'classes'.")
+        return [], [], [], [], []
+    
+    subjects, course_numbers, class_sections, terms, years = [], [], [], [], []
+    # Mapping for term codes to their full names
+    term_mapping = {"S": "Summer", "W": "Winter", "F": "Fall"}
+    
+    for class_id, details in doc['classes'].items():
+        parts = class_id.split("_")
+        if len(parts) == 5:
+            subject, course_number, class_section, term_code, year = parts
+            
+            # Check for duplicates before appending
+            if subject not in subjects:
+                subjects.append(subject)
+            if course_number not in course_numbers:
+                course_numbers.append(course_number)
+            if class_section not in class_sections:
+                class_sections.append(class_section)
+            term_full = term_mapping.get(term_code, "Invalid Term")
+            if term_full not in terms:
+                terms.append(term_full)
+            if year not in years:
+                years.append(year)
+    
+    return subjects, course_numbers, class_sections, terms, years
+
+# To use the function, you would call it with your document ID
+# Example usage:
+subjects, course_numbers, class_sections, terms, years = parse_class_ids_from_firebase('class_doc')
+
+# Print the arrays to verify no duplicates
+print("Subjects:", subjects)
+print("Course Numbers:", course_numbers)
+print("Class Sections:", class_sections)
+print("Terms:", terms)
+print("Years:", years)
+
+
 #low_attendance_students = get_low_attendance_students(section)
 #print("Students with <= 10% attendance:", low_attendance_students)
 #  ------------------------------  TESTING CODE  ------------------------------
