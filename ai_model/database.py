@@ -355,6 +355,29 @@ def update_student_photo(name, file):
         print("Error: No face detected, or there was an error processing the image.")
 
 
+    #  Update class photo
+def update_class_photo(section, file, date = getDate(), time = getTime()):
+    bucket = storage.bucket()
+    print("Check 1")
+    imageBlob = bucket.blob(section + "_" + date + "_" + time + "_photo")
+    print("PATH: " + section + "_" + date + "_" + time + "_photo")
+    print("Check blob")
+    imageBlob.make_public()
+    print("Check 2")
+    
+    # Crop student photo & upload encoding
+    # with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+    #         cv2.imwrite(temp_file.name, file)
+    #         imageBlob.upload_from_filename(temp_file.name)
+    imageBlob.upload_from_filename(file)
+        
+    print("Check 3")
+    # Upload photo and encoding      
+    key = 'students.' + section + '.class_photos.' + date + '.' + time + '.picture'
+    update_doc(student_doc, key, imageBlob.public_url)
+    print("Face uploaded.")
+
+
 # Update photo status for professor to approve        
 def update_photo_status(section, name, value):
     user_dict = get_doc(user_doc)
@@ -599,7 +622,7 @@ print("---------------------- START DATABASE TESTING ----------------------")
 #reset_docs()
 # section='CSC_4996_001'
 
-#reset_docs()
+# reset_docs()
 section = 'CSC_4996_001_W_2024'
 # retrieve_class_embedding(section)
 # retrieve_encodings_from_class('CSC_4996_001')
@@ -612,7 +635,7 @@ section = 'CSC_4996_001_W_2024'
 # update_student_attendance('CSC_4996_001', 'hc9082', True)
 # update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
 # update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
-# update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
+update_class_photo(section, 'photos/hi6576/hi6576.jpg')
 # remove_student_photo('hc9082')
 # remove_student_photo('hc9082')
 
