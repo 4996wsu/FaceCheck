@@ -367,7 +367,7 @@ def update_class_photo(section, file, date = getDate(), time = getTime()):
     imageBlob.make_public()
         
     # Upload photo and encoding      
-    key = 'students.' + section + '.class_photos.' + date + '.' + time + '.picture'
+    key = 'students.' + section + '.class_photos.' + date + '.' + time
     update_doc(student_doc, key, imageBlob.public_url)
     print("Class photo uploaded for" + date + " at " + time + ".")
 
