@@ -180,6 +180,7 @@
             </select>
 
             <hr>
+            <a id = "notification"></a>
             <a id = "errors">Select a semester and class to manage a class.</a>
 
             <!-- STATS TABLE BASE -->
@@ -206,8 +207,8 @@
                 <tbody>
                 </tbody>
             </table>
-            <button onclick="addStudentRow()">&plus;</button>
-            <button onclick="submitTable()">Submit</button>
+            <button onclick="add_student_row()">&plus;</button>
+            <button onclick="submit_table()">Submit</button>
         </div>
     </div>
     
@@ -216,7 +217,7 @@
     <script type="module">
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 
         // Open different tabs
@@ -238,6 +239,8 @@
             evt.currentTarget.className += " active";
         }
         window.openTab = openTab;
+        // Show the default tab on page load
+        document.getElementById("defaultOpen").click();
         
         //  Open image preview
         function openImagePreview(imageUrl, studentName) {
@@ -291,27 +294,25 @@
         }
         window.openImagePreview = openImagePreview;
 
-        // Show the default tab on page load
-        document.getElementById("defaultOpen").click();
-
         function removeOptions(selectElement) {
             var i, len = selectElement.options.length - 1;
             for(i = len; i >= 0; i--) {
                selectElement.remove(i);
             }
          }
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
-          authDomain: "facecheck-93450.firebaseapp.com",
-          projectId: "facecheck-93450",
-          storageBucket: "facecheck-93450.appspot.com",
-          messagingSenderId: "691465641368",
-          appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
-          measurementId: "G-FH3W7GY9NH"
-        };
       
-        // Initialize Firebase
+
+        /* --------------------------------------------------  DATABASE CODE  --------------------------------------------------*/
+        const firebaseConfig = {
+            apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
+            authDomain: "facecheck-93450.firebaseapp.com",
+            projectId: "facecheck-93450",
+            storageBucket: "facecheck-93450.appspot.com",
+            messagingSenderId: "691465641368",
+            appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
+            measurementId: "G-FH3W7GY9NH"
+        };
+          
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
@@ -321,6 +322,7 @@
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
         const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
+
         if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
             let studentData = studentSnapshot.data();
             let classData = classSnapshot.data();
@@ -330,6 +332,7 @@
             let table = document.getElementById('stats');
             let filter = document.getElementById('filter_select').value;
             let error_msg = document.getElementById('errors');
+            let notif_msg = document.getElementById('notification');
 
             //  Save identifier keys and write initial table based on inputs
             var username = "{{ user.username }}";
@@ -339,7 +342,7 @@
             var students;   //  This is initialized with a value after a class is chosen
             let classes = Object.keys(classData.classes);
             let users = Object.keys(userData.users);
-            addStudentRow();
+            add_student_row();
             write_semester_menu();
 
             //  Write contents of the semester menu
@@ -570,6 +573,7 @@
 
             //  Create table
             async function write_manage_table(accessIDs) {
+                console.log("Writing manage table");
                 error_msg.innerHTML = "";
             
                 // Create an array to store promises for fetching photo URLs
@@ -619,13 +623,14 @@
                                                 <th class = "headcol_name">Name</th>
                                                 <th class = "col">Access ID</th>`;
                         }
-                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th></tr>';
+                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th><th class = "col">Action</th></tr>';
                         table.innerHTML += header;
             
                         // Loop through results and add them to table rows accordingly
                         for (let i = 0; i < results.length; i++) {
                             const { photoUrl, student } = results[i];
                             let data = userData.users[student];
+                            let status = studentData.students[class_id][student]['picture_status']
                             if (data) {
                                 let row = '';
                                 if (filter === 'accessid') {
@@ -654,11 +659,33 @@
                                 }
                                 else {
                                     row +=
-                                        `   <td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
+                                        `<td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
                                             View Photo</button></td>
-                                        </tr>`;
+                                         <td class="col">${status}</td>`;
+                                }
+
+
+                                //  Add menu for actions
+                                row += `<td class="col">
+                                            <select id="actions_${student}" name="actions_${student}" 
+                                            onchange="select_action('${student}')">
+                                                <option value="" style="display: none;">Options</option>`;
+
+                                switch (status) {
+                                    case "Accepted":
+                                        row += `<option value="reject_photo">Reject Photo</option>`;
+                                        break;
+                                    case "Pending":
+                                    case "Flagged":
+                                    case "Rejected":
+                                        row += `<option value="accept_photo">Accept Photo</option>`;
+                                        break;
                                 }
             
+                                row += `        <option value="remove_student">Remove Student</option>
+                                            </select>
+                                        </td>`;
+                                
                                 table.innerHTML += row;
                             }
                         }
@@ -668,8 +695,52 @@
                     });
             }
 
+            //  Select action in 
+            async function select_action(accessid) {
+                var action_select = document.getElementById('actions_' + accessid);
+                var action = action_select.value;
+                var data_to_push;
+
+                switch (action) {
+                    case "reject_photo":
+                        data_to_push = {
+                            'students': {
+                                [class_id]: {
+                                    [accessid]: {
+                                        'picture_status': 'Rejected'
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case "accept_photo":
+                        data_to_push = {
+                            'students': {
+                                [class_id]: {
+                                    [accessid]: {
+                                        'picture_status': 'Accepted'
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case "remove_student":
+                        //  Change here
+                        break;
+                }
+
+                const doc_ref = doc(db, "infoCollection", "student_doc");
+                await setDoc(doc_ref, data_to_push, { merge: true });
+                notif_msg.innerHTML = "Please refresh the page to see any changes made.<br><br>";
+            }
+            window.select_action = select_action;
+
+
+            /* ----------------------------------------  NEW STUDENT PAGE CODE  ----------------------------------------*/
+
+            
             //  Add row to new student table
-            function addStudentRow() {
+            function add_student_row() {
                 var table = document.getElementById("add_student_table").getElementsByTagName('tbody')[0];
                 var newRow = table.insertRow();
                 var cell1 = newRow.insertCell(0);
@@ -687,9 +758,11 @@
                 };
                 cell2.appendChild(deleteButton);
             }
-            window.addStudentRow = addStudentRow;
+            window.add_student_row = add_student_row;
+
+
             //  Submit new student request
-            function submitTable() {
+            function submit_table() {
                 var table = document.getElementById("add_student_table");
                 var data = [];
                 for (var i = table.rows.length - 1; i > 0; i--) {
@@ -704,11 +777,13 @@
                         data.push({ "accessid": accessid });
                     }
                 }
-                addNewStudents(data);
+                add_new_students(data);
             }
-            window.submitTable = submitTable;
+            window.submit_table = submit_table;
 
-            function addNewStudents(data) {
+
+            //  Add new student
+            function add_new_students(data) {
                 console.log(data);
                 for (let student in data) {
                     let ID = data[student].accessid;
