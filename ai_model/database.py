@@ -61,7 +61,7 @@ def reset_docs():
         'students': {
             'CSC_4996_001_W_2024': {
                 'hc9082': {
-                    'picture_status': 'N/A',
+                    'picture_status': 'Pending',
                     'attendance': {
                         '00_00_0000': {
                             '00_00_00': True,
@@ -80,7 +80,7 @@ def reset_docs():
                     }
                 },
                 'hi4718': {
-                    'picture_status': 'N/A',
+                    'picture_status': 'Pending',
                     'attendance': {
                         '00_00_0000': {
                             '00_00_00': True,
@@ -99,7 +99,7 @@ def reset_docs():
                     }
                 },
                 'hi6576': {
-                    'picture_status': 'N/A',
+                    'picture_status': 'Pending',
                     'attendance': {
                         '00_00_0000': {
                             '00_00_00': True,
@@ -514,7 +514,7 @@ section = 'CSC_4996_001_W_2024'
 #print("Students with <= 10% attendance:", low_attendance_students)
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
-#reset_docs()
+# reset_docs()
 # section='CSC_4996_001'
 
 #reset_docs()

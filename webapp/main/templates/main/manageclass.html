@@ -783,14 +783,14 @@
 
 
             //  Add new student
-            function add_new_students(data) {
+            async function add_new_students(data) {
                 console.log(data);
                 for (let student in data) {
                     let ID = data[student].accessid;
                     if (ID in userData.users) {
-                        if (ID in studentData.students[class_id]) {
+                        if (!(ID in studentData.students[class_id])) {
                             console.log(ID + " exists.");
-                            const newStudent = {
+                            const data_to_pus = {
                                 'students': {
                                     [class_id]: {
                                         [ID]: {
@@ -804,9 +804,12 @@
                                     }
                                 }
                             };
+
+                            const doc_ref = doc(db, "infoCollection", "student_doc");
+                            await setDoc(doc_ref, data_to_push, { merge: true });
                         }
                         else {
-                            console.log(ID + " is not a student in " + class_id + ".");
+                            console.log(ID + " is already a student in " + class_id + ".");
                         }
                     }
                     else {
