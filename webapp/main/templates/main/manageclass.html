@@ -208,7 +208,9 @@
                 </tbody>
             </table>
             <button onclick="add_student_row()">&plus;</button>
-            <button onclick="submit_table()">Submit</button>
+            <button onclick="submit_table()">Submit</button><br>
+            <a id = "add_student_results"></a>
+            <a id = "add_student_errors"></a>
         </div>
     </div>
     
@@ -333,6 +335,8 @@
             let filter = document.getElementById('filter_select').value;
             let error_msg = document.getElementById('errors');
             let notif_msg = document.getElementById('notification');
+            let add_student_results = document.getElementById('add_student_results');
+            let add_student_errors = document.getElementById('add_student_errors');
 
             //  Save identifier keys and write initial table based on inputs
             var username = "{{ user.username }}";
@@ -777,7 +781,10 @@
                         data.push({ "accessid": accessid });
                     }
                 }
-                add_new_students(data);
+                if (class_id != 'N/A')
+                    add_new_students(data);
+                else
+                    add_student_errors.innerHTML = "Unable to add student(s), please select a semester and class ID first."
             }
             window.submit_table = submit_table;
 
@@ -785,12 +792,16 @@
             //  Add new student
             async function add_new_students(data) {
                 console.log(data);
+                var data_success = [];
+                var data_error = [];
+
+                //  Loop through data to check if students exist and not already in the class
                 for (let student in data) {
                     let ID = data[student].accessid;
                     if (ID in userData.users) {
                         if (!(ID in studentData.students[class_id])) {
                             console.log(ID + " exists.");
-                            const data_to_pus = {
+                            const data_to_push = {
                                 'students': {
                                     [class_id]: {
                                         [ID]: {
@@ -799,7 +810,8 @@
                                                     '00_00_00': true,
                                                     'Overall': true
                                                 }
-                                            }
+                                            },
+                                            'picture_status': 'N/A'
                                         }
                                     }
                                 }
@@ -807,15 +819,38 @@
 
                             const doc_ref = doc(db, "infoCollection", "student_doc");
                             await setDoc(doc_ref, data_to_push, { merge: true });
+                            data_success.push(ID);
                         }
                         else {
                             console.log(ID + " is already a student in " + class_id + ".");
+                            data_error.push(ID + ": Already a student in this class.");
                         }
                     }
                     else {
                         console.log(ID + " does not exist.");
+                        data_error.push(ID + ": Student does not exist.");
                     }
                 }
+
+                //  Sort and print results to web page
+                data_success.sort();
+                data_error.sort();
+
+                var results = "";
+                if (data_success.length > 0) {
+                    results += "Successfully added:<br>";
+                    for (var i = 0; i < data_success.length; i++)
+                        results += data_success[i] + "<br>";
+                }
+                add_student_results.innerHTML = results;
+
+                var errors = "";
+                if (data_error.length > 0) {
+                    errors += "Errors:<br>";
+                    for (var i = 0; i < data_error.length; i++)
+                        errors += data_error[i] + "<br>";
+                }
+                add_student_errors.innerHTML = errors;
             }
         }
     </script>
