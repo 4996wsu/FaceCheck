@@ -41,6 +41,13 @@ from django.urls import reverse
 # Create your views here.
 def home(request):
     return render(request, 'main/home.html')
+def add_wayne_email(username):
+    """
+    Function to add '@wayne.edu' to a username if it's not already present.
+    """
+    if '@wayne.edu' not in username:
+        email= username + '@wayne.edu'
+    return username, email
 
 def stats(request):
     return render(request, 'main/stats.html')
