@@ -54,7 +54,7 @@ h2 {
 
 /* Apply the background to the whole page */
 body {
-    background-image: url('/static/images/background.jpg'); 
+    /* background-image: url('/static/images/background.jpg'); */ /* Commented out the background image */
     background-size: cover;
     background-position: center;
     background-attachment: fixed; /* This will give a parallax-like effect */ 

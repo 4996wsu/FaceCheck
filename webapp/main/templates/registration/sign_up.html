@@ -17,7 +17,7 @@
                         {{ form|crispy }}
                         <input type="checkbox" id="showPassword"> Show Password
                     </form>
-                    <br>
+                    {% comment %} <br>
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ user_form.as_p }}
@@ -25,7 +25,7 @@
                         <p class="subtext">*Photo is required for registration</p>
                         <p> Have an account? Login <a href="{% url 'login' %}">Here</a></p>
                         <button type="submit" class="btn btn-primary">Register</button>
-                    </form>
+                    </form> {% endcomment %}
                 </div>
             </div>
         </div>

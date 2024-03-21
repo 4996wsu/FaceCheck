@@ -1,15 +1,19 @@
 from django.shortcuts import render, redirect
-
-
+from django.contrib.auth.tokens import default_token_generator
 from database import update_student_photo
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from django.contrib.auth.forms import PasswordResetForm
 from .forms import RegisterForm, ProfileForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render
+from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 import firebase_admin
 from firebase_admin import credentials, storage
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.messages.views import SuccessMessageMixin
 import os
 from pathlib import Path
 import tempfile
@@ -33,7 +37,7 @@ from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
-
+from django.urls import reverse
 # Create your views here.
 def home(request):
     return render(request, 'main/home.html')
@@ -139,19 +143,12 @@ def enroll(request):
     else:
         form = ImageUploadForm()
     return render(request, 'main/enrollment.html', {'form': form})
-
-
-def reset_password_request(request):
-    if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            form.save(request=request)
-            messages.success(request, 'An email has been sent with instructions to reset your password.')
-            return redirect('login')
-    else:
-        form = PasswordResetForm()
-    return render(request, 'registration/password_reset.html', {'form': form})
-
-def reset_password_confirm(request, uidb64, token):
-    # Add your password reset confirmation logic here
-    pass
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'main/password_reset.html'
+    email_template_name = 'main/password_reset_email.html'
+    subject_template_name = 'main/password_reset_subject'
+    success_message = "We've emailed you instructions for setting your password, " \
+                      "if an account exists with the email you entered. You should receive them shortly." \
+                      " If you don't receive an email, " \
+                      "please make sure you've entered the address you registered with, and check your spam folder."
+    success_url = reverse_lazy('users-home')
