@@ -658,19 +658,18 @@
             
                                 if (userData.users[student]['picture'] === "NO PHOTO") {
                                     row += 
-                                        `   <td class="col">No Photo</button></td>
-                                        </tr>`;
+                                        `   <td class="col">No Photo</button></td>`;
                                 }
                                 else {
                                     row +=
                                         `<td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
-                                            View Photo</button></td>
-                                         <td class="col">${status}</td>`;
+                                            View Photo</button></td>`;
                                 }
 
 
                                 //  Add menu for actions
-                                row += `<td class="col">
+                                row += `<td class="col">${status}</td>
+                                        <td class="col">
                                             <select id="actions_${student}" name="actions_${student}" 
                                             onchange="select_action('${student}')">
                                                 <option value="" style="display: none;">Options</option>`;

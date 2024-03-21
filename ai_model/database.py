@@ -565,7 +565,7 @@ add_student('hz2948', 'John', 'Doe', 'student')
 # retrieve_encodings_from_class('CSC_4996_001')
 
 # update_photo_status(section, 'hc9082', "Accepted")
-update_photo_status_batch('hc9082', "Accepted")
+# update_photo_status_batch('hc9082', "Accepted")
 
 
 print("---------------------- END DATABASE TESTING ----------------------")
