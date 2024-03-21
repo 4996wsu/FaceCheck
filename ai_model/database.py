@@ -517,7 +517,7 @@ print("---------------------- START DATABASE TESTING ----------------------")
 # reset_docs()
 # section='CSC_4996_001'
 
-#reset_docs()
+reset_docs()
 section = 'CSC_4996_001_W_2024'
 # retrieve_class_embedding(section)
 # retrieve_encodings_from_class('CSC_4996_001')
@@ -535,7 +535,7 @@ section = 'CSC_4996_001_W_2024'
 # remove_student_photo('hc9082')
 
 # add_student_to_class(section, 'hz2948')
-# add_student('hz2948', 'John', 'Doe', 'student')
+add_student('hz2948', 'John', 'Doe', 'student')
 # add_student('hz2948', 'John', 'Doe', 'student')
 # add_student_to_class(section, 'hz2948')
 # add_student_to_class(section, 'hz2948')
