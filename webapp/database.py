@@ -195,18 +195,35 @@ def update_student_photo(name, file):
         return None
         
 
-# Update photo status for professor to approve
+# Update photo status for professor to approve        
 def update_photo_status(section, name, value):
     user_dict = get_doc(user_doc)
     student_dict = get_doc(student_doc)
     
     if lookup(name, user_dict) == None:
         print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
-    elif lookup(name, student_dict) == None:
+    elif lookup(name, student_dict['students'][section]) == None:
         print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
     else:
         key = 'students.' + section + '.' + name + '.picture_status'
+        print("Updated photo status for '" + name + "' in class '" + section + "'.")
         update_doc(student_doc, key, value)
+
+# Update photo status for professor to approve (AS A BATCH)   
+def update_photo_status_batch(name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    else:
+        for section in student_dict['students']:
+            if lookup(name, student_dict['students'][section]) == None:
+                print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+            else:
+                key = 'students.' + section + '.' + name + '.picture_status'
+                print("Updated photo status for '" + name + "' in class '" + section + "'.")
+                update_doc(student_doc, key, value)
         
     
 #  Remove student photo
