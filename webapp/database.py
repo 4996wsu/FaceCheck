@@ -180,7 +180,7 @@ def update_student_photo(name, file):
         embedding_list = [emb.to(device) for emb in embedding_list]
         if duplicate_faces(embedding_list,emb, names,name):
             print("Error: Duplicate face detected.")
-            return None
+            
         embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
         # Upload photo and encoding      
