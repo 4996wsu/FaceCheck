@@ -9,7 +9,7 @@ import sys
 import threading
 import time
 from database import combine_pt_files, download_file_combine, retrieve_encodings_from_class, retrieve_class_embedding, retrieve_encodings_from_class, update_class_encoding, download_pt_file_student, get_doc
-from recognition import setup_device, load_models, prepare_data, recognize_faces,recognize_faces1, update_attendance,estimate_attention_and_engagement
+from recognition import setup_device, load_models, prepare_data, recognize_faces,recognize_faces, update_attendance
 from firebase_admin import firestore, credentials, initialize_app
 from pathlib import Path
 import firebase_admin
@@ -109,8 +109,9 @@ def start_attendance(class_section):
             if not ret:
                 print("Failed to grab frame, try again")
                 continue
+            cv2.imshow('frame', frame)
 
-            recognized_names = recognize_faces1(frame, device, mtcnn, resnet, embedding_list, name_list)
+            recognized_names = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
             
 
             if recognized_names:
@@ -122,7 +123,7 @@ def start_attendance(class_section):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-            time.sleep(10)
+            time.sleep(50)
 
         cam.release()
         cv2.destroyAllWindows()
