@@ -180,6 +180,15 @@
             </select>
 
             <hr>
+            <!-- ACTIONS MENU -->
+            <select id="actions" name="actions" onchange="select_action()" disabled>
+                <option value="" style="display: none;">-- Select an action --</option>
+                <option value="accept">Accept Photo</option>
+                <option value="reject">Reject Photo</option>
+                <option value="flag">Flag Photo</option>
+                <option value="remove_student" style="color: red;">Remove Student</option>
+            </select><br>
+
             <a id = "notification"></a>
             <a id = "errors">Select a semester and class to manage a class.</a>
 
@@ -507,6 +516,12 @@
             function search_student() {
                 let input = document.getElementById('searchbar').value;
 
+                //  Reset action menu
+                var action_menu = document.getElementById('actions');
+                action_menu.selectedIndex = 0;
+                action_menu.disabled = true;
+
+                //  Handle
                 if (input === "" && (class_id != 'N/A')) {
                     write_manage_table(students);
                 }
@@ -545,6 +560,7 @@
                 }
             }
             window.search_student = search_student;
+
 
             //  Empty stats table
             function empty_table() {
@@ -627,7 +643,7 @@
                                                 <th class = "headcol_name">Name</th>
                                                 <th class = "col">Access ID</th>`;
                         }
-                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th><th class = "col">Action</th></tr>';
+                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th><th class = "col">Select</th></tr>';
                         table.innerHTML += header;
             
                         // Loop through results and add them to table rows accordingly
@@ -667,26 +683,11 @@
                                 }
 
 
-                                //  Add menu for actions
+                                //  Add checkboxes for select
                                 row += `<td class="col">${status}</td>
                                         <td class="col">
-                                            <select id="actions_${student}" name="actions_${student}" 
-                                            onchange="select_action('${student}')">
-                                                <option value="" style="display: none;">Options</option>`;
-
-                                switch (status) {
-                                    case "Accepted":
-                                        row += `<option value="reject_photo">Reject Photo</option>`;
-                                        break;
-                                    case "Pending":
-                                    case "Flagged":
-                                    case "Rejected":
-                                        row += `<option value="accept_photo">Accept Photo</option>`;
-                                        break;
-                                }
-            
-                                row += `        <option value="remove_student">Remove Student</option>
-                                            </select>
+                                            <input type="checkbox" id="checkbox_${student}" name="select_checkbox" 
+                                            onchange="checkbox_changed('${student}')" value="${student}">
                                         </td>`;
                                 
                                 table.innerHTML += row;
@@ -698,42 +699,98 @@
                     });
             }
 
-            //  Select action in 
-            async function select_action(accessid) {
-                var action_select = document.getElementById('actions_' + accessid);
+            //  Handle checkbox changed
+            function checkbox_changed(studentId) {
+                const checkbox = document.getElementById(`checkbox_${studentId}`);
+                const isChecked = checkbox.checked;
+                console.log(`Checkbox for student ${studentId} is checked: ${isChecked}`);
+                toggle_action_menu();
+            }
+            window.checkbox_changed = checkbox_changed;
+
+
+            //  Get all selected ows
+            function get_selected_rows() {
+                var selected_rows = [];
+                const checkboxes = document.getElementsByName('select_checkbox');
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selected_rows.push(checkbox.value);
+                    }
+                });
+                console.log(selected_rows);
+                return selected_rows;
+            }
+
+
+            //  Toggle action menu
+            function toggle_action_menu() {
+                const action_menu = document.getElementById(`actions`);
+                if (get_selected_rows().length > 0)
+                    action_menu.disabled = false;
+                else
+                    action_menu.disabled = true;
+            }
+
+
+            //  Select action
+            async function select_action() {
+                var action_select = document.getElementById('actions');
                 var action = action_select.value;
+                var accessids = get_selected_rows();
                 var data_to_push;
 
-                switch (action) {
-                    case "reject_photo":
-                        data_to_push = {
-                            'students': {
-                                [class_id]: {
-                                    [accessid]: {
-                                        'picture_status': 'Rejected'
+                for (let accessid of accessids) {
+                    console.log("Changing status of " + accessid + " to: " + action);
+
+                    switch (action) {
+                        case "accept":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Accepted'
+                                        }
                                     }
                                 }
                             }
-                        }
-                        break;
-                    case "accept_photo":
-                        data_to_push = {
-                            'students': {
-                                [class_id]: {
-                                    [accessid]: {
-                                        'picture_status': 'Accepted'
+                            break;
+                        case "reject":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Rejected'
+                                        }
                                     }
                                 }
                             }
-                        }
-                        break;
-                    case "remove_student":
-                        //  Change here
-                        break;
+                            break;
+                        case "flag":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Flagged'
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case "remove_student":
+                            console.log("Students removed")
+                            break;
+                    }
+
+                    if (studentData.students[class_id][accessid]['picture_status'] != 'N/A' && action != "remove_student") {
+                        const doc_ref = doc(db, "infoCollection", "student_doc");
+                        await setDoc(doc_ref, data_to_push, { merge: true });
+                    }
+                    else {
+                        console.log(accessid + " has no photo or photo status, and was therefore not adjusted.")
+                    }
                 }
 
-                const doc_ref = doc(db, "infoCollection", "student_doc");
-                await setDoc(doc_ref, data_to_push, { merge: true });
                 notif_msg.innerHTML = "Please refresh the page to see any changes made.<br><br>";
             }
             window.select_action = select_action;
