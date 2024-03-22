@@ -492,7 +492,7 @@ def combine_pt_files(section):
         embedding, name = download_pt_file_student(url)
         combined_embedding_list.append(embedding)
         combined_name_list.append(name)
-    print(combined_embedding_list)
+    #print(combined_embedding_list)
     combined_data = {'embedding_list': combined_embedding_list, 'name_list': combined_name_list}
     torch.save([combined_embedding_list,combined_name_list], f'{section}.pt')
     update_class_encoding(section, f'{section}.pt')
@@ -515,10 +515,10 @@ def get_low_attendance_students(section):
 
     first_today_str = datetime.now().strftime('%m-%d-%Y')
     today_str = first_today_str.replace("-", "_")
-    print("today_str",today_str)
+    #print("today_str",today_str)
     
     doc = get_doc('student_doc')
-    print(doc)
+    #print(doc)
     if doc is None:
         print("No document found")
         return []
@@ -526,7 +526,7 @@ def get_low_attendance_students(section):
     students = doc['students'].get(section, {})
     low_attendance_students = []
     for student_id, student_data in students.items():
-        print("student_id",student_id)
+        #print("student_id",student_id)
         if student_id == 'class_photos':
             continue
         # Initialize counts for today
@@ -534,7 +534,7 @@ def get_low_attendance_students(section):
         attended_sessions_today = 0
         # Check if today's date is in the attendance records
         today_sessions = student_data['attendance'].get(today_str, {})
-        print("today_sessions",today_sessions)
+        #print("today_sessions",today_sessions)
         for _, attended in today_sessions.items():
             total_sessions_today += 1
             if attended:
@@ -544,19 +544,19 @@ def get_low_attendance_students(section):
         attendance_rate_today = (attended_sessions_today / total_sessions_today) * 100 if total_sessions_today > 0 else 0
         
         # Print attendance info for debugging
-        print(f"Student ID: {student_id}, Attended Sessions Today: {attended_sessions_today}, Total Sessions Today: {total_sessions_today}, Attendance Rate Today: {attendance_rate_today}%")
+        #print(f"Student ID: {student_id}, Attended Sessions Today: {attended_sessions_today}, Total Sessions Today: {total_sessions_today}, Attendance Rate Today: {attendance_rate_today}%")
         
         # Decide if the student has low attendance today
         if attendance_rate_today <= 50:###AATTENTION 50% is just a number I picked up AND IT IS A THRESHOLD
-            print(f"Student {student_id} has low attendance today ({attendance_rate_today}%)")
+            #print(f"Student {student_id} has low attendance today ({attendance_rate_today}%)")
             low_attendance_students.append(student_id)
             print("low_attendance_students",low_attendance_students)
     names = retrieve_names_from_class(section)
     result = [name for name in names if name not in low_attendance_students]
     print(  "result",result)
 
-        # for name in result:
-        #     update_overall_attendance(section, name, True, today_str)
+    for name in result:
+        update_overall_attendance(section, name, True, today_str)
         
 
     return low_attendance_students
@@ -565,7 +565,7 @@ section = 'CSC_4996_001_W_2024'
 #names = retrieve_names_from_class(section)
 # Assuming the get_doc function is defined and works as intended
 
-def parse_class_ids_from_firebase(doc_id):
+def get_class_id(doc_id):
     # Retrieve the document from Firebase
     doc = get_doc(doc_id)
     
@@ -597,16 +597,28 @@ def parse_class_ids_from_firebase(doc_id):
     
     return subjects, course_numbers, class_sections, terms, years
 
+
+def get_name(names):
+    doc = get_doc('user_doc')
+    if doc is None:
+        print("No document found")
+        return []
+    full_names = []
+    for name in names:
+        full_name = doc['users'][name]['fname'] + " " + doc['users'][name]['lname']
+        full_names.append(full_name)
+    print(full_names)
+    return full_names
 # To use the function, you would call it with your document ID
 # Example usage:
-subjects, course_numbers, class_sections, terms, years = parse_class_ids_from_firebase('class_doc')
+#subjects, course_numbers, class_sections, terms, years = get_class_id('class_doc')
 
 # Print the arrays to verify no duplicates
-print("Subjects:", subjects)
-print("Course Numbers:", course_numbers)
-print("Class Sections:", class_sections)
-print("Terms:", terms)
-print("Years:", years)
+# print("Subjects:", subjects)
+# print("Course Numbers:", course_numbers)
+# print("Class Sections:", class_sections)
+# print("Terms:", terms)
+# print("Years:", years)
 
 
 #low_attendance_students = get_low_attendance_students(section)

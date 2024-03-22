@@ -13,6 +13,8 @@ import cv2
 from datetime import datetime
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 import torch
+import requests
+from io import BytesIO
 # from preprocess import encode_face
 
 
@@ -155,10 +157,16 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
 
 #  Update student photo
 def update_student_photo(name, file):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     bucket = storage.bucket()
     imageBlob = bucket.blob(name + "_photo")
     name_list = [name]
-    
+    from duplicate import duplicate_faces
+    class_id= 'CSC_4996_001_W_2024'
+    emb, names = torch.load(f'{class_id}.pt', map_location='cpu')
+# Move loaded embeddings to the same device as your current embeddings
+    emb = [e.to(device) for e in emb]
     # Crop student photo & upload encoding
     cropped_image = detect_and_crop_face(file)
     if cropped_image is not None:
@@ -166,7 +174,13 @@ def update_student_photo(name, file):
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
             cv2.imwrite(temp_file.name, cropped_image)
             imageBlob.upload_from_filename(temp_file.name)
-            
+
+        embedding_list = face_encode(cropped_image, device=device)
+# If face_encode returns a single tensor, make sure it's on the right device
+        embedding_list = [emb.to(device) for emb in embedding_list]
+        if duplicate_faces(embedding_list,emb, names,name):
+            print("Error: Duplicate face detected.")
+            return None
         embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
         # Upload photo and encoding      
@@ -249,3 +263,99 @@ def retrieve_encodings_from_class(section):
 def update_class_encoding_status(section, status):
     key = 'classes.' + section + '.class_encoding_update'
     update_doc(class_doc, key, status)
+
+
+def retrieve_class_embedding(section): 
+    doc = get_doc('class_doc')
+
+    # Debug message
+    if (doc['classes'][section]['class_encoding'] == 'NO ENCODING'):
+        print("Error: Cannot retrieve filetype class encoding for class '" + section + "'.")
+    else:
+        print("Retrieved class encoding for class '" + section + "'.")
+    print(doc['classes'][section]['class_encoding'])
+    return doc['classes'][section]['class_encoding']
+
+def download_file_combine(url, section):
+    with requests.get(url, stream=True) as response:
+        response.raise_for_status()
+        with open(section, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+    
+    print(f"File downloaded and saved as {section}")
+def retrieve_names_from_class(section): 
+    doc = get_doc(student_doc)    
+    names = list(doc['students'][section].keys()) 
+    
+    # Remove class_photos from names since it is not an actual student
+    if "class_photos" in names:
+        names.remove("class_photos")
+        
+    return names
+
+def retrieve_encodings_from_class(section):
+    names = retrieve_names_from_class(section)    
+    encoding_list = []
+    for name in names:
+        retrieved_encoding = retrieve_file(name, 'encoding')
+        if retrieved_encoding != 'NO ENCODING':
+            encoding_list.append(retrieved_encoding)
+    print(encoding_list)
+    return encoding_list 
+def retrieve_file(name, filetype): 
+    doc = get_doc(user_doc)
+
+    # Debug message
+    if (doc['users'][name][filetype] == 'NO ENCODING'):
+        print("Error: Cannot retrieve filetype '" + filetype + "' for user '" + name + "'.")
+    else:
+        print("Retrieved filetype '" + filetype + "' for user '" + name + "'.")
+        
+    return doc['users'][name][filetype]
+def download_pt_file_student(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    buffer = BytesIO(response.content)
+    embedding, name = torch.load(buffer, map_location='cpu')
+    return embedding[0], name[0]
+
+def update_doc(doc_id, key, value):
+    doc_ref = db.collection(collectionName).document(doc_id)
+    doc_ref.update({
+        key: value
+    })
+
+def update_class_encoding_status(section, value):
+    key = 'classes.' + section + '.class_encoding_update'
+    update_doc(class_doc, key, value)
+
+def update_class_encoding(section, file):
+    doc = get_doc(class_doc)
+    if doc['classes'][section]['class_encoding_update'] == True:
+        bucket = storage.bucket()
+        blob = bucket.blob(section + ".pt")
+        blob.upload_from_filename(file)
+        blob.make_public()
+        # Update encoding status to show encoding update is no longer needed
+        update_class_encoding_status(section, False)
+
+        # Upload
+        key = 'classes.' + section + '.class_encoding'
+        update_doc(class_doc, key, blob.public_url)
+    else:
+        print("Error: Encoding update is not needed for '" + section + "'.")
+
+def combine_pt_files(section):
+    combined_embedding_list = []
+    combined_name_list = []
+
+    urls = retrieve_encodings_from_class(section)
+    for url in urls:
+        embedding, name = download_pt_file_student(url)
+        combined_embedding_list.append(embedding)
+        combined_name_list.append(name)
+    #print(combined_embedding_list)
+    combined_data = {'embedding_list': combined_embedding_list, 'name_list': combined_name_list}
+    torch.save([combined_embedding_list,combined_name_list], f'{section}.pt')
+    update_class_encoding(section, f'{section}.pt')

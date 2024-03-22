@@ -9,14 +9,14 @@ import os
 import sys
 import threading
 import time
-from database import combine_pt_files, download_file_combine, retrieve_encodings_from_class, retrieve_class_embedding, retrieve_encodings_from_class, update_class_encoding, download_pt_file_student, get_doc, get_low_attendance_students,update_overall_attendance,getDate,parse_class_ids_from_firebase
+from database import combine_pt_files, download_file_combine, retrieve_encodings_from_class, retrieve_class_embedding, retrieve_encodings_from_class, update_class_encoding, download_pt_file_student, get_doc, get_low_attendance_students,update_overall_attendance,getDate,get_class_id
 from recognition import setup_device, load_models, prepare_data, recognize_faces, update_attendance
 from firebase_admin import firestore, credentials, initialize_app
 from pathlib import Path
 import firebase_admin
 from datetime import datetime, timedelta
 import numpy as np
-
+from database import get_name
 global attendance_running
 attendance_running = False
 
@@ -64,6 +64,14 @@ global_class_id = ""
 
 def attempt_start_attendance():
     global global_class_id  # Refer to the global variable
+    if any([
+        subject_combobox.get() == "Select subject",
+        course_number_combobox.get() == "Select course number",
+        class_section_combobox.get() == "Select class section",
+        term_combobox.get() == "Select term",
+        year_combobox.get() == "Select year",
+    ]):
+        messagebox.showerror("Error", "Please make valid selections for all fields.")
 
     term_code_mapping = {"Summer": "S", "Winter": "W", "Fall": "F"}
     selected_term_code = term_code_mapping.get(term_combobox.get(), None)
@@ -118,10 +126,12 @@ def start_attendance(class_id):
                 print("Failed to grab frame, try again")
                 continue
             current_time = datetime.now()
-            print(current_time)
             
             temp_recognized_names, annotated_frame = recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list)
             recognized_names.extend(temp_recognized_names)
+            resized_frame = cv2.resize(annotated_frame, (1000, 600))
+
+# Show the resized frame
             cv2.imshow('Live Attendance Monitoring', annotated_frame)
 
             if (current_time - last_update_time) >= timedelta(seconds=10):
@@ -185,18 +195,19 @@ def show_low_attendance_options(student_ids):
 
     subtitle_label = Label(root, text="Please select IDs to adjust attendance", font=("Helvetica", 14), pady=10)
     subtitle_label.pack()
+    names=get_name(student_ids)
 
     global checkbox_vars
     checkbox_vars = {student_id: tk.IntVar() for student_id in student_ids}
 
     list_frame = tk.Frame(root)
     list_frame.pack(pady=20)
-
+    i=0
     for student_id, var in checkbox_vars.items():
-        tk.Checkbutton(list_frame, text=student_id, variable=var).pack(anchor=tk.CENTER)
-
+        tk.Checkbutton(list_frame, text=f"{names[i]} {student_id} ", variable=var, font=("Helvetica", 14)).pack(anchor=tk.CENTER)
+        i=i+1
     global submit_button
-    submit_button = Button(root, text="Submit", command=process_selections)
+    submit_button = Button(root, text="Submit", font=("Helvetica", 16), command=process_selections)
     submit_button.pack(pady=20)
 
 def process_selections():
@@ -216,36 +227,47 @@ def process_selections():
     print("Selected students:", selected_students)
     reset_ui()
 
-
+class CustomCombobox(ttk.Combobox):
+    def __init__(self, parent, values, font_size, **kwargs):
+        self.font_size = font_size
+        self.font = ("Helvetica", self.font_size)
+        super().__init__(parent, values=values, font=self.font, **kwargs)
+        self.option_add('*TCombobox*Listbox.Font', self.font)
 
 def reset_ui():
+    # Clear the window and dropdown frames
     clear_window()
+    
+    # Repack the image and label at the top
     image_label.pack(pady=20)
+    class_id_label = Label(root, text="Select Your Class Information", font=("Helvetica", 16, "bold"))
     class_id_label.pack()
 
-    # Repack dropdown menus instead of the non-existent class_id_entry
-    subject_combobox.pack(pady=5)
-    course_number_combobox.pack(pady=5)
-    class_section_combobox.pack(pady=5)
-    term_combobox.pack(pady=5)
-    year_combobox.pack(pady=5)
+    # Repack the frames for dropdown menus
+    row1_frame.pack(pady=5)
+    row2_frame.pack(pady=5)
+    
+    # Reset the combobox selections to the placeholder values
+    subject_combobox.set("Select subject")
+    course_number_combobox.set("Select course number")
+    class_section_combobox.set("Select class section")
+    term_combobox.set("Select term")
+    year_combobox.set("Select year")
 
+    # Repack the comboboxes into their respective frames
+    subject_combobox.pack(side=tk.LEFT, padx=10)
+    course_number_combobox.pack(side=tk.LEFT, padx=10)
+    class_section_combobox.pack(side=tk.LEFT, padx=10)
+    term_combobox.pack(side=tk.LEFT, padx=10)
+    year_combobox.pack(side=tk.LEFT, padx=10)
+
+    # Show the "Start Attendance" button again
     attendance_button.pack(pady=20)
 
 
 def clear_window():
     for widget in root.pack_slaves():
         widget.pack_forget()
-
-# def attempt_start_attendance():
-#     class_id = class_id_entry.get()
-#     if class_id:
-#         class_id_label.config(text=class_id)
-#         attendance_button.pack_forget()
-#         end_attendance_button.pack(pady=20)
-#         start_attendance(class_id)
-#     else:
-#         messagebox.showerror("Error", "Please enter a class section.")
 
 # UI Setup
 root = tk.Tk()
@@ -258,22 +280,39 @@ photo = ImageTk.PhotoImage(my_image)
 image_label = Label(root, image=photo)
 image_label.pack(pady=20)
 
-class_id_label = Label(root, text="Select Your Class Information", font=("Helvetica", 12))
+class_id_label = Label(root, text="Select Your Class Information", font=("Helvetica", 16, "bold"))
 class_id_label.pack()
 
 # Dropdown menus for class detail selection
-subjects, course_numbers, class_sections, terms, years = parse_class_ids_from_firebase('class_doc')
-subject_combobox = ttk.Combobox(root, values=subjects, font=("Helvetica", 12), state="readonly")
-course_number_combobox = ttk.Combobox(root, values=course_numbers, font=("Helvetica", 12), state="readonly")
-class_section_combobox = ttk.Combobox(root, values=class_sections, font=("Helvetica", 12), state="readonly")
-term_combobox = ttk.Combobox(root, values=terms, font=("Helvetica", 12), state="readonly")
-year_combobox = ttk.Combobox(root, values=years, font=("Helvetica", 12), state="readonly")
+subjects, course_numbers, class_sections, terms, years = get_class_id('class_doc')
+row1_frame = tk.Frame(root)
+row2_frame = tk.Frame(root)
 
-subject_combobox.pack(pady=5)
-course_number_combobox.pack(pady=5)
-class_section_combobox.pack(pady=5)
-term_combobox.pack(pady=5)
-year_combobox.pack(pady=5)
+# Pack frames into the window
+row1_frame.pack(pady=10)
+row2_frame.pack(pady=10)
+
+subject_combobox = CustomCombobox(row1_frame, values=["Select subject"] + subjects, font_size=12, state="readonly")
+course_number_combobox = CustomCombobox(row1_frame, values=["Select course number"] + course_numbers, font_size=12, state="readonly")
+class_section_combobox = CustomCombobox(row1_frame, values=["Select class section"] + class_sections, font_size=12, state="readonly")
+term_combobox = CustomCombobox(row2_frame, values=["Select term"] + terms, font_size=12, state="readonly")
+year_combobox = CustomCombobox(row2_frame, values=["Select year"] + years, font_size=12, state="readonly")
+
+# Set the comboboxes to display the placeholder text by default
+subject_combobox.current(0)
+course_number_combobox.current(0)
+class_section_combobox.current(0)
+term_combobox.current(0)
+year_combobox.current(0)
+
+
+# Pack the comboboxes into their respective frame
+subject_combobox.pack(side=tk.LEFT, padx=10)
+course_number_combobox.pack(side=tk.LEFT, padx=10)
+class_section_combobox.pack(side=tk.LEFT, padx=10)
+
+term_combobox.pack(side=tk.LEFT, padx=10)
+year_combobox.pack(side=tk.LEFT, padx=10)
 
 # Attendance control buttons
 attendance_button = Button(root, text="Start Attendance", font=("Helvetica", 16), command=attempt_start_attendance)
