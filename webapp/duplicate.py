@@ -25,7 +25,7 @@ def duplicate_faces(embedding_list, known_embeddings, name_list,name, threshold=
 
     # Ensure known_embeddings is on the correct device
     known_embeddings = [known_emb.to(device) for known_emb in known_embeddings]
-
+    from database import update_photo_status_batch
     recognized_names = []
     for emb in embedding_list:
         # Calculate distances to all known embeddings
@@ -42,8 +42,9 @@ def duplicate_faces(embedding_list, known_embeddings, name_list,name, threshold=
             recognized_name = "Unknown"
         recognized_names.append(recognized_name)
         if recognized_name[0] != "Unknown":
+            update_photo_status_batch(name,"Flagged")
             print("known")
-            return True
         else:
+            update_photo_status_batch(name,"Pending")
             print("Unknown")
     print(recognized_names)
