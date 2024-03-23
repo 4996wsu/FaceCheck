@@ -61,7 +61,7 @@ def reset_docs():
         'students': {
             'CSC_4996_001_W_2024': {
                 'hc9082': {
-                    'picture_status': 'N/A',
+                    'picture_status': 'Pending',
                     'attendance': {
                         '00_00_0000': {
                             '00_00_00': True,
@@ -80,7 +80,7 @@ def reset_docs():
                     }
                 },
                 'hi4718': {
-                    'picture_status': 'N/A',
+                    'picture_status': 'Pending',
                     'attendance': {
                         '00_00_0000': {
                             '00_00_00': True,
@@ -99,7 +99,7 @@ def reset_docs():
                     }
                 },
                 'hi6576': {
-                    'picture_status': 'N/A',
+                    'picture_status': 'Pending',
                     'attendance': {
                         '00_00_0000': {
                             '00_00_00': True,
@@ -379,12 +379,30 @@ def update_photo_status(section, name, value):
     
     if lookup(name, user_dict) == None:
         print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
-    elif lookup(name, student_dict) == None:
+    elif lookup(name, student_dict['students'][section]) == None:
         print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
     else:
         key = 'students.' + section + '.' + name + '.picture_status'
+        print("Updated photo status for '" + name + "' in class '" + section + "'.")
         update_doc(student_doc, key, value)
+
+# Update photo status for professor to approve (AS A BATCH)   
+def update_photo_status_batch(name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
     
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    else:
+        for section in student_dict['students']:
+            if lookup(name, student_dict['students'][section]) == None:
+                print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+            else:
+                key = 'students.' + section + '.' + name + '.picture_status'
+                print("Updated photo status for '" + name + "' in class '" + section + "'.")
+                update_doc(student_doc, key, value)
+    
+
 #  Remove student photo
 def remove_student_photo(name):
     bucket = storage.bucket()
@@ -625,7 +643,7 @@ def get_name(names):
 #print("Students with <= 10% attendance:", low_attendance_students)
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
-#reset_docs()
+# reset_docs()
 # section='CSC_4996_001'
 
 # reset_docs()
@@ -646,7 +664,7 @@ section = 'CSC_4996_001_W_2024'
 # remove_student_photo('hc9082')
 
 # add_student_to_class(section, 'hz2948')
-# add_student('hz2948', 'John', 'Doe', 'student')
+add_student('hz2948', 'John', 'Doe', 'student')
 # add_student('hz2948', 'John', 'Doe', 'student')
 # add_student_to_class(section, 'hz2948')
 # add_student_to_class(section, 'hz2948')
@@ -656,6 +674,9 @@ section = 'CSC_4996_001_W_2024'
 # print(retrieve_file('hc9082', 'picture'))
 # print(retrieve_names())
 # retrieve_encodings_from_class('CSC_4996_001')
+
+# update_photo_status(section, 'hc9082', "Accepted")
+# update_photo_status_batch('hc9082', "Accepted")
 
 
 print("---------------------- END DATABASE TESTING ----------------------")
