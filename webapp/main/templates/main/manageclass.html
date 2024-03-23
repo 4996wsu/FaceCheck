@@ -131,7 +131,7 @@
             width: 10em;
         }
         .headcol_checkbox {
-            width: 1em;
+            width: 2em;
         }
         .col, .col_name {
             position: relative;
@@ -635,7 +635,7 @@
                         // Clear the table content before adding new entries
                         empty_table();
             
-                        let header = `<tr><th class = "headcol_checkbox">Select</th>`;
+                        let header = `<tr><th class = "headcol_checkbox"></th>`;
                         // ----- Table header -----
                         if (filter === 'accessid') {
                             header += `<th class = "headcol_id">Access ID</th>
@@ -644,7 +644,7 @@
                             header += `<th class = "headcol_name">Name</th>
                                       <th class = "col">Access ID</th>`;
                         }
-                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th></tr>';
+                        header += '<th class = "col">Photo</th><th class = "col">Status</th></tr>';
                         table.innerHTML += header;
             
                         // Loop through results and add them to table rows accordingly
@@ -684,7 +684,7 @@
                                 else {
                                     row +=
                                         `<td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
-                                            View Photo</button></td>`;
+                                            View</button></td>`;
                                 }
                                 
                                 row += `<td class="col">${status}</td></tr>`
