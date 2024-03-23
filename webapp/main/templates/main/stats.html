@@ -182,9 +182,23 @@
             let semester = 'N/A';
             let class_id = 'N/A';
             var students;   //  This is initialized with a value after a class is chosen
-            let classes = Object.keys(classData.classes);
+            let classes = get_class_list();
             let users = Object.keys(userData.users);
             write_semester_menu();
+
+            //  Get class list based on which professor is logged in
+            function get_class_list() {
+                var classes = Object.keys(classData.classes);
+                let final_class_list = [];
+
+                for (let class_id of classes) {
+                    if (classData.classes[class_id]['professor'] === username) {
+                        final_class_list.push(class_id);
+                    }
+                }
+
+                return final_class_list;
+            }
 
             //  Write contents of the semester menu
             function write_semester_menu() {
@@ -277,7 +291,7 @@
             function write_class_menu() {
                 // Create default value
                 removeOptions(class_select);
-                let class_list = Object.keys(classData.classes);
+                let class_list = classes;
                 class_list.sort();
 
                 var default_option = document.createElement('option');
@@ -499,10 +513,12 @@
                 var student_index = 0;
                 var highest_length = 0;
                 for (var i = 0; i < students.length; i++) {
-                    let s = Object.keys(studentData.students[class_id][students[i]]['attendance'][date]).length
-                    if (s > highest_length) {
-                        highest_length = s;
-                        student_index = i;
+                    if (studentData.students[class_id][students[i]]['attendance'][date] !== undefined) {
+                        let s = Object.keys(studentData.students[class_id][students[i]]['attendance'][date]).length
+                        if (s > highest_length) {
+                            highest_length = s;
+                            student_index = i;
+                        }
                     }
                 }
 
@@ -557,28 +573,34 @@
                                 <td class = "col">${currentStudent}</td>`;
                         }
 
-                        let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
+                        //  Check if current student has the selected date
+                        if (studentData.students[class_id][currentStudent]['attendance'][date] !== undefined) {
+                            let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
 
-                        let student_timestamps = Object.keys(attendance);
-                        student_timestamps.sort();
-                        for (let key of timestamps) {
-                            let value = ""
-                            // This if statement checks if a student does not have a timestamp for a given time,
-                            // in case there was an error processing attendance for a given time.
-                            if (student_timestamps.includes(key)) {
-                                if (attendance[key] === true)
-                                    value = "\u2714";
-                                else
-                                    value = "\u274C";
+                            let student_timestamps = Object.keys(attendance);
+                            student_timestamps.sort();
+                            for (let key of timestamps) {
+                                let value = ""
+                                // This if statement checks if a student does not have a timestamp for a given time,
+                                // in case there was an error processing attendance for a given time.
+                                if (student_timestamps.includes(key)) {
+                                    if (attendance[key] === true)
+                                        value = "\u2714";
+                                    else
+                                        value = "\u274C";
+                                }
+                                else {
+                                    console.log("Error: missing timestamp for " + currentStudent + ".");
+                                }
+                                
+                                row += '<td class = "col">' + value + '</td>';
                             }
-                            else {
-                                console.log("Error: missing timestamp for " + currentStudent + ".");
-                            }
-                            
-                            row += '<td class = "col">' + value + '</td>';
+                            row += '</tr>'
+                            table.innerHTML += row
                         }
-                        row += '</tr>'
-                        table.innerHTML += row
+                        else {
+                            console.log("This date does not exist for " + currentStudent)
+                        }
 
                     } else {
                         console.log("No records for " + currentStudent);
