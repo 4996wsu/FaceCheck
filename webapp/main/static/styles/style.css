@@ -16,13 +16,13 @@ h2 {
 .hero-banner h1 {
     font-family: 'Georgia', serif; /* A more decorative font for impact */
     font-size: 3em; /* Larger size for hero banner title */
-    color: #fff; /* Assuming a dark background image */
+    color: #ffffff; /* Assuming a dark background image */
 }
 
 .hero-banner p {
     font-family: 'Georgia', serif;
     font-size: 1.5em; /* Larger size for readability on a busy background */
-    color: #fff;
+    color: #ffffff;
 }
 
 .navbar-brand {
@@ -54,19 +54,32 @@ h2 {
 
 /* Apply the background to the whole page */
 body {
-    background-image: url('/static/images/background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed; /* This will give a parallax-like effect */
-    background-color: #000000;
+
+    background-color: #1e1e1e;
 }
 
 .hero-banner {
-    background: none;
+    /*background:url('/static/images/hacker.jpg') ;
+    background-repeat: no-repeat;
+    background-position: center;*/
     color: rgb(0, 0, 0); /* Adjust text color for readability */
     text-shadow: 0 0 8px rgba(0,0,0,0.7); /* Optional: text shadow for better readability on a busy background */
     min-height: 100vh; /* Full viewport height */
     display: flex;
     align-items: center; /* Center content vertically */
     justify-content: center; /* Center content horizontally */
+}
+.username {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+    font-size: 130%;
+}
+.subtext {
+    font-size: 14px;
+    color: #666; /* Adjust color as needed */
+    margin-top: 5px; /* Adjust margin as needed */
 }

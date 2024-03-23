@@ -12,7 +12,7 @@
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
             crossorigin="anonymous"
         />
-        <link rel="stylesheet" href="{%static 'styles/style.css' %}">
+        <link rel="stylesheet" href="{%static '/styles/style1.css' %}">
         <title>{% block title %}FaceCheck{% endblock %}</title>
 
     </head>
@@ -38,21 +38,21 @@
                           <a class="nav-link d-flex align-items-center" href="/stats">Statistics</a>
                       </li> 
                       <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="/enroll">Enrollment</a>
+                        <a class="nav-link d-flex align-items-center" href="/enroll">Photo Update</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center" href="/manageclass">Manage</a>
                     </li>
                     {% endif %}
-                  {% if user.is_authenticated %}
-                  <span class="navbar-text ms-auto">Logged in as {{ user.username }} |</span>
-                  <li class="nav-item">
-                      <form method="post" action="{% url 'logout' %}">
-                          {% csrf_token %}
-                          <button type="submit" class="nav-link btn btn-link">Logout</button>
-                      </form>
-                  </li>
-                  {% endif %}
+                    {% if user.is_authenticated %}
+                    <span class="navbar-text ms-auto"><span class="username">Logged in as {{ user.username }}</span> |</span>
+                    <li class="nav-item">
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link btn btn-link">Logout</button>
+                        </form>
+                    </li>
+                {% endif %}
                   </ul>
           </div>
       </nav>
