@@ -41,32 +41,34 @@ from django.urls import reverse
 # Create your views here.
 def home(request):
     return render(request, 'main/home.html')
-def add_wayne_email(username):
-    if '@wayne.edu' not in username:
-        email= username + '@wayne.edu'
-    return username, email
 
 def stats(request):
     return render(request, 'main/stats.html')
 def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
-        profile_form = ProfileForm(request.POST, request.FILES)
-        if form.is_valid() and profile_form.is_valid():
-            user = form.save(commit=False)
-            user.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
-            messages.success(request, 'Account created successfully. Please log in.')
-            return redirect('login')
+        if form.is_valid():
+            user = form.save(commit=False)  # Don't save the user yet
+            otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
+            request.session['otp'] = otp  # Store the OTP in the session
+            request.session['username'] = form.cleaned_data.get('username')
+            request.session['email'] = form.cleaned_data.get('email')
+            request.session['password'] = form.cleaned_data.get('password1')
+            request.session['otp_time'] = str(datetime.now())  # Store the current time
+            send_mail(
+                'Your OTP',
+                f'Your OTP is {otp}',
+                settings.DEFAULT_FROM_EMAIL,
+                [form.cleaned_data.get('email')],
+                fail_silently=False,
+            )
+            return redirect('otp_verification')  # Redirect to OTP verification view
         else:
-            messages.error(request, 'Invalid form submission.')
+            print(form.errors)
     else:
         form = RegisterForm()
-        profile_form = ProfileForm()
 
-    return render(request, 'registration/sign_up.html', {'form': form, 'profile_form': profile_form})
+    return render(request, 'registration/sign_up.html', {'form': form})
 
 def otp_verification(request):
     if request.method == 'POST':

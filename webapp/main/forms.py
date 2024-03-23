@@ -5,6 +5,7 @@ from .models import Post, UserProfile
 from django.core.exceptions import ValidationError
 
 class RegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     username = forms.CharField(
@@ -15,7 +16,7 @@ class RegisterForm(UserCreationForm):
     )
     class Meta:
         model = User
-        fields = ["username","first_name","last_name","password1", "password2"]
+        fields = ["username","email","first_name","last_name","password1", "password2"]
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():

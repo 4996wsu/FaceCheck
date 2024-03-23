@@ -42,7 +42,7 @@
                     </li>
                     {% endif %}
                     {% if user.is_authenticated %}
-                    <span class="navbar-text ms-auto">Logged in as <span class="username">{{ user.username }}</span> |</span>
+                    <span class="navbar-text ms-auto"><span class="username">Logged in as {{ user.username }}</span> |</span>
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}">
                             {% csrf_token %}

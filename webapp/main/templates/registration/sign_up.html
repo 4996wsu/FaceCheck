@@ -5,6 +5,8 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-<HASH>" crossorigin="anonymous" />
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -15,17 +17,18 @@
                     <form id="sign_up" method="post">
                         {% csrf_token %}
                         {{ form|crispy }}
-                        <input type="checkbox" id="showPassword"> Show Password
-                    </form>
-                    {% comment %} <br>
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ user_form.as_p }}
-                        {{ profile_form.as_p }}
-                        <p class="subtext">*Photo is required for registration</p>{% endcomment %}
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye" id="password-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="input-group mt-3">
+                        </div>
                         <p> Have an account? Login <a href="{% url 'login' %}">Here</a></p>
                         <button type="submit" class="btn btn-primary">Register</button>
-                    </form> 
+                    </form>
                 </div>
             </div>
         </div>
@@ -34,18 +37,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const showPasswordCheckbox = document.getElementById('showPassword');
-    const passwordField = document.querySelector('input[name="password1"]');
-    const confirmPasswordField = document.querySelector('input[name="password2"]');
+    const togglePasswordButton = document.querySelector('.toggle-password');
+    const passwordFields = document.querySelectorAll('[name="password1"], [name="password2"]');
+    const eyeIcon = document.getElementById('password-eye');
 
-    showPasswordCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            passwordField.type = 'text';
-            confirmPasswordField.type = 'text';
-        } else {
-            passwordField.type = 'password';
-            confirmPasswordField.type = 'password';
-        }
+    togglePasswordButton.addEventListener('click', function() {
+        const isVisible = passwordFields[0].type === 'text';
+        passwordFields.forEach(function(field) {
+            field.type = isVisible ? 'password' : 'text';
+        });
+        eyeIcon.className = isVisible ? 'fas fa-eye' : 'fas fa-eye-slash';
     });
 });
 </script>
