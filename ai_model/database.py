@@ -38,7 +38,7 @@ def reset_docs():
         'classes': {
             'CSC_4996_001_W_2024': {
                 'class_name': 'Senior Capstone Project Section 001',
-                'professor': 'mousavi',
+                'professor': 'dx6565',
                 'class_encoding': 'NO ENCODING',
                 'class_encoding_update': False,
                 'schedule': {
@@ -48,7 +48,7 @@ def reset_docs():
             },
             'CSC_4500_002_S_2024': {
                 'class_name': 'Theoretical Computer Science Section 002',
-                'professor': 'mousavi',
+                'professor': 'dx6565',
                 'class_encoding': 'NO ENCODING',
                 'class_encoding_update': False,
                 'schedule': {
@@ -130,6 +130,78 @@ def reset_docs():
                         '17_35_00': 'NO PHOTO'
                     }
                 }
+            },
+            'CSC_4500_002_S_2024': {
+                'hc9082': {
+                    'picture_status': 'Pending',
+                    'attendance': {
+                        '00_00_0000': {
+                            '00_00_00': True,
+                            'Overall': True
+                        },
+                        '03_04_2024': {
+                            '17_30_00': True,
+                            '17_35_00': True,
+                            'Overall': True
+                        },
+                        '03_11_2024': {
+                            '17_30_00': True,
+                            '17_35_00': False,
+                            'Overall': True
+                        } 
+                    }
+                },
+                'hi4718': {
+                    'picture_status': 'Pending',
+                    'attendance': {
+                        '00_00_0000': {
+                            '00_00_00': True,
+                            'Overall': True
+                        },
+                        '03_04_2024': {
+                            '17_30_00': False,
+                            '17_35_00': False,
+                            'Overall': False
+                        },
+                        '03_11_2024': {
+                            '17_30_00': True,
+                            '17_35_00': True,
+                            'Overall': True
+                        } 
+                    }
+                },
+                'hi6576': {
+                    'picture_status': 'Pending',
+                    'attendance': {
+                        '00_00_0000': {
+                            '00_00_00': True,
+                            'Overall': True
+                        },
+                        '03_04_2024': {
+                            '17_30_00': True,
+                            '17_35_00': False,
+                            'Overall': True
+                        },
+                        '03_11_2024': {
+                            '17_30_00': False,
+                            '17_35_00': False,
+                            'Overall': False
+                        } 
+                    }
+                },
+                'class_photos': {
+                    '00_00_0000': {
+                        '00_00_00': 'NO PHOTO'
+                    },
+                    '03_04_2024': {
+                        '17_30_00': 'NO PHOTO',
+                        '17_35_00': 'NO PHOTO'
+                    },
+                    '03_11_2024': {
+                        '17_30_00': 'NO PHOTO',
+                        '17_35_00': 'NO PHOTO'
+                    }
+                }
             }
         }
     }
@@ -165,7 +237,7 @@ def reset_docs():
                     '02_12_2024': ['21_18_00', "Updated photo"]
                 }
             },
-            'mousavi': {
+            'dx6565': {
                 'fname': 'Seyed Ziae',
                 'lname': 'Mousavi Mojab',
                 'picture': 'NO PHOTO',
@@ -189,6 +261,9 @@ def reset_docs():
     update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
     update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
     update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
+    update_class_encoding_status('CSC_4996_001_W_2024', true)
+    update_class_encoding_status('CSC_4500_002_S_2024', true)
+    add_student('hz2948', 'John', 'Doe', 'student')
 
     print("Document ID: ", doc_ref.id)
     
@@ -455,8 +530,14 @@ def retrieve_names_from_class(section):
     # Remove class_photos from names since it is not an actual student
     if "class_photos" in names:
         names.remove("class_photos")
+     
+    # Remove students who do not have an approved photo
+    final_name_list = []
+    for name in names:
+        if doc['students'][section][name]['picture_status'] == "Accepted":
+            final_name_list.append(name)
         
-    return names
+    return final_name_list
     
 import numpy as np 
 # Retrieve all encodings for a class section
@@ -664,7 +745,7 @@ section = 'CSC_4996_001_W_2024'
 # remove_student_photo('hc9082')
 
 # add_student_to_class(section, 'hz2948')
-add_student('hz2948', 'John', 'Doe', 'student')
+# add_student('hz2948', 'John', 'Doe', 'student')
 # add_student('hz2948', 'John', 'Doe', 'student')
 # add_student_to_class(section, 'hz2948')
 # add_student_to_class(section, 'hz2948')
@@ -678,5 +759,6 @@ add_student('hz2948', 'John', 'Doe', 'student')
 # update_photo_status(section, 'hc9082', "Accepted")
 # update_photo_status_batch('hc9082', "Accepted")
 
+print(retrieve_names_from_class(section))
 
 print("---------------------- END DATABASE TESTING ----------------------")
