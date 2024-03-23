@@ -117,7 +117,7 @@
         th, tr {
             padding-right: 1rem;
         }
-        .headcol_id, .headcol_name {
+        .headcol_id, .headcol_name, .headcol_checkbox {
             position: sticky;
             white-space: nowrap;
             left: 0;
@@ -129,6 +129,9 @@
         }
         .headcol_name {
             width: 10em;
+        }
+        .headcol_checkbox {
+            width: 2em;
         }
         .col, .col_name {
             position: relative;
@@ -180,6 +183,16 @@
             </select>
 
             <hr>
+            <!-- ACTIONS MENU -->
+            <select id="actions" name="actions" onchange="select_action()" disabled>
+                <option value="" style="display: none;">-- Select an action --</option>
+                <option value="accept">Accept Photo</option>
+                <option value="reject">Reject Photo</option>
+                <option value="flag">Flag Photo</option>
+                <option value="remove_student" style="color: red;">Remove Student</option>
+            </select><br>
+
+            <a id = "notification"></a>
             <a id = "errors">Select a semester and class to manage a class.</a>
 
             <!-- STATS TABLE BASE -->
@@ -192,19 +205,24 @@
         </div>
 
         <div id="tab_add_students" class="tab-content">
+            <a>
+                Enter each student's Access ID to add them to the class.<br>
+                Click '+' to add a new row.
+            </a>
             <hr>
             <table id="add_student_table">
                 <thead>
                     <tr>
                         <th>Access ID</th>
-                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
-            <button onclick="addStudentRow()">+</button>
-            <button onclick="submitTable()">Submit</button>
+            <button onclick="add_student_row()">&plus;</button>
+            <button onclick="submit_table()">Submit</button><br>
+            <a id = "add_student_results"></a>
+            <a id = "add_student_errors"></a>
         </div>
     </div>
     
@@ -213,7 +231,7 @@
     <script type="module">
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 
         // Open different tabs
@@ -235,6 +253,8 @@
             evt.currentTarget.className += " active";
         }
         window.openTab = openTab;
+        // Show the default tab on page load
+        document.getElementById("defaultOpen").click();
         
         //  Open image preview
         function openImagePreview(imageUrl, studentName) {
@@ -288,27 +308,25 @@
         }
         window.openImagePreview = openImagePreview;
 
-        // Show the default tab on page load
-        document.getElementById("defaultOpen").click();
-
         function removeOptions(selectElement) {
             var i, len = selectElement.options.length - 1;
             for(i = len; i >= 0; i--) {
                selectElement.remove(i);
             }
          }
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
-          authDomain: "facecheck-93450.firebaseapp.com",
-          projectId: "facecheck-93450",
-          storageBucket: "facecheck-93450.appspot.com",
-          messagingSenderId: "691465641368",
-          appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
-          measurementId: "G-FH3W7GY9NH"
-        };
       
-        // Initialize Firebase
+
+        /* --------------------------------------------------  DATABASE CODE  --------------------------------------------------*/
+        const firebaseConfig = {
+            apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
+            authDomain: "facecheck-93450.firebaseapp.com",
+            projectId: "facecheck-93450",
+            storageBucket: "facecheck-93450.appspot.com",
+            messagingSenderId: "691465641368",
+            appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
+            measurementId: "G-FH3W7GY9NH"
+        };
+          
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
@@ -318,6 +336,7 @@
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
         const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
+
         if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
             let studentData = studentSnapshot.data();
             let classData = classSnapshot.data();
@@ -327,6 +346,9 @@
             let table = document.getElementById('stats');
             let filter = document.getElementById('filter_select').value;
             let error_msg = document.getElementById('errors');
+            let notif_msg = document.getElementById('notification');
+            let add_student_results = document.getElementById('add_student_results');
+            let add_student_errors = document.getElementById('add_student_errors');
 
             //  Save identifier keys and write initial table based on inputs
             var username = "{{ user.username }}";
@@ -336,6 +358,7 @@
             var students;   //  This is initialized with a value after a class is chosen
             let classes = Object.keys(classData.classes);
             let users = Object.keys(userData.users);
+            add_student_row();
             write_semester_menu();
 
             //  Write contents of the semester menu
@@ -496,6 +519,12 @@
             function search_student() {
                 let input = document.getElementById('searchbar').value;
 
+                //  Reset action menu
+                var action_menu = document.getElementById('actions');
+                action_menu.selectedIndex = 0;
+                action_menu.disabled = true;
+
+                //  Handle
                 if (input === "" && (class_id != 'N/A')) {
                     write_manage_table(students);
                 }
@@ -535,6 +564,7 @@
             }
             window.search_student = search_student;
 
+
             //  Empty stats table
             function empty_table() {
                 while (table.firstChild)
@@ -566,6 +596,7 @@
 
             //  Create table
             async function write_manage_table(accessIDs) {
+                console.log("Writing manage table");
                 error_msg.innerHTML = "";
             
                 // Create an array to store promises for fetching photo URLs
@@ -604,50 +635,60 @@
                         // Clear the table content before adding new entries
                         empty_table();
             
-                        let header = '';
+                        let header = `<tr><th class = "headcol_checkbox"></th>`;
                         // ----- Table header -----
                         if (filter === 'accessid') {
-                            header = `<tr>
-                                                <th class = "headcol_id">Access ID</th>
-                                                <th class = "col_name">Name</th>`;
+                            header += `<th class = "headcol_id">Access ID</th>
+                                      <th class = "col_name">Name</th>`;
                         } else if (filter === 'fname' || filter === 'lname') {
-                            header = `<tr>
-                                                <th class = "headcol_name">Name</th>
-                                                <th class = "col">Access ID</th>`;
+                            header += `<th class = "headcol_name">Name</th>
+                                      <th class = "col">Access ID</th>`;
                         }
-                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th></tr>';
+                        header += '<th class = "col">Photo</th><th class = "col">Status</th></tr>';
                         table.innerHTML += header;
             
                         // Loop through results and add them to table rows accordingly
                         for (let i = 0; i < results.length; i++) {
                             const { photoUrl, student } = results[i];
                             let data = userData.users[student];
+                            let status = studentData.students[class_id][student]['picture_status']
                             if (data) {
-                                let row = '';
+                                //  Add checkboxes for select
+                                let row = `<tr>
+                                               <td class="headcol_checkbox">
+                                                   <input type="checkbox" id="checkbox_${student}" name="select_checkbox" 
+                                                   onchange="checkbox_changed('${student}')" value="${student}">
+                                               </td>`;
+
+                                //  Add accessid + name
                                 if (filter === 'accessid') {
-                                    row = `<tr>
-                                                <td class = "headcol_id">${student}</td>
-                                                <td class = "col_name">${userData.users[student]['fname'] + " " +
-                                                    userData.users[student]['lname']}</td>`;
+                                    row += `<td class = "headcol_id">${student}</td>
+                                            <td class = "col_name">${userData.users[student]['fname'] + " " +
+                                                userData.users[student]['lname']}</td>`;
                                 } 
                                 else if (filter === 'fname') {
-                                    row = `<tr>
-                                                <td class = "headcol_name">${userData.users[student]['fname'] + " " +
-                                                    userData.users[student]['lname']}</td>
-                                                <td class = "col">${student}</td>`;
+                                    row += `<td class = "headcol_name">${userData.users[student]['fname'] + " " +
+                                                userData.users[student]['lname']}</td>
+                                            <td class = "col">${student}</td>`;
                                 } 
                                 else if (filter === 'lname') {
-                                    row = `<tr>
-                                                <td class = "headcol_name">${userData.users[student]['lname'] + ", " +
-                                                    userData.users[student]['fname']}</td>
-                                                <td class = "col">${student}</td>`;
+                                    row += `<td class = "headcol_name">${userData.users[student]['lname'] + ", " +
+                                                userData.users[student]['fname']}</td>
+                                            <td class = "col">${student}</td>`;
                                 }
             
-                                row +=
-                                    `   <td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
-                                        View Photo</button></td>
-                                    </tr>`;
-            
+                                if (userData.users[student]['picture'] === "NO PHOTO") {
+                                    row += 
+                                        `<td class="col">No Photo</td>`;
+                                }
+                                else {
+                                    row +=
+                                        `<td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
+                                            View</button></td>`;
+                                }
+                                
+                                row += `<td class="col">${status}</td></tr>`
+
                                 table.innerHTML += row;
                             }
                         }
@@ -657,14 +698,163 @@
                     });
             }
 
+            //  Handle checkbox changed
+            function checkbox_changed(studentId) {
+                const checkbox = document.getElementById(`checkbox_${studentId}`);
+                const isChecked = checkbox.checked;
+                console.log(`Checkbox for student ${studentId} is checked: ${isChecked}`);
+                toggle_action_menu();
+            }
+            window.checkbox_changed = checkbox_changed;
+
+
+            //  Get all selected ows
+            function get_selected_rows() {
+                var selected_rows = [];
+                const checkboxes = document.getElementsByName('select_checkbox');
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selected_rows.push(checkbox.value);
+                    }
+                });
+                console.log(selected_rows);
+                return selected_rows;
+            }
+
+
+            //  Toggle action menu
+            function toggle_action_menu() {
+                const action_menu = document.getElementById(`actions`);
+                if (get_selected_rows().length > 0)
+                    action_menu.disabled = false;
+                else
+                    action_menu.disabled = true;
+            }
+
+
+            //  Select action
+            async function select_action() {
+                const doc_ref = doc(db, "infoCollection", "student_doc");
+                var action_select = document.getElementById('actions');
+                var action = action_select.value;
+                var accessids = get_selected_rows();
+                var data_to_push;
+                var msg = "";
+
+                if (action == "remove_student") {
+                    if (!confirm("Are you sure you want to remove these students?"))
+                        action = "none";
+                }
+
+                for (let accessid of accessids) {
+                    console.log("Changing status of " + accessid + " to: " + action);
+
+                    switch (action) {
+                        case "accept":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Accepted'
+                                        }
+                                    }
+                                }
+                            }
+                            msg = "<br>Selected student photos listed as Accepted.";
+                            break;
+                        case "reject":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Rejected'
+                                        }
+                                    }
+                                }
+                            }
+                            msg = "<br>Selected student photos listed as Rejected.";
+                            break;
+                        case "flag":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Flagged'
+                                        }
+                                    }
+                                }
+                            }
+                            msg = "<br>Selected student photos listed as Flagged.";
+                            break;
+                        case "remove_student":
+                            const path = `students.${class_id}.${accessid}`;
+
+                            const updated_data = delete_nested_fields(studentData, path);
+                            await setDoc(doc_ref, updated_data);
+
+                            msg = "<br>Selected students have been deleted.";
+                            break;
+                    }
+
+                    //  Only update photo status if the user has one
+                    if ((action != "none") && (action != "remove_student")) {
+                        if (studentData.students[class_id][accessid]['picture_status'] != 'N/A') {
+                            await setDoc(doc_ref, data_to_push, { merge: true });
+                        }
+                        else {
+                            console.log("Data for " + accessid + " was not adjusted.")
+                        }
+                    }
+                }
+
+                //  Update class encoding flag
+                data_to_push = {
+                    'classes': {
+                        [class_id]: {
+                            'class_encoding_update': true
+                        }
+                    }
+                }
+                await setDoc(doc(db, "infoCollection", "class_doc"), data_to_push, { merge: true });
+
+                //  Reset action select if deletion was rejected. Do not update status message if this happens.
+                if (action === "none")
+                    action_select.selectedIndex = 0;
+                else
+                    notif_msg.innerHTML = msg + "<br>Please refresh the page to see any changes made.<br><br>";
+            }
+            window.select_action = select_action;
+
+
+            function delete_nested_fields(data, path) {
+                const keys = path.split('.');
+                let nested_data = data;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    if (!(keys[i] in nested_data)) {
+                        // The nested field doesn't exist
+                        return data;
+                    }
+                    nested_data = nested_data[keys[i]];
+                }
+                // Remove the nested field
+                console.log(nested_data[keys[keys.length - 1]])
+                delete nested_data[keys[keys.length - 1]];
+                return data;
+            }
+
+
+            /* ----------------------------------------  NEW STUDENT PAGE CODE  ----------------------------------------*/
+
+            
             //  Add row to new student table
-            function addStudentRow() {
+            function add_student_row() {
                 var table = document.getElementById("add_student_table").getElementsByTagName('tbody')[0];
                 var newRow = table.insertRow();
                 var cell1 = newRow.insertCell(0);
                 var cell2 = newRow.insertCell(1);
                 var idInput = document.createElement("input");
                 idInput.type = "text";
+                idInput.placeholder = "Ex: hc9082";
                 cell1.appendChild(idInput);
                 var deleteButton = document.createElement("button");
                 deleteButton.innerHTML = "&#x1F5D1";
@@ -675,19 +865,96 @@
                 };
                 cell2.appendChild(deleteButton);
             }
-            window.addStudentRow = addStudentRow;
+            window.add_student_row = add_student_row;
+
+
             //  Submit new student request
-            function submitTable() {
+            function submit_table() {
                 var table = document.getElementById("add_student_table");
                 var data = [];
-                for (var i = 1; i < table.rows.length; i++) {
+                for (var i = table.rows.length - 1; i > 0; i--) {
                     var accessid = table.rows[i].cells[0].getElementsByTagName("input")[0].value;
-                    data.push({ "accessid": accessid });
+                    
+                    // Check if the accessid is empty, else push to data
+                    if (accessid.trim() === "") {
+                        if (table.rows.length > 2)
+                            table.deleteRow(i);
+                    } 
+                    else {
+                        data.push({ "accessid": accessid });
+                    }
                 }
-                // DO SOMETHING
-                console.log(data);
+                if (class_id != 'N/A')
+                    add_new_students(data);
+                else
+                    add_student_errors.innerHTML = "Unable to add student(s), please select a semester and class ID first."
             }
-            window.submitTable = submitTable;
+            window.submit_table = submit_table;
+
+
+            //  Add new student
+            async function add_new_students(data) {
+                console.log(data);
+                var data_success = [];
+                var data_error = [];
+
+                //  Loop through data to check if students exist and not already in the class
+                for (let student in data) {
+                    let ID = data[student].accessid;
+                    if (ID in userData.users) {
+                        if (!(ID in studentData.students[class_id])) {
+                            console.log(ID + " exists.");
+                            const data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [ID]: {
+                                            'attendance': {
+                                                '00_00_0000': {
+                                                    '00_00_00': true,
+                                                    'Overall': true
+                                                }
+                                            },
+                                            'picture_status': 'N/A'
+                                        }
+                                    }
+                                }
+                            };
+
+                            const doc_ref = doc(db, "infoCollection", "student_doc");
+                            await setDoc(doc_ref, data_to_push, { merge: true });
+                            data_success.push(ID);
+                        }
+                        else {
+                            console.log(ID + " is already a student in " + class_id + ".");
+                            data_error.push(ID + ": Already a student in this class.");
+                        }
+                    }
+                    else {
+                        console.log(ID + " does not exist.");
+                        data_error.push(ID + ": Student does not exist.");
+                    }
+                }
+
+                //  Sort and print results to web page
+                data_success.sort();
+                data_error.sort();
+
+                var results = "";
+                if (data_success.length > 0) {
+                    results += "Successfully added:<br>";
+                    for (var i = 0; i < data_success.length; i++)
+                        results += data_success[i] + "<br>";
+                }
+                add_student_results.innerHTML = results;
+
+                var errors = "";
+                if (data_error.length > 0) {
+                    errors += "Errors:<br>";
+                    for (var i = 0; i < data_error.length; i++)
+                        errors += data_error[i] + "<br>";
+                }
+                add_student_errors.innerHTML = errors;
+            }
         }
     </script>
 {% endblock %}
