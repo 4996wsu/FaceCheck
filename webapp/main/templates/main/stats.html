@@ -523,9 +523,16 @@
                 }
 
                 //  List all timestamps
-                let timestamps = Object.keys(studentData.students[class_id][students[student_index]]['attendance'][date]); 
-                timestamps.sort();
-                for (let key of timestamps) {
+                let timestamps = Object.keys(studentData.students[class_id][students[student_index]]['attendance'][date]);
+                timestamps.sort(); 
+                //timestamps = timestamps.filter(item => item !== 'Overall');
+                //  Rearrange items so that "Overall" is the first timestamp
+                let overall_item = timestamps.filter(item => item === 'Overall');
+                let other_items = timestamps.filter(item => item !== 'Overall');
+                timestamps = overall_item.concat(other_items);
+
+                header += '<th class = "col">Overall</th>';
+                for (let key of other_items) {
                     let timeArr = key.split("_");
                     if (parseInt(timeArr[0]) > 12) {
                         timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
