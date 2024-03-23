@@ -1,31 +1,223 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<!-- TEMPORARY STYLE SHEET, DELETE LATER -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 <style>
-    h1 {
-        margin-bottom: 1rem;
-    }
+ 
     body {
-        color: white
+        margin: 0;
+        padding: 0;
+        height: 100vh; 
+        background-image: none;
+
+        background-color: grey; /* Light gray background */
+        overflow: hidden; 
+   
     }
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 30%;
+        bottom: 0%; /* This will cover the top half of the screen */
+        left: 0;
+        background-color: #1d1c1c; /* This is the red color for the top half */
+        border-radius: 0% 10% 90% 0%; /* This creates the curve on the bottom right */
+        z-index: -1; /* Ensure this is behind the content but above the body background */
+    }
+
+
+    .centered-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 100px);
+        margin: 0;
+        padding: 0;
+    }
+    
+
+    .main_body {
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3)); /* White gradient with transparency */
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        text-align: center;
+        flex-direction: row; 
+        flex: 0 1 90%; 
+        
+        padding: 20px;
+        border-radius: 10px;
+
+        margin: 0;
+        box-sizing: border-box;
+        
+    }
+
+    .main_body > div {
+        flex: 1; 
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    /* Style the form and button for a cleaner look */
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .main_body button {
+        background-color: #4CAF50; /* Green for submit button */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .main_body button:hover {
+        background-color: #3e8e41; /* Darker green on hover */
+    }
+
+    /* Style messages if present */
+    .messages {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .messages li {
+        margin-bottom: 5px;
+    }
+
+    .success {
+        color: green;
+    }
+
+    .error {
+        color: red;
+    }
+    .enroll_msg {
+
+        color: black;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .enroll_msg Label {
+        font-family: "Oswald", sans-serif;
+        color: black;
+        margin-bottom: 2.5rem;
+        font-size: 2em;
+        font-weight: bold;
+
+
+    }
+    input[type="file"] {
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #file-upload-button {
+        background-color: #4CAF50; /* Green color */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    .enroll_form Label {
+        margin-bottom: 4rem;
+        font-size: 2em;
+        font-family: "Oswald", sans-serif;
+        color: black;
+        font-weight: bold;
+
+    }
+
+
+    
+
+
+    @media (min-width: 768px) {
+        .main_body {
+            flex-direction: row;
+            max-width: 900px;
+            min-height: 500px; 
+            height: auto;  
+        }
+    }
+
+
+
+    .file-upload-button {
+        background-color: #4CAF50; /* Green color */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-block; /* Make sure it behaves like a button */
+        font-family: inherit; /* Optional: Inherit font styles from the body */
+        font-size: 1rem; /* Optional: Adjust font size */
+    }
+    
+    .file-upload-button:hover {
+        background-color: #3e8e41; /* Darker green on hover */
+    }
+    .form-container {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group {
+        display: flex;
+        align-items: center; /* Aligns items vertically center */
+    }
+    
+    .form-label {
+        margin-right: 20px; /* Adjust as needed */
+    }
+    
+    .form-image {
+        width: 100px; /* Adjust based on your needs */
+        height: auto; /* Maintain aspect ratio */
+    }
+    
+    
 </style>
 
-<h2>Enroll</h2>
+<div class="centered-container">
+    <div class="main_body">
+        <div class="enroll_msg">
+            <label>Enroll yourself in FaceCheck</label>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti tempore, consequatur provident sunt veniam at dolorum consequuntur facere molestiae porro ut possimus veritatis ducimus illo dignissimos fugit laborum incidunt maxime!</p>
+        </div>
+        <div class="enroll_form">
+            <form method="post" enctype="multipart/form-data" class="form-container">
+                <div class="form-group">
+                    <label for="file-upload" class="form-label">{{ form.image.label }}</label>
+                    <img src="../static/images/face-scanner.png" alt="" class="form-image">
+                </div>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="file" id="file-upload" name="file-upload" style="display: none;"><span id="file-name-display"></span>
+                <button type="submit">Upload</button>
+            </form>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-
-</form>
-
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
 
 {% endblock %}
