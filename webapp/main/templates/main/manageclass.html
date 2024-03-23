@@ -228,7 +228,7 @@
     <script type="module">
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 
         // Open different tabs
@@ -735,10 +735,17 @@
 
             //  Select action
             async function select_action() {
+                const doc_ref = doc(db, "infoCollection", "student_doc");
                 var action_select = document.getElementById('actions');
                 var action = action_select.value;
                 var accessids = get_selected_rows();
                 var data_to_push;
+                var msg = "";
+
+                if (action == "remove_student") {
+                    if (!confirm("Are you sure you want to remove these students?"))
+                        action = "none";
+                }
 
                 for (let accessid of accessids) {
                     console.log("Changing status of " + accessid + " to: " + action);
@@ -754,6 +761,7 @@
                                     }
                                 }
                             }
+                            msg = "<br>Selected student photos listed as Accepted.";
                             break;
                         case "reject":
                             data_to_push = {
@@ -765,6 +773,7 @@
                                     }
                                 }
                             }
+                            msg = "<br>Selected student photos listed as Rejected.";
                             break;
                         case "flag":
                             data_to_push = {
@@ -776,24 +785,53 @@
                                     }
                                 }
                             }
+                            msg = "<br>Selected student photos listed as Flagged.";
                             break;
                         case "remove_student":
-                            console.log("Students removed")
+                            const path = `students.${class_id}.${accessid}`;
+
+                            const updated_data = delete_nested_fields(studentData, path);
+                            await setDoc(doc_ref, updated_data);
+
+                            msg = "<br>Selected students have been deleted.";
                             break;
                     }
 
-                    if (studentData.students[class_id][accessid]['picture_status'] != 'N/A' && action != "remove_student") {
-                        const doc_ref = doc(db, "infoCollection", "student_doc");
-                        await setDoc(doc_ref, data_to_push, { merge: true });
-                    }
-                    else {
-                        console.log(accessid + " has no photo or photo status, and was therefore not adjusted.")
+                    //  Only update photo status if the user has one
+                    if ((action != "none") && (action != "remove_student")) {
+                        if (studentData.students[class_id][accessid]['picture_status'] != 'N/A') {
+                            await setDoc(doc_ref, data_to_push, { merge: true });
+                        }
+                        else {
+                            console.log("Data for " + accessid + " was not adjusted.")
+                        }
                     }
                 }
 
-                notif_msg.innerHTML = "Please refresh the page to see any changes made.<br><br>";
+                //  Reset action select if deletion was rejected. Do not update status message if this happens.
+                if (action === "none")
+                    action_select.selectedIndex = 0;
+                else
+                    notif_msg.innerHTML = msg + "<br>Please refresh the page to see any changes made.<br><br>";
             }
             window.select_action = select_action;
+
+
+            function delete_nested_fields(data, path) {
+                const keys = path.split('.');
+                let nested_data = data;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    if (!(keys[i] in nested_data)) {
+                        // The nested field doesn't exist
+                        return data;
+                    }
+                    nested_data = nested_data[keys[i]];
+                }
+                // Remove the nested field
+                console.log(nested_data[keys[keys.length - 1]])
+                delete nested_data[keys[keys.length - 1]];
+                return data;
+            }
 
 
             /* ----------------------------------------  NEW STUDENT PAGE CODE  ----------------------------------------*/
