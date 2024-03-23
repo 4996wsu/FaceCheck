@@ -8,7 +8,7 @@ class RegisterForm(UserCreationForm):
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     username = forms.CharField(
-        label='Acess ID',
+        label='Access ID',
         max_length=8,
         help_text='Required. 8 characters or fewer. Letters, digits and @/./+/-/_ only.',
         widget=forms.TextInput(attrs={'class': 'form-control'})

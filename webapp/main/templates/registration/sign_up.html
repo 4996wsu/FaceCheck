@@ -22,10 +22,10 @@
                         {% csrf_token %}
                         {{ user_form.as_p }}
                         {{ profile_form.as_p }}
-                        <p class="subtext">*Photo is required for registration</p>
+                        <p class="subtext">*Photo is required for registration</p>{% endcomment %}
                         <p> Have an account? Login <a href="{% url 'login' %}">Here</a></p>
                         <button type="submit" class="btn btn-primary">Register</button>
-                    </form> {% endcomment %}
+                    </form> 
                 </div>
             </div>
         </div>
