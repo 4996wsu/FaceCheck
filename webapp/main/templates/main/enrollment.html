@@ -176,16 +176,16 @@
     
     .form-group {
         display: flex;
-        align-items: center; /* Aligns items vertically center */
+        align-items: center; 
     }
     
     .form-label {
-        margin-right: 20px; /* Adjust as needed */
+        margin-right: 20px; 
     }
     
     .form-image {
-        width: 100px; /* Adjust based on your needs */
-        height: auto; /* Maintain aspect ratio */
+        width: 50px; 
+        height: auto; 
     }
     
     
@@ -200,8 +200,9 @@
         <div class="enroll_form">
             <form method="post" enctype="multipart/form-data" class="form-container">
                 <div class="form-group">
-                    <label for="file-upload" class="form-label">{{ form.image.label }}</label>
                     <img src="../static/images/face-scanner.png" alt="" class="form-image">
+                    <label for="file-upload" class="form-label">{{ form.image.label }}</label>
+                    
                 </div>
                 {% csrf_token %}
                 {{ form.as_p }}
