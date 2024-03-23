@@ -134,6 +134,7 @@
 
     <!-- JAVASCIPT CODE -->
     <script type="module">
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
@@ -143,8 +144,81 @@
             for(i = len; i >= 0; i--) {
                selectElement.remove(i);
             }
-         }
+        }
 
+        //  Open image preview
+        function openImagePreview(imageUrl, date, time) {
+            // Format date
+            let dateArr = date.split("_");
+            date = dateArr[0] + "/" + dateArr[1] + "/" + dateArr[2];
+
+            // Format time
+            let timeArr = time.split("_");
+            if (parseInt(timeArr[0]) > 12) {
+                timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
+                timeArr[2] = "PM"
+            }
+            else if (parseInt(timeArr[0]) === 12) {
+                timeArr[0] = parseInt(timeArr[0]) + "";
+                timeArr[2] = "PM"
+            }
+            else {
+                timeArr[2] = "AM"
+            }
+            time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
+
+            // Create overlay/modal element
+            var overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.zIndex = '9999';
+        
+            // Create container for image and caption
+            var container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.top = '50%';
+            container.style.left = '50%';
+            container.style.transform = 'translate(-50%, -50%)';
+            container.style.textAlign = 'center';
+        
+            // Create image element
+            var image = document.createElement('img');
+            image.src = imageUrl;
+            image.style.maxWidth = '80%';
+            image.style.maxHeight = '80%';
+            image.style.display = 'block';
+            image.style.margin = '0 auto';
+        
+            // Create caption element
+            var caption = document.createElement('p');
+            caption.textContent = "Class photo taken at " + time + " on " + date;
+            caption.style.color = '#fff';
+            caption.style.fontFamily = 'Arial, sans-serif';
+            caption.style.fontSize = '16px';
+        
+            // Append image and caption to container
+            container.appendChild(image);
+            container.appendChild(caption);
+        
+            // Append container to overlay
+            overlay.appendChild(container);
+        
+            // Append overlay to body
+            document.body.appendChild(overlay);
+        
+            // Close overlay when clicked
+            overlay.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+        }
+        window.openImagePreview = openImagePreview;
+
+
+        /* --------------------------------------------------  DATABASE CODE  --------------------------------------------------*/
         const firebaseConfig = {
           apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
           authDomain: "facecheck-93450.firebaseapp.com",
@@ -159,6 +233,7 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
+        const storage = getStorage();
         const colRef = collection(db, "infoCollection")
 
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
@@ -287,7 +362,7 @@
             }
             window.change_semester = change_semester;
 
-            //  Write contents of class ID menu :: *****ADD PROFESSOR CHECK HERE*****
+            //  Write contents of class ID menu
             function write_class_menu() {
                 // Create default value
                 removeOptions(class_select);
@@ -356,7 +431,20 @@
             //  Write contents of date menu
             function write_date_menu() {
                 if (students.length > 0) {
-                    let date_list = Object.keys(studentData.students[class_id][students[0]]['attendance']);
+                    //  Remove class_photos since it does not represent an actual student
+                    let student_list = (Object.keys(studentData.students[class_id])).filter(item => item !== 'class_photos');
+                    //student_list.sort();
+
+                    //  Pick student with the most timestamps and use that to populate the date list
+                    var chosen_student = student_list[0];
+                    for (let student of student_list) {
+                        if (Object.keys(studentData.students[class_id][student]['attendance']).length > 
+                            Object.keys(studentData.students[class_id][chosen_student]['attendance']).length) {
+                                chosen_student = student;
+                            }
+                    }
+
+                    let date_list = Object.keys(studentData.students[class_id][chosen_student]['attendance']);
                     date_list.sort();
 
                     // Create default value
@@ -485,9 +573,12 @@
             }
 
             //  Create table
-            function write_table(accessIDs) {
+            async function write_table(accessIDs) {
+                console.log("Writing stats table");
                 error_msg.innerHTML = "";
-                empty_table();
+
+                // Create an array to store promises for fetching photo URLs
+                const photoPromises = [];
 
                 //  Remove "class_photos" from the accessIDs list since it is not a real student, then sort students
                 if (accessIDs.includes("class_photos")) {
@@ -495,124 +586,195 @@
                     accessIDs.splice(index, 1);
                 }
                 let students = sort_by_filter(accessIDs);
+                
+                if (studentData.students[class_id]['class_photos'][date] !== undefined) {
+                    let photo_timestamps = Object.keys(studentData.students[class_id]['class_photos'][date]);
 
-                let header = '';
-                //  ----- Table header -----
-                if (filter === 'accessid') {
-                    header  =  `<tr>
-                                        <th class = "headcol_id">Access ID</th>
-                                        <th class = "col_name">Name</th>`;
-                }
-                else if (filter === 'fname' || filter === 'lname') {
-                    header  =  `<tr>
-                                        <th class = "headcol_name">Name</th>
-                                        <th class = "col">Access ID</th>`;
-                }
-
-                //  Find student with the most timestamps
-                var student_index = 0;
-                var highest_length = 0;
-                for (var i = 0; i < students.length; i++) {
-                    if (studentData.students[class_id][students[i]]['attendance'][date] !== undefined) {
-                        let s = Object.keys(studentData.students[class_id][students[i]]['attendance'][date]).length
-                        if (s > highest_length) {
-                            highest_length = s;
-                            student_index = i;
+                    for (let time of photo_timestamps) {
+                        let data = studentData.students[class_id]['class_photos'][date][time];
+                        if (data) {
+                            // Get class photo URL
+                            const photoPromise = new Promise(async (resolve, reject) => {
+                                try {
+                                    const storageRef = ref(storage, class_id + "/" + date + "/" + time + "_photo");
+                                    const photoUrl = await getDownloadURL(storageRef);
+                                    resolve({ photoUrl, timestamp: time });
+                                } catch (error) {
+                                    console.error("Error getting photo URL:", error);
+                                    resolve({ photoUrl: null, timestamp: time });
+                                }
+                            });
+                
+                            photoPromises.push(photoPromise);
                         }
                     }
                 }
+                // Wait for all photo fetching promises to resolve
+                Promise.all(photoPromises)
+                    .then(results => {
+                        // Clear the table content before adding new entries
+                        empty_table();
 
-                //  List all timestamps
-                let timestamps = Object.keys(studentData.students[class_id][students[student_index]]['attendance'][date]);
-                timestamps.sort(); 
-                //timestamps = timestamps.filter(item => item !== 'Overall');
-                //  Rearrange items so that "Overall" is the first timestamp
-                let overall_item = timestamps.filter(item => item === 'Overall');
-                let other_items = timestamps.filter(item => item !== 'Overall');
-                timestamps = overall_item.concat(other_items);
-
-                header += '<th class = "col">Overall</th>';
-                for (let key of other_items) {
-                    let timeArr = key.split("_");
-                    if (parseInt(timeArr[0]) > 12) {
-                        timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
-                        timeArr[2] = "PM"
-                    }
-                    else if (parseInt(timeArr[0]) === 12) {
-                        timeArr[0] = parseInt(timeArr[0]) + "";
-                        timeArr[2] = "PM"
-                    }
-                    else {
-                        timeArr[2] = "AM"
-                    }
-                    let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
-                    
-                    //  Add timestamps headers
-                    header += '<th class = "col">' + time + '</th>';
-                }
-                table.innerHTML += header
-
-                //  ----- Table contents -----
-                let row = ""
-
-                //  Loop through students
-                for (let student in students) {
-                    let currentStudent = students[student]
-
-                    if (studentData.students[class_id][currentStudent]['attendance'] !== undefined) {
-                        //  Change table contents based on filter
+                        let header = '';
+                        //  ----- Table header -----
                         if (filter === 'accessid') {
-                            row  = `<tr>
-                                <td class = "headcol_id">${currentStudent}</td>
-                                <td class = "col_name">${userData.users[currentStudent]['fname'] + " " + 
-                                    userData.users[currentStudent]['lname']}</td>`;
+                            header  =  `<tr>
+                                                <th class = "headcol_id">Access ID</th>
+                                                <th class = "col_name">Name</th>`;
                         }
-                        else if (filter === 'fname') {
-                            row  = `<tr>
-                                <td class = "headcol_name">${userData.users[currentStudent]['fname'] + " " + 
-                                    userData.users[currentStudent]['lname']}</td>
-                                <td class = "col">${currentStudent}</td>`;
-                        }
-                        else if (filter === 'lname') {
-                            row  = `<tr>
-                                <td class = "headcol_name">${userData.users[currentStudent]['lname'] + ", " + 
-                                    userData.users[currentStudent]['fname']}</td>
-                                <td class = "col">${currentStudent}</td>`;
+                        else if (filter === 'fname' || filter === 'lname') {
+                            header  =  `<tr>
+                                                <th class = "headcol_name">Name</th>
+                                                <th class = "col">Access ID</th>`;
                         }
 
-                        //  Check if current student has the selected date
-                        if (studentData.students[class_id][currentStudent]['attendance'][date] !== undefined) {
-                            let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
+                        //  Find student with the most timestamps
+                        var student_index = 0;
+                        var highest_length = 0;
+                        for (var i = 0; i < students.length; i++) {
+                            if (studentData.students[class_id][students[i]]['attendance'][date] !== undefined) {
+                                let s = Object.keys(studentData.students[class_id][students[i]]['attendance'][date]).length
+                                if (s > highest_length) {
+                                    highest_length = s;
+                                    student_index = i;
+                                }
+                            }
+                        }
 
-                            let student_timestamps = Object.keys(attendance);
-                            student_timestamps.sort();
-                            for (let key of timestamps) {
-                                let value = ""
-                                // This if statement checks if a student does not have a timestamp for a given time,
-                                // in case there was an error processing attendance for a given time.
-                                if (student_timestamps.includes(key)) {
-                                    if (attendance[key] === true)
-                                        value = "\u2714";
-                                    else
-                                        value = "\u274C";
+                        //  List all timestamps
+                        let timestamps = Object.keys(studentData.students[class_id][students[student_index]]['attendance'][date]);
+                        timestamps.sort(); 
+
+                        //  Rearrange items so that "Overall" is the first timestamp
+                        let overall_item = timestamps.filter(item => item === 'Overall');
+                        let other_items = timestamps.filter(item => item !== 'Overall');
+                        timestamps = overall_item.concat(other_items);
+
+                        header += '<th class = "col">Overall</th>';
+                        for (let key of other_items) {
+                            let timeArr = key.split("_");
+                            if (parseInt(timeArr[0]) > 12) {
+                                timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
+                                timeArr[2] = "PM"
+                            }
+                            else if (parseInt(timeArr[0]) === 12) {
+                                timeArr[0] = parseInt(timeArr[0]) + "";
+                                timeArr[2] = "PM"
+                            }
+                            else {
+                                timeArr[2] = "AM"
+                            }
+                            let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
+                            
+                            //  Add timestamps headers
+                            header += '<th class = "col">' + time + '</th>';
+                        }
+                        table.innerHTML += header
+
+                        //  ----- Table contents -----
+                        let row = ""
+
+                        //  Loop through students
+                        for (let student in students) {
+                            let currentStudent = students[student]
+
+                            if (studentData.students[class_id][currentStudent]['attendance'] !== undefined) {
+                                //  Change table contents based on filter
+                                if (filter === 'accessid') {
+                                    row  = `<tr>
+                                                <td class = "headcol_id">${currentStudent}</td>
+                                                <td class = "col_name">${userData.users[currentStudent]['fname'] + " " + 
+                                                    userData.users[currentStudent]['lname']}</td>`;
+                                }
+                                else if (filter === 'fname') {
+                                    row  = `<tr>
+                                                <td class = "headcol_name">${userData.users[currentStudent]['fname'] + " " + 
+                                                    userData.users[currentStudent]['lname']}</td>
+                                                <td class = "col">${currentStudent}</td>`;
+                                }
+                                else if (filter === 'lname') {
+                                    row  = `<tr>
+                                                <td class = "headcol_name">${userData.users[currentStudent]['lname'] + ", " + 
+                                                    userData.users[currentStudent]['fname']}</td>
+                                                <td class = "col">${currentStudent}</td>`;
+                                }
+
+                                //  Check if current student has the selected date
+                                if (studentData.students[class_id][currentStudent]['attendance'][date] !== undefined) {
+                                    let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
+
+                                    let student_timestamps = Object.keys(attendance);
+                                    student_timestamps.sort();
+                                    for (let key of timestamps) {
+                                        let value = ""
+                                        // This if statement checks if a student does not have a timestamp for a given time,
+                                        // in case there was an error processing attendance for a given time.
+                                        if (student_timestamps.includes(key)) {
+                                            if (attendance[key] === true)
+                                                value = "\u2714";
+                                            else
+                                                value = "\u274C";
+                                        }
+                                        else {
+                                            console.log("Error: missing timestamp for " + currentStudent + ".");
+                                        }
+                                        
+                                        row += '<td class = "col">' + value + '</td>';
+                                    }
+                                    row += '</tr>'
+                                    table.innerHTML += row
                                 }
                                 else {
-                                    console.log("Error: missing timestamp for " + currentStudent + ".");
+                                    console.log("This date does not exist for " + currentStudent)
                                 }
-                                
-                                row += '<td class = "col">' + value + '</td>';
+
+                            } else {
+                                console.log("No records for " + currentStudent);
                             }
-                            row += '</tr>'
-                            table.innerHTML += row
-                        }
-                        else {
-                            console.log("This date does not exist for " + currentStudent)
                         }
 
-                    } else {
-                        console.log("No records for " + currentStudent);
-                    }
-                }
+
+                        //  Write class photos section of the table
+                        if (filter === 'accessid') {
+                            row  = `<tr>
+                                        <td class = "headcol_id"></td>
+                                        <td class = "col_name"></td>`;
+                        }
+                        else if (filter === 'fname' || filter === 'lname') {
+                            row  = `<tr>
+                                        <td class = "headcol_name"></td>
+                                        <td class = "col"></td>`;
+                        }
+                        row += '<td class = "col"></td>'
+
+                        if (studentData.students[class_id]['class_photos'][date] !== undefined) {
+                            let photo_timestamps = Object.keys(studentData.students[class_id]['class_photos'][date]);
+                            photo_timestamps.sort();
+
+                            for (let i = 0; i < results.length; i++) {
+                                const { photoUrl, timestamp } = results[i];
+                                // This if statement checks if there is no class photo for a given time,
+                                // in case there was an error processing attendance for a given time.
+                                console.log(studentData.students[class_id]['class_photos'][date][photo_timestamps[i]])
+                                if (studentData.students[class_id]['class_photos'][date][photo_timestamps[i]] != "NO PHOTO") {
+                                    row += `<td>
+                                                <button onclick="openImagePreview('${photoUrl}','${date}','${photo_timestamps[i]}')">
+                                                    View</button></td>`
+                                }
+                                else {
+                                    row += "<td>N/A</td>"
+                                    console.log("Error: missing timestamp for class photo.");
+                                }
+                            }
+                        }
+
+                        //  Conclude table and add to page
+                        row += '</tr>'
+                        table.innerHTML += row
+                    })
+                    .catch(error => {
+                        console.error("Error fetching photo URLs:", error);
+                    });
             }
 
         }
