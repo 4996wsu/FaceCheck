@@ -1,6 +1,6 @@
 #   -------------------------------------------------------------------------------------------------
 #
-#   This file handles all the database functions involving Firebase.
+#   This file handles all the database functions involving Firebase for the WEB APP.
 #
 #   -------------------------------------------------------------------------------------------------
 
@@ -13,6 +13,8 @@ import cv2
 from datetime import datetime
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 import torch
+import requests
+from io import BytesIO
 # from preprocess import encode_face
 
 
@@ -100,21 +102,45 @@ def add_class(section, prof):
         update_doc(class_doc, key, prof)
         print("Class '" + section + "' successfully added.")
     
-#  Add new student to class
-def add_student(section, name):
-    student_dict = get_doc(student_doc)
+#  Add new student to **DATABASE**
+def add_student(accessid, fname, lname, role):
+    user_dict = get_doc(user_doc)
     
-    if lookup(name, student_dict) != None:
-        print("Error: Cannot add user '" + name + "' because the user already exists.")
+    if lookup(accessid, user_dict) != None:
+        print("Error: Cannot add user '" + accessid + "' because the user already exists.")
     else:
-        studentKey = 'students.' + section + '.' + name + '.picture'
-        update_doc(student_doc, studentKey, "NO PHOTO")
-        userKey = 'users.' + name + '.picture'
-        update_doc(user_doc, userKey, "NO PHOTO")
-        userKey = 'users.' + name + '.encoding'
-        update_doc(user_doc, userKey, "NO ENCODING")
+        key = 'users.' + accessid + '.fname'
+        update_doc(user_doc, key, fname)
+        key = 'users.' + accessid + '.lname'
+        update_doc(user_doc, key, lname)
+        key = 'users.' + accessid + '.picture'
+        update_doc(user_doc, key, "NO PHOTO")
+        key = 'users.' + accessid + '.encoding'
+        update_doc(user_doc, key, "NO ENCODING")
+        key = 'users.' + accessid + '.role'
+        update_doc(user_doc, key, role)
+        log_arr = [getTime(), "Created account"]
+        key = 'users.' + accessid + '.audit_log.' + getDate()
+        update_doc(user_doc, key, log_arr)
         
-        print("Student '" + name + "' successfully added.")
+        print("Student '" + accessid + "' successfully added.")
+        
+#  Add new student to **CLASS**
+def add_student_to_class(section, accessid):
+    student_dict = get_doc(student_doc)
+    user_dict = get_doc(user_doc)
+    
+    if lookup(accessid, student_dict['students'][section]) != None:
+        print("Error: Cannot add user '" + accessid + "' because the user is already in " + section + ".")
+    elif lookup(accessid, user_dict) == None:
+        print("Error: Cannot add user '" + accessid + "' because the user does not exist.")
+    else:
+        key = 'students.' + section + '.' + accessid + '.attendance.00_00_0000.00_00_00'
+        update_doc(student_doc, key, True)
+        classKey = 'classes.' + section + '.encoding_update'
+        update_doc(class_doc, classKey, True)
+        
+        print("Student '" + accessid + "' successfully added to " + section + ".")
    
     
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
@@ -131,10 +157,16 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
 
 #  Update student photo
 def update_student_photo(name, file):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     bucket = storage.bucket()
     imageBlob = bucket.blob(name + "_photo")
     name_list = [name]
-    
+    from duplicate import duplicate_faces
+    class_id= 'CSC_4996_001_W_2024'
+    emb, names = torch.load(f'{class_id}.pt', map_location='cpu')
+# Move loaded embeddings to the same device as your current embeddings
+    emb = [e.to(device) for e in emb]
     # Crop student photo & upload encoding
     cropped_image = detect_and_crop_face(file)
     if cropped_image is not None:
@@ -142,6 +174,12 @@ def update_student_photo(name, file):
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
             cv2.imwrite(temp_file.name, cropped_image)
             imageBlob.upload_from_filename(temp_file.name)
+
+        embedding_list = face_encode(cropped_image, device=device)
+# If face_encode returns a single tensor, make sure it's on the right device
+        embedding_list = [emb.to(device) for emb in embedding_list]
+        if duplicate_faces(embedding_list,emb, names,name):
+            print("Error: Duplicate face detected.")
             
         embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
@@ -156,6 +194,37 @@ def update_student_photo(name, file):
         print("Error: No face detected, or there was an error processing the image.")
         return None
         
+
+# Update photo status for professor to approve        
+def update_photo_status(section, name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    elif lookup(name, student_dict['students'][section]) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+    else:
+        key = 'students.' + section + '.' + name + '.picture_status'
+        print("Updated photo status for '" + name + "' in class '" + section + "'.")
+        update_doc(student_doc, key, value)
+
+# Update photo status for professor to approve (AS A BATCH)   
+def update_photo_status_batch(name, value):
+    user_dict = get_doc(user_doc)
+    student_dict = get_doc(student_doc)
+    
+    if lookup(name, user_dict) == None:
+        print("Error: Cannot update photo status for '" + name + "' because the user does not exist.")
+    else:
+        for section in student_dict['students']:
+            if lookup(name, student_dict['students'][section]) == None:
+                print("Error: Cannot update photo status for '" + name + "' because the user is not in class '" + section + "'.")
+            else:
+                key = 'students.' + section + '.' + name + '.picture_status'
+                print("Updated photo status for '" + name + "' in class '" + section + "'.")
+                update_doc(student_doc, key, value)
+        
     
 #  Remove student photo
 def remove_student_photo(name):
@@ -167,6 +236,8 @@ def remove_student_photo(name):
         # Remove photo and encoding
         userKey = 'users.' + name + '.picture'
         update_doc(user_doc, userKey, "NO PHOTO")
+        userKey = 'users.' + name + '.encoding'
+        update_doc(user_doc, userKey, "NO ENCODING")
         print("Photo for '" + name + "' deleted successfully.")
         
         # Add encoding removal here
@@ -204,28 +275,104 @@ def retrieve_encodings_from_class(section):
     
     return encoding_list 
 
-#  ------------------------------  TESTING CODE  ------------------------------
-print("---------------------- START DATABASE TESTING ----------------------")
 
-# reset_docs()
-# get_all_docs()
+# Set flag that class encoding needs update
+def update_class_encoding_status(section, status):
+    key = 'classes.' + section + '.class_encoding_update'
+    update_doc(class_doc, key, status)
 
-# update_doc(student_doc, 'students.CSC_4996_001.hc9082.attendance.02_08_2024.17_40_00', True)
-# add_student('CSC_4996_001', 'hi6576')
-# update_student_attendance('CSC_4996_001', 'hc9082', True, '02_08_2024', '17_40_00')
-# update_student_attendance('CSC_4996_001', 'hc9082', True)
-#update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
-#update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
-#update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
-# remove_student_photo('hc9082')
-# remove_student_photo('hc9082')
 
-# add_student('CSC_4996_004', 'hc2810')
-# add_class('CSC_4996_001', 'mousavi')
-# add_class('CSC_4996_004', 'mousavi')
+def retrieve_class_embedding(section): 
+    doc = get_doc('class_doc')
 
-# print(retrieve_file('hc9082', 'picture'))
-# print(retrieve_names())
-#retrieve_encodings_from_class('CSC_4996_001')
+    # Debug message
+    if (doc['classes'][section]['class_encoding'] == 'NO ENCODING'):
+        print("Error: Cannot retrieve filetype class encoding for class '" + section + "'.")
+    else:
+        print("Retrieved class encoding for class '" + section + "'.")
+    print(doc['classes'][section]['class_encoding'])
+    return doc['classes'][section]['class_encoding']
 
-print("---------------------- END DATABASE TESTING ----------------------")
+def download_file_combine(url, section):
+    with requests.get(url, stream=True) as response:
+        response.raise_for_status()
+        with open(section, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+    
+    print(f"File downloaded and saved as {section}")
+def retrieve_names_from_class(section): 
+    doc = get_doc(student_doc)    
+    names = list(doc['students'][section].keys()) 
+    
+    # Remove class_photos from names since it is not an actual student
+    if "class_photos" in names:
+        names.remove("class_photos")
+        
+    return names
+
+def retrieve_encodings_from_class(section):
+    names = retrieve_names_from_class(section)    
+    encoding_list = []
+    for name in names:
+        retrieved_encoding = retrieve_file(name, 'encoding')
+        if retrieved_encoding != 'NO ENCODING':
+            encoding_list.append(retrieved_encoding)
+    print(encoding_list)
+    return encoding_list 
+def retrieve_file(name, filetype): 
+    doc = get_doc(user_doc)
+
+    # Debug message
+    if (doc['users'][name][filetype] == 'NO ENCODING'):
+        print("Error: Cannot retrieve filetype '" + filetype + "' for user '" + name + "'.")
+    else:
+        print("Retrieved filetype '" + filetype + "' for user '" + name + "'.")
+        
+    return doc['users'][name][filetype]
+def download_pt_file_student(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    buffer = BytesIO(response.content)
+    embedding, name = torch.load(buffer, map_location='cpu')
+    return embedding[0], name[0]
+
+def update_doc(doc_id, key, value):
+    doc_ref = db.collection(collectionName).document(doc_id)
+    doc_ref.update({
+        key: value
+    })
+
+def update_class_encoding_status(section, value):
+    key = 'classes.' + section + '.class_encoding_update'
+    update_doc(class_doc, key, value)
+
+def update_class_encoding(section, file):
+    doc = get_doc(class_doc)
+    if doc['classes'][section]['class_encoding_update'] == True:
+        bucket = storage.bucket()
+        blob = bucket.blob(section + ".pt")
+        blob.upload_from_filename(file)
+        blob.make_public()
+        # Update encoding status to show encoding update is no longer needed
+        update_class_encoding_status(section, False)
+
+        # Upload
+        key = 'classes.' + section + '.class_encoding'
+        update_doc(class_doc, key, blob.public_url)
+    else:
+        print("Error: Encoding update is not needed for '" + section + "'.")
+
+def combine_pt_files(section):
+    combined_embedding_list = []
+    combined_name_list = []
+
+    urls = retrieve_encodings_from_class(section)
+    for url in urls:
+        embedding, name = download_pt_file_student(url)
+        combined_embedding_list.append(embedding)
+        combined_name_list.append(name)
+    #print(combined_embedding_list)
+    combined_data = {'embedding_list': combined_embedding_list, 'name_list': combined_name_list}
+    torch.save([combined_embedding_list,combined_name_list], f'{section}.pt')
+    update_class_encoding(section, f'{section}.pt')

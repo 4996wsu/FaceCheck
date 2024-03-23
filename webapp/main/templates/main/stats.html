@@ -4,55 +4,146 @@
 {% block content %}
     <!-- TEMPORARY STYLE SHEET, DELETE LATER -->
     <style>
-        h1 {
+        h2 {
             margin-bottom: 1rem;
+            text-align: center;
+        }
+        hr {
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
         }
         body {
-            color: white
+            color: white;
+            background-image: none;
+            background-color: #131313;
         }
-        table {
-            margin-top: 1rem;
+
+        @media (min-width: 1280px) {
+            #indented_label {
+                margin-left: 1em;
+            }
+        }
+
+        @media (max-width: 1279px) {
+            #indented_label::before {
+                white-space: pre;
+                display: block;
+            }
+
+            #semester_select,
+            #class_id_select,
+            #date_select,
+            #searchbar,
+            #filter_select {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 0.5em;
+            }
+
+            .input-field {
+                display: grid; 
+                grid-template-columns: auto 1fr; 
+                gap: 0.5em; 
+                align-items: center; 
+            }
+        
+            .input-field label {
+                text-align: right; 
+            }
+        
+            .input-field select {
+                width: 100%; 
+            }
+        }
+
+        /*  TABLE FORMATTING STYLES  */
+        #stats_table {
+            margin-bottom: 3em;
         }
         th, tr {
             padding-right: 1rem;
         }
-        body {
-            background-image: none;
-            background-color: #1e1e1e;
-            
+        .headcol_id, .headcol_name {
+            position: sticky;
+            white-space: nowrap;
+            left: 0;
+            background-color: #131313;
+            z-index: 1;
+        }
+        .headcol_id {
+            width: 5.5em;
+        }
+        .headcol_name {
+            width: 10em;
+        }
+        .col, .col_name {
+            position: relative;
+            white-space: nowrap;
+        }
+        .col_name {
+            width: 10em;
         }
     </style>
 
     <!-- STATISTICS PAGE CODE -->
-    <h1>Statistics Page</h1>
+    <h2>Statistics</h2><hr>
+    <div id = "input_fields">
+        <label for="semester_select">Semester: </label>
+        <select name="semester_select" id="semester_select" onchange = "change_semester()">
+            <option value="default">N/A</option>
+        </select>
 
-    <label for="class_id_select">Select a Class ID:</label>
-    <select name="class_id_select" id="class_id_select">
-        <option value="javascript">------------</option>
-        <option value="javascript">CSC 4996 001</option>
-        <option value="javascript">CSC 4996 004</option>
-    </select>
+        <label for="class_id_select" id="indented_label">Class: </label>
+        <select name="class_id_select" id="class_id_select" disabled onchange = "change_class()">
+            <option value="default">N/A</option>
+        </select>
 
-    <label for="date_select">Select a Date:</label>
-    <select name="date_select" id="date_select">
-        <option value="javascript">------------</option>
-        <option value="javascript">02/06/2024</option>
-        <option value="javascript">02/08/2024</option>
-    </select>
+        <label for="date_select" id="indented_label">Date: </label>
+        <select name="date_select" id="date_select" onchange = "change_date()" disabled>
+            <option value="default">N/A</option>
+        </select>
 
+        <!-- SEARCH BAR -->
+        <br><br><a>Search for a student: </a>
+        <input id = "searchbar"
+            onkeyup = "search_student()"
+            type = "text" name = "search"
+            maxlength = "20"
+            placeholder = "Ex: hc9082">
 
+        <label for="filter_select" id="indented_label">Search/sort by: </label>
+        <select name="filter_select" id="filter_select" onchange = "change_filter()">
+            <option value="accessid">Access ID</option>
+            <option value="fname">First name</option>
+            <option value="lname">Last name</option>
+        </select>
+    </div>
+
+    <hr>
+    <a id = "errors">Select a semester, class, and date to show attendance data.</a>
+
+    <!-- STATS TABLE BASE -->
+    <div id = "stats_table" style="overflow-x:auto;">
+        <table id = "stats">
+            <thead id="thead"></thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
     
-    <table id = "stats">
-        <thead id="thead">
-        </thead>
-        <tbody id="tbody">
-        </tbody>
-    </table>
 
+    <!-- JAVASCIPT CODE -->
     <script type="module">
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+
+        function removeOptions(selectElement) {
+            var i, len = selectElement.options.length - 1;
+            for(i = len; i >= 0; i--) {
+               selectElement.remove(i);
+            }
+         }
 
         const firebaseConfig = {
           apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
@@ -70,94 +161,431 @@
         const db = getFirestore(app);
         const colRef = collection(db, "infoCollection")
 
-        const q = query(colRef, where ("students.CSC_4996_001.hc9082.picture", "==", "NO PHOTO"))
+        const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
+        const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
+        const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
+        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
+            let studentData = studentSnapshot.data();
+            let classData = classSnapshot.data();
+            let userData = userSnapshot.data();
+            let date_select = document.getElementById("date_select");
+            let semester_select = document.getElementById("semester_select");
+            let class_select = document.getElementById("class_id_select");
+            let table = document.getElementById('stats');
+            let filter = document.getElementById('filter_select').value;
+            let error_msg = document.getElementById('errors');
 
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(doc=>{
-            let data = doc.data();
-            let table = document.getElementById('stats')
+            //  Save identifier keys and write initial table based on inputs
+            var username = "{{ user.username }}";
+            console.log("Logged in as:", username);
+            let date = 'N/A';
+            let semester = 'N/A';
+            let class_id = 'N/A';
+            var students;   //  This is initialized with a value after a class is chosen
+            let classes = Object.keys(classData.classes);
+            let users = Object.keys(userData.users);
+            write_semester_menu();
 
-            //  Save identifier keys
-            let date = '03_05_2024'
-            let students = Object.keys(data.students.CSC_4996_001);
-            students.sort();
-            console.log(students);
+            //  Write contents of the semester menu
+            function write_semester_menu() {
+                if (classes.length > 0) {
+                    // Create default value
+                    removeOptions(semester_select);
+                    var default_option = document.createElement('option');
+                    default_option.value = 0;
+                    default_option.innerHTML = "-- Click to select semester --"
+                    default_option.disabled = true;
+                    default_option.selected = true;
+                    default_option.style.display = 'none';
+                    semester_select.appendChild(default_option);
 
+                    // Store semesters in array to check for duplicates
+                    var semester_arr = [];
 
-            //  Table header
-            let header  =  `<tr>
-                <th>Access ID</th>`;
+                    for (let class_id of classes) {
+                        let class_arr = class_id.split('_');
+                        var semester;
+                        // Use a temporary naming scheme YYYY_Semester # to ensure that
+                        // the list is sorted in correct semester order.
+                        if (class_arr[3] === "W")
+                            semester = class_arr[4] + "_1";
+                        else if (class_arr[3] === "S")
+                            semester = class_arr[4] + "_2";
+                        else if (class_arr[3] === "F")
+                            semester = class_arr[4] + "_3";
 
-            let timestamps = Object.keys(data.students.CSC_4996_001[students[0]]['attendance'][date]); 
-            timestamps.sort();
-            for (let key of timestamps) {
-                let timeArr = key.split("_");
-                if (parseInt(timeArr[0]) > 12) {
-                    timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
-                    timeArr[2] = "PM"
+                        // Add to semester array if not already present
+                        if (!semester_arr.includes(semester))
+                            semester_arr.push(semester);
+                    }
+                    semester_arr.sort();
+
+                    // Add semesters to drop down meny
+                    for (var i = 0; i < semester_arr.length; i++) {
+                        let arr = semester_arr[i].split('_');
+                        var semester;
+
+                        // Change class names to recorrect semester names
+                        if (arr[1] === "1")
+                            semester = "Winter " + arr[0];
+                        else if (arr[1] === "2")
+                            semester = "Spring/Summer " + arr[0];
+                        else if (arr[1] === "3")
+                            semester = "Fall " + arr[0];
+
+                        var option = document.createElement('option');
+                        option.value = semester;
+                        option.innerHTML = semester;
+                        semester_select.appendChild(option);
+                    }
                 }
                 else {
-                    timeArr[2] = "AM"
+                    console.log("Error: There are no semesters to show.");
                 }
-                let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
-                header += '<th>' + time + '</th>';
             }
 
-            // add header to table
-            table.innerHTML += header
+            //  Handle semester select menu
+            function change_semester() {
+                let input = semester_select.value;
+                if (input != "N/A") {
+                    semester = input;
+                    console.log(semester);
+                    class_id = 'N/A';
+                    write_class_menu();
+                    class_select.removeAttribute("disabled");
+                    date_select.setAttribute("disabled", "disabled");
 
+                    // Create default value for date select
+                    removeOptions(date_select);
+                    var default_option = document.createElement('option');
+                    default_option.value = 0;
+                    default_option.innerHTML = "N/A"
+                    default_option.disabled = true;
+                    default_option.selected = true;
+                    default_option.style.display = 'none';
+                    date_select.appendChild(default_option);
+                    date = "N/A";
+                    search_student();
+                }
+                else {
+                    console.log("Cannot change semester: No semesters exist")
+                }
+            }
+            window.change_semester = change_semester;
 
-            //  Table contents
-            let row = ""
+            //  Write contents of class ID menu :: *****ADD PROFESSOR CHECK HERE*****
+            function write_class_menu() {
+                // Create default value
+                removeOptions(class_select);
+                let class_list = Object.keys(classData.classes);
+                class_list.sort();
 
-            //  Loop through students
-            for (let student in students) {
-                let currentStudent = students[student]
+                var default_option = document.createElement('option');
+                default_option.value = 0;
+                default_option.innerHTML = "-- Click to select class --"
+                default_option.disabled = true;
+                default_option.selected = true;
+                default_option.style.display = 'none';
+                class_select.appendChild(default_option);
 
-                if (data.students.CSC_4996_001[currentStudent]['attendance'] !== undefined) {
-                    console.log("Checking: " + currentStudent)
+                for (var i = 0; i < class_list.length; i++) {
+                    let class_arr = class_list[i].split('_');
+                    var s = '';
 
-                    row  = `<tr>
-                                <td>${currentStudent}</td>`;
+                    //  Parse semester from class ID
+                    if (class_arr[3] === "W")
+                            s = "Winter " + class_arr[4];
+                        else if (class_arr[3] === "S")
+                            s = "Spring/Summer " + class_arr[4];
+                        else if (class_arr[3] === "F")
+                            s = "Fall " + class_arr[4];
 
-                    let attendance = data.students.CSC_4996_001[currentStudent]['attendance'][date];
+                    //  Check if current class is part of the selected semester
+                    if (semester === s) {
+                        let info = Object.keys(classData.classes[class_list[i]]);
+                        let arr = class_list[i].split("_");
+                        let id = arr[0] + " " + arr[1] + " " + arr[2];
 
-                    let timestamps = Object.keys(attendance);
-                    for (let key of timestamps) {
-                        let value = ""
-                        if (attendance[key] === true)
-                            value = "\u2714";
-                        else
-                            value = "\u274C";
-                        row += '<td>' + value + '</td>';
+                        var option = document.createElement('option');
+                        option.value = class_list[i];
+                        option.innerHTML = id + " | " + classData.classes[class_list[i]]['class_name'];
+                        class_select.appendChild(option);
                     }
-                    row += '</tr>'
-
-                    // add rows to table
-                    table.innerHTML += row
-
-                } else {
-                    console.log("No records for " + currentStudent);
                 }
             }
 
-        })
-/*
-        doc(db, "infoCollection", "student_doc").where("students", "==", "CSC_4996_001")
-        .get()
-        .then(querySnapshot=>{
-            querySnapshot.forEach(doc=>{
-                let data = doc.data();
-                let row  = `<tr>
-                                <td>${data.attendance}</td>
-                                <td>${data.attendance}</td>
-                            </tr>`;
-                let table = document.getElementById('stats')
-                table.innerHTML += row
-            })
-        })
-        .catch(err=>{
-            console.log(`Error: ${err}`)
-        });*/
+            //  Handle class select menu
+            function change_class() {
+                let input = class_select.value;
+                if (input != "N/A") {
+                    if (studentData.students[input] !== undefined) {
+                        class_id = input;
+                        console.log(class_id);
+                        students = Object.keys(studentData.students[class_id]);
+                        console.log("Number of students: " + students.length);
+                        date = 'N/A';
+                        write_date_menu();
+                        date_select.removeAttribute("disabled");
+                        error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
+                    }
+                    else {
+                        console.log("Error: Class '" + input + "' does not exist in the attendance database.");
+                        error_msg.innerHTML = "No data exists for this class.";
+                    }
+                }
+                else {
+                    console.log("Cannot change class ID: No class IDs exist");
+                }
+            }
+            window.change_class = change_class;
+
+            //  Write contents of date menu
+            function write_date_menu() {
+                if (students.length > 0) {
+                    let date_list = Object.keys(studentData.students[class_id][students[0]]['attendance']);
+                    date_list.sort();
+
+                    // Create default value
+                    removeOptions(date_select);
+                    var default_option = document.createElement('option');
+                    default_option.value = 0;
+                    default_option.innerHTML = "-- Click to select date --"
+                    default_option.disabled = true;
+                    default_option.selected = true;
+                    default_option.style.display = 'none';
+                    date_select.appendChild(default_option);
+
+                    //  00/00/0000 is an empty date in the database, added just to initialize
+                    //  a new student. The loop starts from 1 to avoid including this date.
+                    for (var i = 1; i < date_list.length; i++) {
+                        var option = document.createElement('option');
+                        option.value = date_list[i];
+                        let dateArr = date_list[i].split("_");
+                        option.innerHTML = dateArr[0] + "/" + dateArr[1] + "/" + dateArr[2];
+                        date_select.appendChild(option);
+                    }
+                }
+                else {
+                    console.log("Error: There are no dates to show.");
+                }
+            }
+
+            //  Handle date select menu
+            function change_date() {
+                let input = date_select.value;
+                if (input != "N/A") {
+                    date = input;
+                    search_student();
+                }
+                else {
+                    console.log("Cannot change date: No dates present")
+                }
+            }
+            window.change_date = change_date;
+
+            //  Handle search filter menu
+            function change_filter() {
+                filter = document.getElementById('filter_select').value;
+                console.log("Selected filter: " + filter);
+                let searchbar = document.getElementById('searchbar');
+                if (filter === 'accessid')
+                    searchbar.placeholder = "Ex: hc9082";
+                else if (filter === 'fname')
+                    searchbar.placeholder = "Enter first name";
+                else if (filter === 'lname')
+                    searchbar.placeholder = "Enter last name";
+                search_student();
+            }
+            window.change_filter = change_filter;
+
+            //  Handle search bar
+            function search_student() {
+                let input = document.getElementById('searchbar').value;
+
+                if (input === "" && (date != 'N/A')) {
+                    write_table(students);
+                }
+                else if (date != 'N/A') {
+                    input = input.toLowerCase();
+                    let found_students = [];
+                
+                    //  Check for substring based on filter
+                    if (filter === 'accessid') {
+                        for (let i = 0; i < students.length; i++) {
+                            if (students[i].toLowerCase().includes(input)) {
+                                found_students.push(students[i]);
+                            }
+                        }
+                    }
+                    else if (filter === 'fname' || filter === 'lname') {
+                        for (let i = 0; i < students.length; i++) {
+                            let currentStudent = students[i];
+                            if (userData['users'][currentStudent][filter].toLowerCase().includes(input)) {
+                                found_students.push(students[i]);
+                            }
+                        }
+                    }
+
+                    if (found_students.length > 0) {
+                        write_table(found_students);
+                    }
+                    else {
+                        empty_table();
+                        error_msg.innerHTML = "No users found.";
+                    }
+                }
+                else {
+                    error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
+                    empty_table();
+                }
+            }
+            window.search_student = search_student;
+
+            //  Empty stats table
+            function empty_table() {
+                while (table.firstChild)
+                    table.removeChild(table.firstChild);
+            }
+
+            //  Sort students based on filter and return access ID order. Used for write_table()
+            function sort_by_filter(accessIDs) {
+                let studentInfoArr = [];
+
+                for (let i = 0; i < accessIDs.length; i++) {
+                    const id = accessIDs[i];
+                    const fname = userData.users[id]['fname'];
+                    const lname = userData.users[id]['lname'];
+                
+                    const s = { id, fname, lname };
+                    studentInfoArr.push(s);
+                }
+
+                if (filter === 'accessid') 
+                    studentInfoArr.sort((a, b) => a.id.localeCompare(b.id));
+                else if (filter === 'fname') 
+                    studentInfoArr.sort((a, b) => a.fname.localeCompare(b.fname));
+                else if (filter === 'lname') 
+                    studentInfoArr.sort((a, b) => a.lname.localeCompare(b.lname));
+
+                return studentInfoArr.map(user => user.id);
+            }
+
+            //  Create table
+            function write_table(accessIDs) {
+                error_msg.innerHTML = "";
+                empty_table();
+
+                //  Remove "class_photos" from the accessIDs list since it is not a real student, then sort students
+                if (accessIDs.includes("class_photos")) {
+                    const index = accessIDs.indexOf("class_photos");
+                    accessIDs.splice(index, 1);
+                }
+                let students = sort_by_filter(accessIDs);
+
+                let header = '';
+                //  ----- Table header -----
+                if (filter === 'accessid') {
+                    header  =  `<tr>
+                                        <th class = "headcol_id">Access ID</th>
+                                        <th class = "col_name">Name</th>`;
+                }
+                else if (filter === 'fname' || filter === 'lname') {
+                    header  =  `<tr>
+                                        <th class = "headcol_name">Name</th>
+                                        <th class = "col">Access ID</th>`;
+                }
+
+                //  Find student with the most timestamps
+                var student_index = 0;
+                var highest_length = 0;
+                for (var i = 0; i < students.length; i++) {
+                    let s = Object.keys(studentData.students[class_id][students[i]]['attendance'][date]).length
+                    if (s > highest_length) {
+                        highest_length = s;
+                        student_index = i;
+                    }
+                }
+
+                //  List all timestamps
+                let timestamps = Object.keys(studentData.students[class_id][students[student_index]]['attendance'][date]); 
+                timestamps.sort();
+                for (let key of timestamps) {
+                    let timeArr = key.split("_");
+                    if (parseInt(timeArr[0]) > 12) {
+                        timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
+                        timeArr[2] = "PM"
+                    }
+                    else if (parseInt(timeArr[0]) === 12) {
+                        timeArr[0] = parseInt(timeArr[0]) + "";
+                        timeArr[2] = "PM"
+                    }
+                    else {
+                        timeArr[2] = "AM"
+                    }
+                    let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
+                    
+                    //  Add timestamps headers
+                    header += '<th class = "col">' + time + '</th>';
+                }
+                table.innerHTML += header
+
+                //  ----- Table contents -----
+                let row = ""
+
+                //  Loop through students
+                for (let student in students) {
+                    let currentStudent = students[student]
+
+                    if (studentData.students[class_id][currentStudent]['attendance'] !== undefined) {
+                        //  Change table contents based on filter
+                        if (filter === 'accessid') {
+                            row  = `<tr>
+                                <td class = "headcol_id">${currentStudent}</td>
+                                <td class = "col_name">${userData.users[currentStudent]['fname'] + " " + 
+                                    userData.users[currentStudent]['lname']}</td>`;
+                        }
+                        else if (filter === 'fname') {
+                            row  = `<tr>
+                                <td class = "headcol_name">${userData.users[currentStudent]['fname'] + " " + 
+                                    userData.users[currentStudent]['lname']}</td>
+                                <td class = "col">${currentStudent}</td>`;
+                        }
+                        else if (filter === 'lname') {
+                            row  = `<tr>
+                                <td class = "headcol_name">${userData.users[currentStudent]['lname'] + ", " + 
+                                    userData.users[currentStudent]['fname']}</td>
+                                <td class = "col">${currentStudent}</td>`;
+                        }
+
+                        let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
+
+                        let student_timestamps = Object.keys(attendance);
+                        student_timestamps.sort();
+                        for (let key of timestamps) {
+                            let value = ""
+                            // This if statement checks if a student does not have a timestamp for a given time,
+                            // in case there was an error processing attendance for a given time.
+                            if (student_timestamps.includes(key)) {
+                                if (attendance[key] === true)
+                                    value = "\u2714";
+                                else
+                                    value = "\u274C";
+                            }
+                            else {
+                                console.log("Error: missing timestamp for " + currentStudent + ".");
+                            }
+                            
+                            row += '<td class = "col">' + value + '</td>';
+                        }
+                        row += '</tr>'
+                        table.innerHTML += row
+
+                    } else {
+                        console.log("No records for " + currentStudent);
+                    }
+                }
+            }
+
+        }
     </script>
 {% endblock %}

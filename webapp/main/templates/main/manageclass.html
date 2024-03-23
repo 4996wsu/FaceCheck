@@ -1,0 +1,960 @@
+{% extends 'main/base.html'%}
+{% block title %}Manage Class{% endblock %}
+
+{% block content %}
+    <!-- TEMPORARY STYLE SHEET, DELETE LATER -->
+    <style>
+        /* GENERIC STYLES */
+        h2 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        hr {
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        body {
+            color: white;
+            background-image: none;
+            background-color: #131313;
+        }
+
+        /* TAB STYLES */
+        .tab {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .tab button {
+            flex: 1; /* Make the buttons evenly stretch */
+            background-color: #f2f2f2;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tab button.active {
+            background-color: #ddddddd4;
+        }
+        
+        .tab button:hover {
+            background-color: #ddddddef;
+        }
+        
+        .tab-content {
+            display: none;
+            border-top: 2px solid transparent;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-content h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .tab-content p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        @media screen and (max-width: 768px) {
+            .tab button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+
+        /*  TABLE FORMATTING STYLES  */
+        @media (min-width: 1280px) {
+            #indented_label {
+                margin-left: 1em;
+            }
+        }
+
+        @media (max-width: 1279px) {
+            #indented_label::before {
+                white-space: pre;
+                display: block;
+            }
+
+            #semester_select,
+            #class_id_select,
+            #date_select,
+            #searchbar,
+            #filter_select {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 0.5em;
+            }
+
+            .input-field {
+                display: grid; 
+                grid-template-columns: auto 1fr; 
+                gap: 0.5em; 
+                align-items: center; 
+            }
+        
+            .input-field label {
+                text-align: right; 
+            }
+        
+            .input-field select {
+                width: 100%; 
+            }
+        }
+
+        #stats_table {
+            margin-bottom: 3em;
+        }
+        th, tr {
+            padding-right: 1rem;
+        }
+        .headcol_id, .headcol_name, .headcol_checkbox {
+            position: sticky;
+            white-space: nowrap;
+            left: 0;
+            background-color: #131313;
+            z-index: 1;
+        }
+        .headcol_id {
+            width: 5.5em;
+        }
+        .headcol_name {
+            width: 10em;
+        }
+        .headcol_checkbox {
+            width: 2em;
+        }
+        .col, .col_name {
+            position: relative;
+            white-space: nowrap;
+        }
+        .col_name {
+            width: 10em;
+        }
+    </style>
+
+    <!-- STATISTICS PAGE CODE -->
+    <h2>Manage Class</h2><hr>
+
+    <!-- TABS -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'tab_manage_class')" id="defaultOpen">Manage Students</button>
+        <button class="tablinks" onclick="openTab(event, 'tab_add_students')">Add New Students</button>
+    </div>
+    
+
+    <!-- INPUT FIELDS -->
+    <div id = "input_fields">
+        <label for="semester_select">Semester: </label>
+        <select name="semester_select" id="semester_select" onchange = "change_semester()">
+            <option value="default">N/A</option>
+        </select>
+
+        <label for="class_id_select" id="indented_label">Class: </label>
+        <select name="class_id_select" id="class_id_select" disabled onchange = "change_class()">
+            <option value="default">N/A</option>
+        </select>
+
+
+        <!-- TAB CONTENT -->
+        <div id="tab_manage_class" class="tab-content active">
+            <!-- SEARCH BAR -->
+            <br><a>Search for a student: </a>
+            <input id = "searchbar"
+                onkeyup = "search_student()"
+                type = "text" name = "search"
+                maxlength = "20"
+                placeholder = "Ex: hc9082">
+
+            <label for="filter_select" id="indented_label">Search/sort by: </label>
+            <select name="filter_select" id="filter_select" onchange = "change_filter()">
+                <option value="accessid">Access ID</option>
+                <option value="fname">First name</option>
+                <option value="lname">Last name</option>
+            </select>
+
+            <hr>
+            <!-- ACTIONS MENU -->
+            <select id="actions" name="actions" onchange="select_action()" disabled>
+                <option value="" style="display: none;">-- Select an action --</option>
+                <option value="accept">Accept Photo</option>
+                <option value="reject">Reject Photo</option>
+                <option value="flag">Flag Photo</option>
+                <option value="remove_student" style="color: red;">Remove Student</option>
+            </select><br>
+
+            <a id = "notification"></a>
+            <a id = "errors">Select a semester and class to manage a class.</a>
+
+            <!-- STATS TABLE BASE -->
+            <div id = "stats_table" style="overflow-x:auto;">
+                <table id = "stats">
+                    <thead id="thead"></thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab_add_students" class="tab-content">
+            <a>
+                Enter each student's Access ID to add them to the class.<br>
+                Click '+' to add a new row.
+            </a>
+            <hr>
+            <table id="add_student_table">
+                <thead>
+                    <tr>
+                        <th>Access ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button onclick="add_student_row()">&plus;</button>
+            <button onclick="submit_table()">Submit</button><br>
+            <a id = "add_student_results"></a>
+            <a id = "add_student_errors"></a>
+        </div>
+    </div>
+    
+
+    <!-- JAVASCIPT CODE -->
+    <script type="module">
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+        import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+
+        // Open different tabs
+        function openTab(evt, tabName) {
+            // Get all elements with class="tab-content" and hide them
+            var tabContent = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+        
+            // Get all elements with class="tablinks" and remove the class "active"
+            var tabLinks = document.getElementsByClassName("tablinks");
+            for (var i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+            }
+        
+            // Show the current tab content, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        window.openTab = openTab;
+        // Show the default tab on page load
+        document.getElementById("defaultOpen").click();
+        
+        //  Open image preview
+        function openImagePreview(imageUrl, studentName) {
+            // Create overlay/modal element
+            var overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.zIndex = '9999';
+        
+            // Create container for image and caption
+            var container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.top = '50%';
+            container.style.left = '50%';
+            container.style.transform = 'translate(-50%, -50%)';
+            container.style.textAlign = 'center';
+        
+            // Create image element
+            var image = document.createElement('img');
+            image.src = imageUrl;
+            image.style.maxWidth = '80%';
+            image.style.maxHeight = '80%';
+            image.style.display = 'block';
+            image.style.margin = '0 auto';
+        
+            // Create caption element
+            var caption = document.createElement('p');
+            caption.textContent = "Photo for " + studentName;
+            caption.style.color = '#fff';
+            caption.style.fontFamily = 'Arial, sans-serif';
+            caption.style.fontSize = '16px';
+        
+            // Append image and caption to container
+            container.appendChild(image);
+            container.appendChild(caption);
+        
+            // Append container to overlay
+            overlay.appendChild(container);
+        
+            // Append overlay to body
+            document.body.appendChild(overlay);
+        
+            // Close overlay when clicked
+            overlay.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+        }
+        window.openImagePreview = openImagePreview;
+
+        function removeOptions(selectElement) {
+            var i, len = selectElement.options.length - 1;
+            for(i = len; i >= 0; i--) {
+               selectElement.remove(i);
+            }
+         }
+      
+
+        /* --------------------------------------------------  DATABASE CODE  --------------------------------------------------*/
+        const firebaseConfig = {
+            apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
+            authDomain: "facecheck-93450.firebaseapp.com",
+            projectId: "facecheck-93450",
+            storageBucket: "facecheck-93450.appspot.com",
+            messagingSenderId: "691465641368",
+            appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
+            measurementId: "G-FH3W7GY9NH"
+        };
+          
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        const storage = getStorage();
+        const colRef = collection(db, "infoCollection");
+
+        const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
+        const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
+        const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
+
+        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
+            let studentData = studentSnapshot.data();
+            let classData = classSnapshot.data();
+            let userData = userSnapshot.data();
+            let semester_select = document.getElementById("semester_select");
+            let class_select = document.getElementById("class_id_select");
+            let table = document.getElementById('stats');
+            let filter = document.getElementById('filter_select').value;
+            let error_msg = document.getElementById('errors');
+            let notif_msg = document.getElementById('notification');
+            let add_student_results = document.getElementById('add_student_results');
+            let add_student_errors = document.getElementById('add_student_errors');
+
+            //  Save identifier keys and write initial table based on inputs
+            var username = "{{ user.username }}";
+            console.log("Logged in as:", username);
+            let semester = 'N/A';
+            let class_id = 'N/A';
+            var students;   //  This is initialized with a value after a class is chosen
+            let classes = Object.keys(classData.classes);
+            let users = Object.keys(userData.users);
+            add_student_row();
+            write_semester_menu();
+
+            //  Write contents of the semester menu
+            function write_semester_menu() {
+                if (classes.length > 0) {
+                    // Create default value
+                    removeOptions(semester_select);
+                    var default_option = document.createElement('option');
+                    default_option.value = 0;
+                    default_option.innerHTML = "-- Click to select semester --"
+                    default_option.disabled = true;
+                    default_option.selected = true;
+                    default_option.style.display = 'none';
+                    semester_select.appendChild(default_option);
+
+                    // Store semesters in array to check for duplicates
+                    var semester_arr = [];
+
+                    for (let class_id of classes) {
+                        let class_arr = class_id.split('_');
+                        var semester;
+                        // Use a temporary naming scheme YYYY_Semester # to ensure that
+                        // the list is sorted in correct semester order.
+                        if (class_arr[3] === "W")
+                            semester = class_arr[4] + "_1";
+                        else if (class_arr[3] === "S")
+                            semester = class_arr[4] + "_2";
+                        else if (class_arr[3] === "F")
+                            semester = class_arr[4] + "_3";
+
+                        // Add to semester array if not already present
+                        if (!semester_arr.includes(semester))
+                            semester_arr.push(semester);
+                    }
+                    semester_arr.sort();
+
+                    // Add semesters to drop down meny
+                    for (var i = 0; i < semester_arr.length; i++) {
+                        let arr = semester_arr[i].split('_');
+                        var semester;
+
+                        // Change class names to recorrect semester names
+                        if (arr[1] === "1")
+                            semester = "Winter " + arr[0];
+                        else if (arr[1] === "2")
+                            semester = "Spring/Summer " + arr[0];
+                        else if (arr[1] === "3")
+                            semester = "Fall " + arr[0];
+
+                        var option = document.createElement('option');
+                        option.value = semester;
+                        option.innerHTML = semester;
+                        semester_select.appendChild(option);
+                    }
+                }
+                else {
+                    console.log("Error: There are no semesters to show.");
+                }
+            }
+
+            //  Handle semester select menu
+            function change_semester() {
+                let input = semester_select.value;
+                if (input != "N/A") {
+                    semester = input;
+                    console.log(semester);
+                    class_id = 'N/A';
+                    write_class_menu();
+                    class_select.removeAttribute("disabled");
+
+                    search_student();
+                }
+                else {
+                    console.log("Cannot change semester: No semesters exist")
+                }
+            }
+            window.change_semester = change_semester;
+
+            //  Write contents of class ID menu :: *****ADD PROFESSOR CHECK HERE*****
+            function write_class_menu() {
+                // Create default value
+                removeOptions(class_select);
+                let class_list = Object.keys(classData.classes);
+                class_list.sort();
+
+                var default_option = document.createElement('option');
+                default_option.value = 0;
+                default_option.innerHTML = "-- Click to select class --"
+                default_option.disabled = true;
+                default_option.selected = true;
+                default_option.style.display = 'none';
+                class_select.appendChild(default_option);
+
+                for (var i = 0; i < class_list.length; i++) {
+                    let class_arr = class_list[i].split('_');
+                    var s = '';
+
+                    //  Parse semester from class ID
+                    if (class_arr[3] === "W")
+                            s = "Winter " + class_arr[4];
+                        else if (class_arr[3] === "S")
+                            s = "Spring/Summer " + class_arr[4];
+                        else if (class_arr[3] === "F")
+                            s = "Fall " + class_arr[4];
+
+                    //  Check if current class is part of the selected semester
+                    if (semester === s) {
+                        let info = Object.keys(classData.classes[class_list[i]]);
+                        let arr = class_list[i].split("_");
+                        let id = arr[0] + " " + arr[1] + " " + arr[2];
+
+                        var option = document.createElement('option');
+                        option.value = class_list[i];
+                        option.innerHTML = id + " | " + classData.classes[class_list[i]]['class_name'];
+                        class_select.appendChild(option);
+                    }
+                }
+            }
+
+            //  Handle class select menu
+            function change_class() {
+                let input = class_select.value;
+                if (input != "N/A") {
+                    if (studentData.students[input] !== undefined) {
+                        class_id = input;
+                        console.log(class_id);
+                        students = Object.keys(studentData.students[class_id]);
+                        console.log("Number of students: " + students.length);
+                        search_student();
+                    }
+                    else {
+                        console.log("Error: Class '" + input + "' does not exist in the attendance database.");
+                        error_msg.innerHTML = "No data exists for this class.";
+                    }
+                }
+                else {
+                    console.log("Cannot change class ID: No class IDs exist");
+                }
+            }
+            window.change_class = change_class;
+
+            //  Handle search filter menu
+            function change_filter() {
+                filter = document.getElementById('filter_select').value;
+                console.log("Selected filter: " + filter);
+                let searchbar = document.getElementById('searchbar');
+                if (filter === 'accessid')
+                    searchbar.placeholder = "Ex: hc9082";
+                else if (filter === 'fname')
+                    searchbar.placeholder = "Enter first name";
+                else if (filter === 'lname')
+                    searchbar.placeholder = "Enter last name";
+                search_student();
+            }
+            window.change_filter = change_filter;
+
+            //  Handle search bar
+            function search_student() {
+                let input = document.getElementById('searchbar').value;
+
+                //  Reset action menu
+                var action_menu = document.getElementById('actions');
+                action_menu.selectedIndex = 0;
+                action_menu.disabled = true;
+
+                //  Handle
+                if (input === "" && (class_id != 'N/A')) {
+                    write_manage_table(students);
+                }
+                else if (class_id != 'N/A') {
+                    input = input.toLowerCase();
+                    let found_students = [];
+                
+                    //  Check for substring based on filter
+                    if (filter === 'accessid') {
+                        for (let i = 0; i < students.length; i++) {
+                            if (students[i].toLowerCase().includes(input)) {
+                                found_students.push(students[i]);
+                            }
+                        }
+                    }
+                    else if (filter === 'fname' || filter === 'lname') {
+                        for (let i = 0; i < students.length; i++) {
+                            let currentStudent = students[i];
+                            if (userData['users'][currentStudent][filter].toLowerCase().includes(input)) {
+                                found_students.push(students[i]);
+                            }
+                        }
+                    }
+
+                    if (found_students.length > 0) {
+                        write_manage_table(found_students);
+                    }
+                    else {
+                        empty_table();
+                        error_msg.innerHTML = "No users found.";
+                    }
+                }
+                else {
+                    error_msg.innerHTML = "Select a semester and class to manage a class.";
+                    empty_table();
+                }
+            }
+            window.search_student = search_student;
+
+
+            //  Empty stats table
+            function empty_table() {
+                while (table.firstChild)
+                    table.removeChild(table.firstChild);
+            }
+
+            //  Sort students based on filter and return access ID order. Used for write_manage_table()
+            function sort_by_filter(accessIDs) {
+                let studentInfoArr = [];
+
+                for (let i = 0; i < accessIDs.length; i++) {
+                    const id = accessIDs[i];
+                    const fname = userData.users[id]['fname'];
+                    const lname = userData.users[id]['lname'];
+                
+                    const s = { id, fname, lname };
+                    studentInfoArr.push(s);
+                }
+
+                if (filter === 'accessid') 
+                    studentInfoArr.sort((a, b) => a.id.localeCompare(b.id));
+                else if (filter === 'fname') 
+                    studentInfoArr.sort((a, b) => a.fname.localeCompare(b.fname));
+                else if (filter === 'lname') 
+                    studentInfoArr.sort((a, b) => a.lname.localeCompare(b.lname));
+
+                return studentInfoArr.map(user => user.id);
+            }
+
+            //  Create table
+            async function write_manage_table(accessIDs) {
+                console.log("Writing manage table");
+                error_msg.innerHTML = "";
+            
+                // Create an array to store promises for fetching photo URLs
+                const photoPromises = [];
+
+                //  Remove "class_photos" from the accessIDs list since it is not a real student, then sort students
+                if (accessIDs.includes("class_photos")) {
+                    const index = accessIDs.indexOf("class_photos");
+                    accessIDs.splice(index, 1);
+                }
+                let students = sort_by_filter(accessIDs);
+            
+                // Loop through students
+                for (let currentStudent of students) {
+                    let data = userData.users[currentStudent];
+                    if (data) {
+                        // Get student photo URL
+                        const photoPromise = new Promise(async (resolve, reject) => {
+                            try {
+                                const storageRef = ref(storage, currentStudent + "_photo");
+                                const photoUrl = await getDownloadURL(storageRef);
+                                resolve({ photoUrl, student: currentStudent });
+                            } catch (error) {
+                                console.error("Error getting photo URL:", error);
+                                resolve({ photoUrl: null, student: currentStudent });
+                            }
+                        });
+            
+                        photoPromises.push(photoPromise);
+                    }
+                }
+            
+                // Wait for all photo fetching promises to resolve
+                Promise.all(photoPromises)
+                    .then(results => {
+                        // Clear the table content before adding new entries
+                        empty_table();
+            
+                        let header = `<tr><th class = "headcol_checkbox"></th>`;
+                        // ----- Table header -----
+                        if (filter === 'accessid') {
+                            header += `<th class = "headcol_id">Access ID</th>
+                                      <th class = "col_name">Name</th>`;
+                        } else if (filter === 'fname' || filter === 'lname') {
+                            header += `<th class = "headcol_name">Name</th>
+                                      <th class = "col">Access ID</th>`;
+                        }
+                        header += '<th class = "col">Photo</th><th class = "col">Status</th></tr>';
+                        table.innerHTML += header;
+            
+                        // Loop through results and add them to table rows accordingly
+                        for (let i = 0; i < results.length; i++) {
+                            const { photoUrl, student } = results[i];
+                            let data = userData.users[student];
+                            let status = studentData.students[class_id][student]['picture_status']
+                            if (data) {
+                                //  Add checkboxes for select
+                                let row = `<tr>
+                                               <td class="headcol_checkbox">
+                                                   <input type="checkbox" id="checkbox_${student}" name="select_checkbox" 
+                                                   onchange="checkbox_changed('${student}')" value="${student}">
+                                               </td>`;
+
+                                //  Add accessid + name
+                                if (filter === 'accessid') {
+                                    row += `<td class = "headcol_id">${student}</td>
+                                            <td class = "col_name">${userData.users[student]['fname'] + " " +
+                                                userData.users[student]['lname']}</td>`;
+                                } 
+                                else if (filter === 'fname') {
+                                    row += `<td class = "headcol_name">${userData.users[student]['fname'] + " " +
+                                                userData.users[student]['lname']}</td>
+                                            <td class = "col">${student}</td>`;
+                                } 
+                                else if (filter === 'lname') {
+                                    row += `<td class = "headcol_name">${userData.users[student]['lname'] + ", " +
+                                                userData.users[student]['fname']}</td>
+                                            <td class = "col">${student}</td>`;
+                                }
+            
+                                if (userData.users[student]['picture'] === "NO PHOTO") {
+                                    row += 
+                                        `<td class="col">No Photo</td>`;
+                                }
+                                else {
+                                    row +=
+                                        `<td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
+                                            View</button></td>`;
+                                }
+                                
+                                row += `<td class="col">${status}</td></tr>`
+
+                                table.innerHTML += row;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching photo URLs:", error);
+                    });
+            }
+
+            //  Handle checkbox changed
+            function checkbox_changed(studentId) {
+                const checkbox = document.getElementById(`checkbox_${studentId}`);
+                const isChecked = checkbox.checked;
+                console.log(`Checkbox for student ${studentId} is checked: ${isChecked}`);
+                toggle_action_menu();
+            }
+            window.checkbox_changed = checkbox_changed;
+
+
+            //  Get all selected ows
+            function get_selected_rows() {
+                var selected_rows = [];
+                const checkboxes = document.getElementsByName('select_checkbox');
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selected_rows.push(checkbox.value);
+                    }
+                });
+                console.log(selected_rows);
+                return selected_rows;
+            }
+
+
+            //  Toggle action menu
+            function toggle_action_menu() {
+                const action_menu = document.getElementById(`actions`);
+                if (get_selected_rows().length > 0)
+                    action_menu.disabled = false;
+                else
+                    action_menu.disabled = true;
+            }
+
+
+            //  Select action
+            async function select_action() {
+                const doc_ref = doc(db, "infoCollection", "student_doc");
+                var action_select = document.getElementById('actions');
+                var action = action_select.value;
+                var accessids = get_selected_rows();
+                var data_to_push;
+                var msg = "";
+
+                if (action == "remove_student") {
+                    if (!confirm("Are you sure you want to remove these students?"))
+                        action = "none";
+                }
+
+                for (let accessid of accessids) {
+                    console.log("Changing status of " + accessid + " to: " + action);
+
+                    switch (action) {
+                        case "accept":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Accepted'
+                                        }
+                                    }
+                                }
+                            }
+                            msg = "<br>Selected student photos listed as Accepted.";
+                            break;
+                        case "reject":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Rejected'
+                                        }
+                                    }
+                                }
+                            }
+                            msg = "<br>Selected student photos listed as Rejected.";
+                            break;
+                        case "flag":
+                            data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [accessid]: {
+                                            'picture_status': 'Flagged'
+                                        }
+                                    }
+                                }
+                            }
+                            msg = "<br>Selected student photos listed as Flagged.";
+                            break;
+                        case "remove_student":
+                            const path = `students.${class_id}.${accessid}`;
+
+                            const updated_data = delete_nested_fields(studentData, path);
+                            await setDoc(doc_ref, updated_data);
+
+                            msg = "<br>Selected students have been deleted.";
+                            break;
+                    }
+
+                    //  Only update photo status if the user has one
+                    if ((action != "none") && (action != "remove_student")) {
+                        if (studentData.students[class_id][accessid]['picture_status'] != 'N/A') {
+                            await setDoc(doc_ref, data_to_push, { merge: true });
+                        }
+                        else {
+                            console.log("Data for " + accessid + " was not adjusted.")
+                        }
+                    }
+                }
+
+                //  Update class encoding flag
+                data_to_push = {
+                    'classes': {
+                        [class_id]: {
+                            'class_encoding_update': true
+                        }
+                    }
+                }
+                await setDoc(doc(db, "infoCollection", "class_doc"), data_to_push, { merge: true });
+
+                //  Reset action select if deletion was rejected. Do not update status message if this happens.
+                if (action === "none")
+                    action_select.selectedIndex = 0;
+                else
+                    notif_msg.innerHTML = msg + "<br>Please refresh the page to see any changes made.<br><br>";
+            }
+            window.select_action = select_action;
+
+
+            function delete_nested_fields(data, path) {
+                const keys = path.split('.');
+                let nested_data = data;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    if (!(keys[i] in nested_data)) {
+                        // The nested field doesn't exist
+                        return data;
+                    }
+                    nested_data = nested_data[keys[i]];
+                }
+                // Remove the nested field
+                console.log(nested_data[keys[keys.length - 1]])
+                delete nested_data[keys[keys.length - 1]];
+                return data;
+            }
+
+
+            /* ----------------------------------------  NEW STUDENT PAGE CODE  ----------------------------------------*/
+
+            
+            //  Add row to new student table
+            function add_student_row() {
+                var table = document.getElementById("add_student_table").getElementsByTagName('tbody')[0];
+                var newRow = table.insertRow();
+                var cell1 = newRow.insertCell(0);
+                var cell2 = newRow.insertCell(1);
+                var idInput = document.createElement("input");
+                idInput.type = "text";
+                idInput.placeholder = "Ex: hc9082";
+                cell1.appendChild(idInput);
+                var deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "&#x1F5D1";
+                deleteButton.onclick = function() {
+                    // Find the parent row and delete it
+                    var row = this.parentNode.parentNode;
+                    row.parentNode.removeChild(row);
+                };
+                cell2.appendChild(deleteButton);
+            }
+            window.add_student_row = add_student_row;
+
+
+            //  Submit new student request
+            function submit_table() {
+                var table = document.getElementById("add_student_table");
+                var data = [];
+                for (var i = table.rows.length - 1; i > 0; i--) {
+                    var accessid = table.rows[i].cells[0].getElementsByTagName("input")[0].value;
+                    
+                    // Check if the accessid is empty, else push to data
+                    if (accessid.trim() === "") {
+                        if (table.rows.length > 2)
+                            table.deleteRow(i);
+                    } 
+                    else {
+                        data.push({ "accessid": accessid });
+                    }
+                }
+                if (class_id != 'N/A')
+                    add_new_students(data);
+                else
+                    add_student_errors.innerHTML = "Unable to add student(s), please select a semester and class ID first."
+            }
+            window.submit_table = submit_table;
+
+
+            //  Add new student
+            async function add_new_students(data) {
+                console.log(data);
+                var data_success = [];
+                var data_error = [];
+
+                //  Loop through data to check if students exist and not already in the class
+                for (let student in data) {
+                    let ID = data[student].accessid;
+                    if (ID in userData.users) {
+                        if (!(ID in studentData.students[class_id])) {
+                            console.log(ID + " exists.");
+                            const data_to_push = {
+                                'students': {
+                                    [class_id]: {
+                                        [ID]: {
+                                            'attendance': {
+                                                '00_00_0000': {
+                                                    '00_00_00': true,
+                                                    'Overall': true
+                                                }
+                                            },
+                                            'picture_status': 'N/A'
+                                        }
+                                    }
+                                }
+                            };
+
+                            const doc_ref = doc(db, "infoCollection", "student_doc");
+                            await setDoc(doc_ref, data_to_push, { merge: true });
+                            data_success.push(ID);
+                        }
+                        else {
+                            console.log(ID + " is already a student in " + class_id + ".");
+                            data_error.push(ID + ": Already a student in this class.");
+                        }
+                    }
+                    else {
+                        console.log(ID + " does not exist.");
+                        data_error.push(ID + ": Student does not exist.");
+                    }
+                }
+
+                //  Sort and print results to web page
+                data_success.sort();
+                data_error.sort();
+
+                var results = "";
+                if (data_success.length > 0) {
+                    results += "Successfully added:<br>";
+                    for (var i = 0; i < data_success.length; i++)
+                        results += data_success[i] + "<br>";
+                }
+                add_student_results.innerHTML = results;
+
+                var errors = "";
+                if (data_error.length > 0) {
+                    errors += "Errors:<br>";
+                    for (var i = 0; i < data_error.length; i++)
+                        errors += data_error[i] + "<br>";
+                }
+                add_student_errors.innerHTML = errors;
+            }
+        }
+    </script>
+{% endblock %}
