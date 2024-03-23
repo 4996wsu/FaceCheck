@@ -356,10 +356,24 @@
             let semester = 'N/A';
             let class_id = 'N/A';
             var students;   //  This is initialized with a value after a class is chosen
-            let classes = Object.keys(classData.classes);
+            let classes = get_class_list();
             let users = Object.keys(userData.users);
             add_student_row();
             write_semester_menu();
+
+            //  Get class list based on which professor is logged in
+            function get_class_list() {
+                var classes = Object.keys(classData.classes);
+                let final_class_list = [];
+
+                for (let class_id of classes) {
+                    if (classData.classes[class_id]['professor'] === username) {
+                        final_class_list.push(class_id);
+                    }
+                }
+
+                return final_class_list;
+            }
 
             //  Write contents of the semester menu
             function write_semester_menu() {
@@ -679,7 +693,7 @@
             
                                 if (userData.users[student]['picture'] === "NO PHOTO") {
                                     row += 
-                                        `<td class="col">No Photo</td>`;
+                                        `<td class="col">N/A</td>`;
                                 }
                                 else {
                                     row +=
