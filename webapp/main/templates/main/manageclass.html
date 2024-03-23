@@ -117,7 +117,7 @@
         th, tr {
             padding-right: 1rem;
         }
-        .headcol_id, .headcol_name {
+        .headcol_id, .headcol_name, .headcol_checkbox {
             position: sticky;
             white-space: nowrap;
             left: 0;
@@ -129,6 +129,9 @@
         }
         .headcol_name {
             width: 10em;
+        }
+        .headcol_checkbox {
+            width: 1em;
         }
         .col, .col_name {
             position: relative;
@@ -632,18 +635,16 @@
                         // Clear the table content before adding new entries
                         empty_table();
             
-                        let header = '';
+                        let header = `<tr><th class = "headcol_checkbox">Select</th>`;
                         // ----- Table header -----
                         if (filter === 'accessid') {
-                            header = `<tr>
-                                                <th class = "headcol_id">Access ID</th>
-                                                <th class = "col_name">Name</th>`;
+                            header += `<th class = "headcol_id">Access ID</th>
+                                      <th class = "col_name">Name</th>`;
                         } else if (filter === 'fname' || filter === 'lname') {
-                            header = `<tr>
-                                                <th class = "headcol_name">Name</th>
-                                                <th class = "col">Access ID</th>`;
+                            header += `<th class = "headcol_name">Name</th>
+                                      <th class = "col">Access ID</th>`;
                         }
-                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th><th class = "col">Select</th></tr>';
+                        header += '<th class = "col">Student Photo</th><th class = "col">Status</th></tr>';
                         table.innerHTML += header;
             
                         // Loop through results and add them to table rows accordingly
@@ -652,44 +653,42 @@
                             let data = userData.users[student];
                             let status = studentData.students[class_id][student]['picture_status']
                             if (data) {
-                                let row = '';
+                                //  Add checkboxes for select
+                                let row = `<tr>
+                                               <td class="headcol_checkbox">
+                                                   <input type="checkbox" id="checkbox_${student}" name="select_checkbox" 
+                                                   onchange="checkbox_changed('${student}')" value="${student}">
+                                               </td>`;
+
+                                //  Add accessid + name
                                 if (filter === 'accessid') {
-                                    row = `<tr>
-                                                <td class = "headcol_id">${student}</td>
-                                                <td class = "col_name">${userData.users[student]['fname'] + " " +
-                                                    userData.users[student]['lname']}</td>`;
+                                    row += `<td class = "headcol_id">${student}</td>
+                                            <td class = "col_name">${userData.users[student]['fname'] + " " +
+                                                userData.users[student]['lname']}</td>`;
                                 } 
                                 else if (filter === 'fname') {
-                                    row = `<tr>
-                                                <td class = "headcol_name">${userData.users[student]['fname'] + " " +
-                                                    userData.users[student]['lname']}</td>
-                                                <td class = "col">${student}</td>`;
+                                    row += `<td class = "headcol_name">${userData.users[student]['fname'] + " " +
+                                                userData.users[student]['lname']}</td>
+                                            <td class = "col">${student}</td>`;
                                 } 
                                 else if (filter === 'lname') {
-                                    row = `<tr>
-                                                <td class = "headcol_name">${userData.users[student]['lname'] + ", " +
-                                                    userData.users[student]['fname']}</td>
-                                                <td class = "col">${student}</td>`;
+                                    row += `<td class = "headcol_name">${userData.users[student]['lname'] + ", " +
+                                                userData.users[student]['fname']}</td>
+                                            <td class = "col">${student}</td>`;
                                 }
             
                                 if (userData.users[student]['picture'] === "NO PHOTO") {
                                     row += 
-                                        `   <td class="col">No Photo</button></td>`;
+                                        `<td class="col">No Photo</td>`;
                                 }
                                 else {
                                     row +=
                                         `<td class="col"><button onclick="openImagePreview('${photoUrl}','${student}')">
                                             View Photo</button></td>`;
                                 }
-
-
-                                //  Add checkboxes for select
-                                row += `<td class="col">${status}</td>
-                                        <td class="col">
-                                            <input type="checkbox" id="checkbox_${student}" name="select_checkbox" 
-                                            onchange="checkbox_changed('${student}')" value="${student}">
-                                        </td>`;
                                 
+                                row += `<td class="col">${status}</td></tr>`
+
                                 table.innerHTML += row;
                             }
                         }
@@ -807,6 +806,16 @@
                         }
                     }
                 }
+
+                //  Update class encoding flag
+                data_to_push = {
+                    'classes': {
+                        [class_id]: {
+                            'class_encoding_update': true
+                        }
+                    }
+                }
+                await setDoc(doc(db, "infoCollection", "class_doc"), data_to_push, { merge: true });
 
                 //  Reset action select if deletion was rejected. Do not update status message if this happens.
                 if (action === "none")
