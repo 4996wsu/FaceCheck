@@ -12,12 +12,14 @@ body::before {
     content: '';
     position: absolute;
     top: 0;
-    right: 40%;
+    right:30%;
     bottom: 0%; /* This will cover the top half of the screen */
     left: 0%;
-    background-image: url('../images/selfie.png');
+    background-image: url('../images/robot1.png');
+    background-repeat: no-repeat;
+    background-size: 90%;
     background-color: #1d1c1c; /* This is the red color for the top half */
-    border-radius: 90% 0% 0% 90%; /* This creates the curve on the bottom right */
+    border-radius: 0% 10% 70% 0%; /* This creates the curve on the bottom right */
     z-index: -1; /* Ensure this is behind the content but above the body background */
 }
 
@@ -138,6 +140,7 @@ input[type="file"] {
         min-height: 500px; 
         height: auto;  
     }
+    
 }
 @media screen and (max-width: 780px) {
     .main_body {
@@ -145,6 +148,9 @@ input[type="file"] {
         max-width: 500px;
         min-height: 500px; 
         height: auto;  
+    }
+    body::before {
+        background-image: none;
     }
     
 }
