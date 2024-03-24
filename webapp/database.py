@@ -29,6 +29,7 @@ collectionName = "infoCollection"
 class_doc = "class_doc"
 student_doc = "student_doc"
 user_doc = "user_doc"
+professor_doc = "professor_doc"
 
 
 #  ------------------------------  MAIN FUNCTIONALITY  ------------------------------
@@ -103,12 +104,18 @@ def add_class(section, prof):
         print("Class '" + section + "' successfully added.")
     
 #  Add new student to **DATABASE**
-def add_student(accessid, fname, lname, role):
+def add_student(accessid, fname, lname, role = "student"):
     user_dict = get_doc(user_doc)
     
     if lookup(accessid, user_dict) != None:
         print("Error: Cannot add user '" + accessid + "' because the user already exists.")
     else:
+        # Determine if the user should receive the professor role
+        prof_dict = get_doc(professor_doc)
+        if lookup(accessid, prof_dict) != None:
+            role = "professor"
+        
+        # Add student to database
         key = 'users.' + accessid + '.fname'
         update_doc(user_doc, key, fname)
         key = 'users.' + accessid + '.lname'
@@ -116,7 +123,7 @@ def add_student(accessid, fname, lname, role):
         key = 'users.' + accessid + '.picture'
         update_doc(user_doc, key, "NO PHOTO")
         key = 'users.' + accessid + '.encoding'
-        update_doc(user_doc, key, "NO ENCODING")
+        update_doc(user_doc, key, "NO ENCODING")        
         key = 'users.' + accessid + '.role'
         update_doc(user_doc, key, role)
         log_arr = [getTime(), "Created account"]
