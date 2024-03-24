@@ -9,6 +9,7 @@
 <div class="centered-container">
     <div class="main_body">
         <div class="enroll_msg">
+            <div id = "requirements_msg">
             <label>Enroll yourself in FaceCheck</label>
             <p>Students are invited to upload their photos to enroll in the system. Please ensure that the photo is a clear image of yourself, as this data will be used for classroom identification purposes only.</p>
             <p>Requirements for photo upload:</p>
@@ -18,7 +19,10 @@
                 <li>The picture should be clear and in focus.</li>
                 <li>The picture should include only one face or person.</li>
             </ul>
+            </div>
 
+            <!-- IMAGE CONTAINER  -->
+            <div id="photo-container"></div>
         </div>
         <div class="enroll_form">
             <form method="post" enctype="multipart/form-data">
@@ -46,6 +50,88 @@
     </div>
 </div>
 
+
+<!--  JAVASCRIPT CODE  -->
+<script type="module">
+    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+    import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
+        authDomain: "facecheck-93450.firebaseapp.com",
+        projectId: "facecheck-93450",
+        storageBucket: "facecheck-93450.appspot.com",
+        messagingSenderId: "691465641368",
+        appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
+        measurementId: "G-FH3W7GY9NH"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+    const storage = getStorage();
+    const colRef = collection(db, "infoCollection")
+
+    const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
+    const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
+    const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
+    if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
+        let studentData = studentSnapshot.data();
+        let classData = classSnapshot.data();
+        let userData = userSnapshot.data();
+
+        var username = "{{ user.username }}";
+        let users = Object.keys(userData.users);
+
+        show_photo();
+
+        async function show_photo() {
+            if (users.includes(username)) {
+                if (userData.users[username]['picture'] != "NO PHOTO") {
+                    const photoPromise = new Promise(async (resolve, reject) => {
+                        try {
+                            const storageRef = ref(storage, username + "_photo");
+                            const photoUrl = await getDownloadURL(storageRef);
+                            resolve({ photoUrl, student: username });
+                        } catch (error) {
+                            console.error("Error getting photo URL:", error);
+                            resolve({ photoUrl: null, timestamp: time });
+                        }
+                    });
+
+                    photoPromise.then(result => {
+                        const { photoUrl, timestamp } = result;
+                        console.log(photoUrl);
+
+                        // Create an img element
+                        const imgElement = document.createElement('img');
+                        imgElement.src = photoUrl;
+                        imgElement.style.maxWidth = '75%';
+
+                        // Get the photo container div
+                        const photoContainer = document.getElementById('photo-container');
+
+                        // Append the img element to the photo container
+                        photoContainer.appendChild(imgElement);
+
+                        document.getElementById('requirements_msg').style.display = 'none';
+                    })
+                    .catch(result => {
+                        console.error("Error fetching photo URLs:", error);
+                    })
+                }
+                else {
+                    console.log("User has no photo");
+                }
+            }
+            else {
+                console.log("Error: User does not exist in the database");
+            }
+        }
+    }
+</script>
+
 {% endblock %}
-
-
