@@ -73,7 +73,7 @@ form {
     border-radius: 5px;
     cursor: pointer;
     width: fit-content;
-    ;
+    font-family: "Oswald", sans-serif;
 }
 
 .main_body button:hover {

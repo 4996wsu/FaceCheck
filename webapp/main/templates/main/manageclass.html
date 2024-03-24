@@ -74,16 +74,10 @@
     
                 <hr>
                 <!-- ACTIONS MENU -->
-                <select id="actions" name="actions" onchange="select_action()" disabled>
-                    <option value="" style="display: none;">-- Select an action --</option>
-                    <option value="accept">Accept Photo</option>
-                    <option value="reject">Reject Photo</option>
-                    <option value="flag">Flag Photo</option>
-                    <option value="remove_student" style="color: red;">Remove Student</option>
-                </select><br>
+                
     
                 <a id = "notification"></a>
-                <a id = "errors">Select a semester and class to manage a class.</a>
+                <p id = "errors">Select a semester and class to manage a class.</p>
     
                 <!-- STATS TABLE BASE -->
                 <div id = "stats_table" style="overflow-x:auto;">
@@ -92,13 +86,21 @@
                         <tbody id="tbody"></tbody>
                     </table>
                 </div>
+                <select id="actions" name="actions" onchange="select_action()" disabled>
+                    <option value="" style="display: none;">-- Select an action --</option>
+                    <option value="accept">Accept Photo</option>
+                    <option value="reject">Reject Photo</option>
+                    <option value="flag">Flag Photo</option>
+                    <option value="remove_student" style="color: red;">Remove Student</option>
+                </select><br>
             </div>
     
             <div id="tab_add_students" class="tab-content">
-                <a>
+                <hr>
+                <p class="add_instruction">
                     Enter each student's Access ID to add them to the class.<br>
                     Click '+' to add a new row.
-                </a>
+                </p>
                 <hr>
                 <table id="add_student_table">
                     <thead>
@@ -109,11 +111,13 @@
                     <tbody>
                     </tbody>
                 </table>
-                <button onclick="add_student_row()">&plus;</button>
-                <button onclick="submit_table()">Submit</button><br>
+                <button  conclick="add_student_row()">&plus;</button>
+                <br>
+                <button class="submit-button" onclick="submit_table()">Submit</button><br>
                 <a id = "add_student_results"></a>
                 <a id = "add_student_errors"></a>
             </div>
+            
         </div>
 
     </div>

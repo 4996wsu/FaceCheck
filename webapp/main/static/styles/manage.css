@@ -99,7 +99,7 @@ body::before {
 }
 
 .tab-content p {
-    font-size: 16px;
+    font-size: 20px;
     line-height: 1.6;
 }
 
@@ -149,35 +149,7 @@ body::before {
     }
 }
 
-#stats_table {
-    margin-bottom: 3em;
-}
-th, tr {
-    padding-right: 1rem;
-}
-.headcol_id, .headcol_name, .headcol_checkbox {
-    position: sticky;
-    white-space: nowrap;
-    left: 0;
-    background-color: #131313;
-    z-index: 1;
-}
-.headcol_id {
-    width: 5.5em;
-}
-.headcol_name {
-    width: 10em;
-}
-.headcol_checkbox {
-    width: 2em;
-}
-.col, .col_name {
-    position: relative;
-    white-space: nowrap;
-}
-.col_name {
-    width: 10em;
-}
+
 
 
 
@@ -216,7 +188,7 @@ th, tr {
     letter-spacing: 1px;
     border-radius: 20px;
     padding-top: 3rem;
-    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(255, 255, 255, 0.9)); 
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9)); 
 }
 .manage_container select, #searchbar{
     background-color: rgb(0, 0, 0); 
@@ -235,6 +207,9 @@ th, tr {
     cursor: pointer;
     width: fit-content;
 }
+
+
+
 #searchbar::placeholder {
     color: white;
 }
@@ -249,6 +224,8 @@ th, tr {
 .search-icon {
     position: absolute;
     right: 5px; 
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
     height: 20px;
     width: 20px;
     pointer-events: none; 
@@ -269,5 +246,301 @@ th, tr {
     width: 20px; /* Adjust as needed */
     height: 20px; /* Adjust as needed */
     pointer-events: none; 
+}
+
+
+
+/* Adjustments for Tablets */
+@media (max-width: 768px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+    .option_bar {
+        display: grid; /* Use grid layout for dropdown */
+        grid-template-columns: repeat(2, 1fr); /* Two columns */
+        gap: 10px; /* Space between options */
+    }
+    
+    .option_bar option {
+        display: flex;
+        justify-content: center; /* Center text */
+    }
+    #searchbar {
+        width: 100%; /* Full width for easier interaction */
+    }
+    
+}
+
+/* Adjustments for Mobile Devices */
+@media (max-width: 480px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+    .option_bar_container {
+        flex-direction: column; /* Stack options vertically */
+        gap: 10px;
+    }
+
+    .option_bar {
+        width: 100%; /* Full width for easier interaction */
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two columns */
+        gap: 10px;
+    }
+    
+    .option_bar option {
+        display: flex;
+        justify-content: center; /* Center text */
+    }
+    
+    /* Ensure the search and filter icons remain properly aligned */
+    .search-icon, .filter-icon {
+        right: 10px; /* Adjust based on actual padding and sizes */
+    }
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); /* Center align the icon vertically */
+     
+    }
+}
+
+
+
+
+
+
+
+#stats_table {
+    margin-bottom: 3em;
+}
+th, tr {
+    padding-right: 1rem;
+}
+.headcol_id, .headcol_name, .headcol_checkbox {
+    position: sticky;
+    white-space: nowrap;
+    left: 0;
+    z-index: 1;
+}
+.headcol_id {
+    width: 5.5em;
+}
+.headcol_name {
+    width: 10em;
+}
+.headcol_checkbox {
+    width: 2em;
+}
+.col, .col_name {
+    position: relative;
+    white-space: nowrap;
+}
+.col_name {
+    width: 10em;
+}
+
+
+
+#stats_table {
+    margin-bottom: 3em;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Add shadow for depth */
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%; /* Full width tables often look good on modern pages */
+    overflow-x: auto; /* Enable horizontal scrolling on smaller screens */
+}
+
+#stats {
+    border-collapse: collapse; /* Ensures that the table borders are combined */
+    width: 100%; /* Full width for a modern look */
+    font-family: "Oswald", sans-serif; 
+    background-color: #131313; /* White color for the table */
+}
+
+#stats thead {
+    background-color: #ffffff; /* Dark background for the table header */
+    color: black; /* White text color */
+}
+
+#stats th, #stats td {
+    padding: 0.5rem 1rem; /* Spacing within cells */
+    text-align: left; /* Left-align text */
+    border-bottom: 1px solid #ddd; /* Borders between rows */
+}
+
+#stats th {
+    height: 3rem; /* Fixed height for header cells */
+}
+
+.headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
+    left: 0;
+    z-index: 2; /* Ensure it's above other items */
+    font-size: 20px;
+}
+
+
+.headcol_id {
+    min-width: 5.5em; /* Use min-width for flexible layouts */
+}
+
+.headcol_name {
+    min-width: 10em; /* Use min-width for flexible layouts */
+}
+
+.headcol_checkbox {
+    width: 2em; /* Keep checkboxes small */
+}
+
+.col, .col_name {
+    white-space: nowrap;
+}
+
+.col_name {
+    min-width: 10em; /* Use min-width for flexible layouts */
+}
+
+/* Hover styles for rows */
+#stats tr:hover {
+    background-color: #1d1c1c; /* Light grey background on hover */
+}
+tr{
+    font-size: 20px;
+}
+
+/* Responsive design for smaller screens */
+@media screen and (max-width: 768px) {
+    .headcol_id, .headcol_name, .headcol_checkbox {
+        width: auto; /* Allow the sticky columns to be more fluid on small screens */
+    }
+
+    #stats th, #stats td {
+        padding: 0.5rem; /* Smaller padding on small screens */
+    }
+    .headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
+        font-size: 10px;
+    }
+}
+/* Base table styles */
+#stats {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #131313;
+    color: white;
+}
+
+#stats th, #stats td {
+    padding: 0.5rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Adjust the table for mobile devices */
+@media screen and (max-width: 768px) {
+    .headline {
+        font-size: 24px; /* Smaller font size for headlines */
+    }
+
+    .headline span {
+        font-size: 24px; /* Smaller font size for highlighted text */
+    }
+
+    #stats th, #stats td {
+        padding: 0.3rem; /* Reduce padding */
+        font-size: 14px; /* Smaller font size for table content */
+    }
+
+    .headcol_id, .headcol_name, .headcol_checkbox, .col, .col_name {
+        width: auto; /* Adjust width to be more fluid */
+    }
+
+
+    
+}
+/* Adjustments for Tablets and Mobile Devices */
+@media screen and (max-width: 768px) {
+    /* Reduce font size for table headers and cells to save space */
+    #stats th, #stats td {
+        padding: 0.25rem 0.5rem; /* Smaller padding to reduce space */
+        font-size: 12px; /* Smaller font size for compact display */
+    }
+
+    /* Adjust specific columns to minimize width while maintaining content visibility */
+    .headcol_id, .headcol_checkbox, .col {
+        min-width: 4em; /* Adjust minimum width as needed */
+    }
+
+    .headcol_name, .col_name {
+        min-width: 7em; /* Adjust minimum width as needed */
+    }
+
+    /* Ensure table header and row heights are adjusted to fit content snugly */
+    #stats th, tr {
+        height: auto; /* Allow height to adjust based on content, removing fixed height */
+    }
+
+    /* Adjust headline font sizes for tighter fit */
+    .headline, .headline span {
+
+        font-size: 25px; /* Smaller font size for headlines on smaller screens */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* More aggressive space-saving measures for mobile devices */
+    #stats th, #stats td {
+        padding: 0.2rem; /* Even smaller padding */
+        font-size: 12px; /* Even smaller font size for a more compact display */
+    }
+
+    /* Further reduce minimum column widths for mobile screens */
+    .headcol_id, .headcol_checkbox, .col {
+        min-width: 3em; /* Adjust based on content */
+    }
+
+    .headcol_name, .col_name {
+        min-width: 5em; /* Adjust based on content */
+    }
+
+    /* Adjust headline and span font sizes for mobile */
+    .headline, .headline span {
+        text-shadow: none;
+        font-size: 22px; /* Adjust font size for smaller screens */
+    }
+}
+
+
+.add_instruction{
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+    font-family: "Oswald", sans-serif;
+}
+
+.submit-button{
+    background-color: #4CAF50; /* Green for submit button */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: fit-content;
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    font-size: 18px;
+    margin-top: 10px;
+}
+.add-button{
+    background-color: #fafafa; /* Green for submit button */
+    color: white;
+    padding: 10px 40px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: fit-content;
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    font-size: 20px;
+    margin-top: 10px;
 }
 
