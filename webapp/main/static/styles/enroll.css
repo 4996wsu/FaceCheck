@@ -12,11 +12,12 @@ body::before {
     content: '';
     position: absolute;
     top: 0;
-    right: 30%;
+    right: 40%;
     bottom: 0%; /* This will cover the top half of the screen */
-    left: 0;
+    left: 0%;
+    background-image: url('../images/selfie.png');
     background-color: #1d1c1c; /* This is the red color for the top half */
-    border-radius: 0% 10% 90% 0%; /* This creates the curve on the bottom right */
+    border-radius: 90% 0% 0% 90%; /* This creates the curve on the bottom right */
     z-index: -1; /* Ensure this is behind the content but above the body background */
 }
 
