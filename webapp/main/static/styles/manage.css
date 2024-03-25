@@ -8,33 +8,34 @@ hr {
     margin-right: 0;
 }
 .headline{
-    font-size: 50px;
+    font-size: 30px;
     font-weight: 800;
     font-family: "Oswald", sans-serif;
     letter-spacing: 1px;
     font-synthesis-style: weight;
-    text-shadow: 2px 3px gray;
+    text-shadow: 2px 2px gray;
 }
 .headline span{
     color: blanchedalmond;
-    font-size: 50px;
+    font-size: 30px;
     font-weight: 1000;
-    text-shadow: 2px 4px black;
+    text-shadow: 2px 2px black;
 }
 body {
     color: white;
     background-image: none;
     background-color: #131313;
 }
+
 body {
     margin: 0;
     padding: 0;
-    height: 100vh; 
+    height: auto; /* Allow the body height to expand as needed */
+    min-height: 100vh; /* Ensure it is at least as tall as the viewport */
     background-image: none;
-
-    background-color:#131313; 
-    overflow: hidden; 
-
+    background-color: #131313;
+    overflow-y: auto; /* Show scrollbar when content overflows */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 body::before {
     content: '';
@@ -47,9 +48,12 @@ body::before {
     bottom: 0%; 
     left: 0%;
     background-color: #1d1c1c; 
-    border-radius: 0% 90% 0% 80%; 
-    z-index: -1; 
+    border-radius: 0% 90% 0% 40%; 
+    z-index: -1;
+    pointer-events: none;
 }
+
+
 .manage_container{
     padding: 2rem;
 }
@@ -68,7 +72,7 @@ body::before {
     cursor: pointer;
     padding: 15px 20px;
     margin-bottom: 20px;
-    font-size: 20px;
+    font-size: 18px;
     
 
     transition: background-color 0.3s ease;
@@ -99,7 +103,7 @@ body::before {
 }
 
 .tab-content p {
-    font-size: 20px;
+    font-size: 14px;
     line-height: 1.6;
 }
 
@@ -183,22 +187,31 @@ body::before {
   flex: 1;
 }
 .manage_container{
-    width: 100%;
+    width: 100%; /* Makes the width responsive to the size of the viewport */
+    max-width: 800px; /* Your new desired maximum width */
+    min-width: 300px; 
     font-family: "Oswald", sans-serif;
     letter-spacing: 1px;
     border-radius: 20px;
     padding-top: 3rem;
-    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9)); 
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+     
+    
+}
+.contain-body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .manage_container select, #searchbar{
     background-color: rgb(0, 0, 0); 
     color: white;
     padding: 10px 20px;
     letter-spacing: 1px;
-    font-size: 18px;
+    font-size: 16px;
     border: none;
     cursor: pointer;
-    width: fit-content;
+    width: 100%;
 }
 .option_bar option{
     background-color: #fdfdfd; 
@@ -209,6 +222,64 @@ body::before {
 }
 
 
+.manage_container {
+    width: 100%;
+    max-width: 800px; /* Max width of the manage_container */
+    min-width: 300px;
+    margin: auto; /* This will center the container on the page */
+    padding: 3rem; /* This will add padding inside the container */
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    border-radius: 20px;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+    position: relative; /* Set position to relative to use for absolute positioning inside */
+    overflow: hidden; /* Ensure no child can go out of the box */
+}
+
+.manage_container select {
+    background-color: rgb(0, 0, 0);
+    color: white;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%; /* This ensures the select box doesn't extend beyond its parent */
+    -webkit-appearance: none; /* Removes default chrome and safari appearance */
+    -moz-appearance: none; /* Removes default style Firefox */
+    appearance: none; /* Removes default browser appearance */
+}
+
+/* Style for custom dropdown arrow */
+.manage_container select::-ms-expand {
+    display: none; /* For IE10+ */
+}
+
+.manage_container::after {
+    /* Custom dropdown arrow */
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: white;
+}
+
+/* Responsive design adjustments */
+@media screen and (max-width: 780px) {
+    .manage_container {
+        width: 95%; /* Slightly smaller width on smaller screens */
+        padding: 2rem; /* Adjust padding for smaller screens */
+    }
+
+    .manage_container select, #searchbar {
+        width: auto; /* This will ensure the select adjusts to text size */
+    }
+    .manage_container option{
+        font-size: 5px;
+    }
+}
 
 #searchbar::placeholder {
     color: white;
@@ -348,7 +419,7 @@ th, tr {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%; /* Full width tables often look good on modern pages */
-    overflow-x: auto; /* Enable horizontal scrolling on smaller screens */
+    overflow-y: visible; /* Enable horizontal scrolling on smaller screens */
 }
 
 #stats {
@@ -376,20 +447,20 @@ th, tr {
 .headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
     left: 0;
     z-index: 2; /* Ensure it's above other items */
-    font-size: 20px;
+    font-size: 16px;
 }
 
 
 .headcol_id {
-    min-width: 5.5em; /* Use min-width for flexible layouts */
+    min-width: 3em; /* Use min-width for flexible layouts */
 }
 
 .headcol_name {
-    min-width: 10em; /* Use min-width for flexible layouts */
+    min-width: 5em; /* Use min-width for flexible layouts */
 }
 
 .headcol_checkbox {
-    width: 2em; /* Keep checkboxes small */
+    width: 1em; /* Keep checkboxes small */
 }
 
 .col, .col_name {
@@ -397,7 +468,7 @@ th, tr {
 }
 
 .col_name {
-    min-width: 10em; /* Use min-width for flexible layouts */
+    min-width: 5em; /* Use min-width for flexible layouts */
 }
 
 /* Hover styles for rows */
@@ -405,7 +476,7 @@ th, tr {
     background-color: #1d1c1c; /* Light grey background on hover */
 }
 tr{
-    font-size: 20px;
+    font-size: 15px;
 }
 
 /* Responsive design for smaller screens */
@@ -527,20 +598,20 @@ tr{
     width: fit-content;
     font-family: "Oswald", sans-serif;
     letter-spacing: 1px;
-    font-size: 18px;
+    font-size: 15px;
     margin-top: 10px;
 }
 .add-button{
-    background-color: #fafafa; /* Green for submit button */
-    color: white;
-    padding: 10px 40px;
+    background-color: white; /* Green for submit button */
+    color: black;
+    padding: 0px 30px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     width: fit-content;
     font-family: "Oswald", sans-serif;
     letter-spacing: 1px;
-    font-size: 20px;
+    font-size: 16px;
     margin-top: 10px;
 }
 

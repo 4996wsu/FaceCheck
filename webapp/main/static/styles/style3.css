@@ -1,0 +1,195 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+h1 {
+    font-family: 'Helvetica', sans-serif; /* Replace with the font of your choice */
+     /* 2.5 times the size of the standard text */
+    color: #ffffff; /* Adjust the color as needed */
+}
+
+/* h2 {
+    font-family: 'Helvetica', sans-serif; 
+    font-size: 2em;
+    color: #ffffff;
+} */
+.hero-banner h1 {
+    font-size: 3em; /* Larger size for hero banner title */
+    color: #ffffff; /* Assuming a dark background image */
+}
+
+.hero-banner p {
+    font-size: 16px; /* Larger size for readability on a busy background */
+    color: #ffffff;
+}
+
+.navbar-brand {
+    width: 20%;
+    height: auto;
+}
+
+.navbar-nav {
+    width: 100%;
+    justify-content: center;
+}
+
+.navbar-nav .nav-item {
+    padding-right: 2rem;
+}
+
+.nav-item {
+    font-size: 130%;
+}
+
+.navbar {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+}
+
+/* Apply the background to the whole page */
+body {
+    margin: 0;
+    padding: 0;
+    height: auto; /* Allow body to grow as tall as the content */
+    min-height: 100vh; /* At least as tall as the viewport */
+    background-image: none;
+    background-color: #131313;
+    overflow-y: auto; /* Add scrollbar if needed */
+    overflow-x: hidden; /* Keep horizontal scrollbar hidden */
+}
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 45%;
+    bottom: 0%; /* This will cover the top half of the screen */
+    left: 0;
+    background-image: url('../images/2428085.jpg');
+    background-size: contain;/* This is the red color for the top half */
+    border-radius: 0% 0% 60% 0%; /* This creates the curve on the bottom right */
+    z-index: -1;
+   
+    height: 100%;
+    min-height: 100vh; /* Make sure it covers the full viewport height */
+    overflow-y: visible; /
+}
+
+.hero-banner {
+    /*background:url('/static/images/hacker.jpg') ;
+    background-repeat: no-repeat;
+    background-position: center;*/
+    color: rgb(0, 0, 0); /* Adjust text color for readability */
+    text-shadow: 0 0 8px rgba(0,0,0,0.7); /* Optional: text shadow for better readability on a busy background */
+    min-height: 100vh; /* Full viewport height */
+    display: flex;
+    align-items: center; 
+    justify-content:right; 
+    padding: 0;
+    max-width: 500px;
+
+}
+.hero-banner {
+    min-height: 100vh; /* Full height of the viewport */
+    padding: 0; /* Reset any padding */
+    max-width: 700px; /* Max width of the content */
+    margin-left: auto; /* Push the content to the right */
+    box-sizing: border-box; /* Ensure padding is included in the width */
+    width: 100%; /* Full width to enable centering */
+    display: flex;
+    font-family: "Oswald", sans-serif;
+    justify-content: flex-end; /* Aligns content to the right */
+    align-items: center; /* Centers content vertically */
+    text-align: left; /* Aligns text to the right */
+}
+.signup{
+    margin-left: 1rem;
+}
+.gradient-text {
+    font-weight:900;
+    background: -webkit-linear-gradient(45deg, rgb(13, 69, 220), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block; /* Required for gradient to apply properly */
+  }
+.container {
+    max-width: 560px; /* Or whatever max width you prefer */
+    width: 100%; /* Uses full width of the hero-banner */
+    margin-right:1rem; /* Aligns the container to the right */
+    padding-right: 0; /* Ensures no padding is adding space on the right */
+}
+.username {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+    font-size: 16px;
+}
+.subtext {
+    font-size: 14px;
+    color: #666; /* Adjust color as needed */
+    margin-top: 5px; /* Adjust margin as needed */
+}
+.container h1{
+    font-size: 39px;
+}
+
+.container p{
+    font-size: 16px;
+}
+
+
+@media screen and (max-width: 780px) {
+    
+    body::before {
+        right: 0;
+        bottom: 0%;
+        background-repeat: no-repeat;
+        opacity: 0.5;
+        border-radius: 0% 0% 0% 0%;
+    }
+    .hero-banner {
+        min-height: 100vh; /* Full height of the viewport */
+        padding: 0; /* Reset any padding */
+        max-width: 700px; /* Max width of the content */
+        margin-left: auto; /* Push the content to the right */
+        box-sizing: border-box; /* Ensure padding is included in the width */
+        width: 100%; /* Full width to enable centering */
+        display: flex;
+        font-family: "Oswald", sans-serif;
+        
+    }
+    .signup{
+        margin-left: 1rem;
+    }
+    .gradient-text {
+        font-size: 80px;
+        font-weight:900;
+        background: -webkit-linear-gradient(45deg, rgb(13, 69, 220), white);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block; /* Required for gradient to apply properly */
+      }
+    .container {
+        
+        max-width: 800px; /* Or whatever max width you prefer */
+        width: 100%; /* Uses full width of the hero-banner */
+        margin-right:1rem;
+        margin-top: 3rem; /* Aligns the container to the right */
+        padding-right: 0; /* Ensures no padding is adding space on the right */
+    }
+    .container h1{
+        font-size: 30px;
+    }
+
+    .container p{
+        font-size: 20px;
+    }
+}

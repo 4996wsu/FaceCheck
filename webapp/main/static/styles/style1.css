@@ -40,9 +40,15 @@ h2 {
 }
 
 .nav-item {
-    font-size: 130%;
+    font-size: 20px
 }
+.nav a{
+    font-size: 16px;
 
+}
+.nav-link{
+    font-size: 16px;
+}
 .navbar {
     position: sticky;
     top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
@@ -53,10 +59,6 @@ h2 {
 }
 
 /* Apply the background to the whole page */
-body {
-
-    background-color: #1e1e1e;
-}
 
 .hero-banner {
     /*background:url('/static/images/hacker.jpg') ;
@@ -76,10 +78,10 @@ body {
     background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
     /* Add the rest of your styles here */
     padding: 1rem 2rem;
-    font-size: 130%;
+    font-size: 16px;
 }
 .subtext {
-    font-size: 14px;
+    font-size: 16px;
     color: #666; /* Adjust color as needed */
     margin-top: 5px; /* Adjust margin as needed */
 }
