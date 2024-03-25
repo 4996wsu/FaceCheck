@@ -57,6 +57,9 @@ h2 {
     /* Add the rest of your styles here */
     padding: 1rem 2rem;
 }
+#nav_stats, #nav_enroll, #nav_manage {
+    display: none;
+}
 
 /* Apply the background to the whole page */
 

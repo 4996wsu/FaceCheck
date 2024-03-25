@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.tokens import default_token_generator
-from database import update_student_photo
+from database import update_student_photo, add_student
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from django.contrib.auth.forms import PasswordResetForm
@@ -40,6 +40,7 @@ from django.contrib import messages
 from django.urls import reverse
 # Create your views here.
 def home(request):
+    print(request.session.get('username'))
     return render(request, 'main/home.html')
 
 def stats(request):
@@ -91,6 +92,9 @@ def otp_verification(request):
                         email=request.session.get('email'),
                         password=request.session.get('password')
                     )
+                    # Add user to firebase
+                    add_student(request.session.get('username'), request.session.get('first_name'), request.session.get('last_name'))
+                    
                     messages.success(request, 'User created successfully')
                     # Clear the session variables related to OTP
                     del request.session['otp']
