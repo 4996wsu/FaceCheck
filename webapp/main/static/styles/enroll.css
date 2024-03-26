@@ -248,18 +248,20 @@ form{
 /* Success messages */
 .messages .success {
     color: green;
+    font-weight: bold;
     border: 1px solid green;
     padding: 10px;
-    margin-bottom: 15px;
+    margin-top: 15px;
     border-radius: 5px;
 }
 
 /* Error or warning messages */
 .messages .warning, .messages .error {
     color: red;
+    font-weight: bold;
     border: 1px solid red;
     padding: 10px;
-    margin-bottom: 15px;
+    margin-top: 15px;
     border-radius: 5px;
 }
 
