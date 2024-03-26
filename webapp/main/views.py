@@ -4,7 +4,7 @@ from database import update_student_photo, add_student
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from django.contrib.auth.forms import PasswordResetForm
-from .forms import RegisterForm, ProfileForm
+from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password
@@ -38,7 +38,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
 from django.urls import reverse
-from .models import UserProfile
+
 # Create your views here.
 
 def home(request):

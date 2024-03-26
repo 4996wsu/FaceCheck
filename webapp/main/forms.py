@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post, UserProfile
+from .models import Post
 from django.core.exceptions import ValidationError
 
 class RegisterForm(UserCreationForm):
@@ -28,8 +28,3 @@ class RegisterForm(UserCreationForm):
 class ImageUploadForm(forms.Form):
     image = forms.ImageField(label='Upload your photo', label_suffix='')
 
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ['photo']

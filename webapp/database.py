@@ -171,6 +171,10 @@ def update_student_photo(name, file):
     name_list = [name]
     from duplicate import duplicate_faces
     class_id= 'CSC_4996_001_W_2024'
+    if retrieve_class_embedding(class_id) != "NO ENCODING":
+        download_file_combine(retrieve_class_embedding(class_id), f'{class_id}.pt')
+    else:
+        combine_pt_files(class_id)
     emb, names = torch.load(f'{class_id}.pt', map_location='cpu')
 # Move loaded embeddings to the same device as your current embeddings
     emb = [e.to(device) for e in emb]
