@@ -42,7 +42,6 @@ from django.contrib.messages import get_messages
 # Create your views here.
 
 def home(request):
-    print(request.session.get('username'))
     return render(request, 'main/home.html')
 
 def stats(request):
@@ -68,6 +67,8 @@ def sign_up(request):
             request.session['username'] = form.cleaned_data.get('username')
             request.session['email'] = form.cleaned_data.get('email')
             request.session['password'] = form.cleaned_data.get('password1')
+            request.session['first_name'] = form.cleaned_data.get('first_name')
+            request.session['last_name'] = form.cleaned_data.get('last_name')
             request.session['otp_time'] = str(datetime.now())  # Store the current time
             send_mail(
                 'Your OTP',
@@ -101,7 +102,9 @@ def otp_verification(request):
                     User.objects.create_user(
                         username=request.session.get('username'),
                         email=request.session.get('email'),
-                        password=request.session.get('password')
+                        password=request.session.get('password'),
+                        first_name=request.session.get('first_name'),
+                        last_name=request.session.get('last_name')
                     )
                     # Add user to firebase
                     add_student(request.session.get('username'), request.session.get('first_name'), request.session.get('last_name'))
