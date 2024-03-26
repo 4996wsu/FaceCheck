@@ -384,7 +384,7 @@ def add_student_to_class(section, accessid):
 def update_student_attendance(section, name, value, date = getDate(), time = getTime()):
     student_dict = get_doc(student_doc)
     
-    if lookup(name, student_dict) == None:
+    if lookup(name, student_dict['students'][section]) == None:
         print("Error: Cannot update attendance for '" + name + "' because the user does not exist.")
     else:
         key = 'students.' + section + '.' + name + '.attendance.' + date + '.' + time
@@ -395,7 +395,7 @@ def update_student_attendance(section, name, value, date = getDate(), time = get
 def update_overall_attendance(section, name, value, date = getDate()):
     student_dict = get_doc(student_doc)
     
-    if lookup(name, student_dict) == None:
+    if lookup(name, student_dict['students'][section]) == None:
         print("Error: Cannot update overall attendance for '" + name + "' because the user does not exist.")
     else:
         key = 'students.' + section + '.' + name + '.attendance.' + date + '.Overall'
@@ -769,8 +769,9 @@ section = 'CSC_4996_001_W_2024'
 # update_photo_status(section, 'hc9082', "Accepted")
 # update_photo_status_batch('hc9082', "Accepted")
 
-print(retrieve_names_from_class(section))
-print(retrieve_approved_names_from_class(section))
-print(retrieve_encodings_from_class(section))
+# print(retrieve_names_from_class(section))
+# print(retrieve_approved_names_from_class(section))
+# print(retrieve_encodings_from_class(section))
+# update_overall_attendance(section, 'hz2948', True)
 
 print("---------------------- END DATABASE TESTING ----------------------")
