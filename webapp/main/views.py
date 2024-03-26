@@ -36,8 +36,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.contrib import messages
 from django.urls import reverse
+from django.contrib.messages import get_messages
 
 # Create your views here.
 
@@ -51,10 +51,17 @@ def stats(request):
 def manageclass(request):
     return render(request, 'main/manageclass.html')
 
+def clear_messages(request):
+    storage = get_messages(request)
+    for message in storage:
+        pass
+
 def sign_up(request):
+    clear_messages(request)
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
+            clear_messages(request)
             user = form.save(commit=False)  # Don't save the user yet
             otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
             request.session['otp'] = otp  # Store the OTP in the session
@@ -79,6 +86,7 @@ def sign_up(request):
     return render(request, 'registration/sign_up.html', {'form': form})
 
 def otp_verification(request):
+    clear_messages(request)
     if request.method == 'POST':
         otp = request.POST.get('otp')
         otp_time_str = request.session.get('otp_time')
