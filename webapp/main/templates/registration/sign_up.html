@@ -5,30 +5,62 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<link rel="stylesheet" href="../static/styles/signup.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-<HASH>" crossorigin="anonymous" />
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+    
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" id="card">
                 <div class="card-header">Sign Up</div>
 
                 <div class="card-body">
                     <form id="sign_up" method="post">
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        <div class="input-group">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary toggle-password" type="button">
-                                    <i class="fas fa-eye" id="password-eye"></i>
-                                </button>
+                        {{ form.username|as_crispy_field }}
+                        <div class="form-group row">
+                            <div class="col-md-6">
+                                {{ form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name|as_crispy_field }}
                             </div>
                         </div>
-                        <div class="input-group mt-3">
+                        {{ form.email|as_crispy_field }}
+                        <div class="form-group row">
+                            <div class="col-md-6">
+                                {{ form.password1|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.password2|as_crispy_field }}
+                            </div>
+                            <div class="col-md-2">
+                                <div class="input-group">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" id="showpass">
+                                            <i class="fas fa-eye" id="password-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p> Have an account? Login <a href="{% url 'login' %}">Here</a></p>
-                        <button type="submit" class="btn btn-primary">Register</button>
+                        <ul id="pass-helptext">
+                            <li>Your password can’t be too similar to your other personal information.</li>
+                            <li>Your password must contain at least 8 characters.</li>
+                            <li>Your password can’t be a commonly used password.</li>
+                            <li>Your password can’t be entirely numeric.</li>
+                        </ul>
+                        <div class="input-group mt-3"></div>
+                        <button type="submit" class="btn btn-primary" id="submit_btn">Register</button>
                     </form>
+                </div>
+
+                <div id="links">
+                    <p> Have an account? Log in <a href="{% url 'login' %}">Here</a></p>
+                    <p>Return <a href="{% url 'home' %}" id="link_home">Home</a></p>
                 </div>
             </div>
         </div>
@@ -36,18 +68,18 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const togglePasswordButton = document.querySelector('.toggle-password');
-    const passwordFields = document.querySelectorAll('[name="password1"], [name="password2"]');
-    const eyeIcon = document.getElementById('password-eye');
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePasswordButton = document.querySelector('.toggle-password');
+        const passwordFields = document.querySelectorAll('[name="password1"], [name="password2"]');
+        const eyeIcon = document.getElementById('password-eye');
 
-    togglePasswordButton.addEventListener('click', function() {
-        const isVisible = passwordFields[0].type === 'text';
-        passwordFields.forEach(function(field) {
-            field.type = isVisible ? 'password' : 'text';
+        togglePasswordButton.addEventListener('click', function() {
+            const isVisible = passwordFields[0].type === 'text';
+            passwordFields.forEach(function(field) {
+                field.type = isVisible ? 'password' : 'text';
+            });
+            eyeIcon.className = isVisible ? 'fas fa-eye' : 'fas fa-eye-slash';
         });
-        eyeIcon.className = isVisible ? 'fas fa-eye' : 'fas fa-eye-slash';
     });
-});
 </script>
 {% endblock %}
