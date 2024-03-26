@@ -38,7 +38,9 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
 from django.urls import reverse
+from .models import UserProfile
 # Create your views here.
+
 def home(request):
     print(request.session.get('username'))
     return render(request, 'main/home.html')
@@ -84,7 +86,7 @@ def otp_verification(request):
             if datetime.now() - otp_time > timedelta(minutes=2):  # Check if more than 2 minutes have passed
                 messages.error(request, 'OTP expired. Please sign up again.')
                 # Redirect to the signup page
-                return redirect('signup')
+                return redirect('sign-up')
             elif otp == str(request.session.get('otp')):
                 try:
                     User.objects.create_user(

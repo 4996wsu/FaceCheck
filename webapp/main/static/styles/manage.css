@@ -257,7 +257,7 @@ body::before {
 
 .manage_container::after {
     /* Custom dropdown arrow */
-    content: '';
+    content: '^';
     position: absolute;
     top: 50%;
     right: 1rem;
