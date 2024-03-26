@@ -73,6 +73,7 @@ a {
     color: #62d668;
     font-family: "Oswald", sans-serif;
     text-decoration: none;
+    text-shadow: 1px 1px 2px black;
 }
 a:hover {
     color:rgb(207, 255, 209);
@@ -96,6 +97,10 @@ a:hover {
     height: 150%;
     margin: 0 auto;
     margin-top: 10px;
+}
+
+#showpass:hover {
+    background-color: #343434;
 }
 
 #submit_btn:hover {
@@ -178,4 +183,9 @@ a:hover {
     #showpass {
         margin: 0 auto;
     }
+}
+
+.invalid-feedback {
+    color: #ff3347;
+    text-shadow: 1px 1px 2px black;
 }

@@ -21,12 +21,12 @@
                     <form id="loginForm" method="post">
                         {% csrf_token %}
                         {% if form.non_field_errors %}
-        <div class="form-errors">
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
+                            <div class="form-errors">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         {{ form.username|as_crispy_field}}
                         <div id="id_password">Password*<br></div>
                         <div class="input-group" id="inputs">

@@ -69,6 +69,7 @@ a {
     color: #62d668;
     font-family: "Oswald", sans-serif;
     text-decoration: none;
+    text-shadow: 1px 1px 2px black;
 }
 a:hover {
     color:rgb(207, 255, 209);
@@ -91,6 +92,10 @@ a:hover {
     border-radius: 20px;
     height: 150%;
     margin: 0 auto;
+}
+
+#showpass:hover {
+    background-color: #343434;
 }
 
 #submit_btn:hover {
@@ -116,10 +121,21 @@ a:hover {
     background-color: #131313;
     color: white;
 }
+#showpass {
+    width:50px;
+    margin-left: 1px;
+}
 #password {
     margin-bottom: 10px;
 }
 
 #id_password {
     padding-bottom: 10px;
+}
+
+.form-errors {
+    color: #ff3347;
+    text-shadow: 1px 1px 2px black;
+    font-weight: bold;
+    font-size: 16px;
 }
