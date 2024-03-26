@@ -71,10 +71,11 @@ def sign_up(request):
             )
             return redirect('otp_verification')  # Redirect to OTP verification view
         else:
-            print(form.errors)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegisterForm()
-
     return render(request, 'registration/sign_up.html', {'form': form})
 
 def otp_verification(request):
