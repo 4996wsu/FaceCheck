@@ -81,5 +81,41 @@
             eyeIcon.className = isVisible ? 'fas fa-eye' : 'fas fa-eye-slash';
         });
     });
+    document.addEventListener("DOMContentLoaded", function() {
+        // To hide the hint
+        var hintElement = document.getElementById('hint_id_password1');
+        if (hintElement) {
+            hintElement.style.display = 'none';
+        }
+    
+        // Or to remove it completely
+        if (hintElement) {
+            hintElement.parentNode.removeChild(hintElement);
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        // To hide the hint
+        var hintElement = document.getElementById('hint_id_password2');
+        if (hintElement) {
+            hintElement.style.display = 'none';
+        }
+    
+        // Or to remove it completely
+        if (hintElement) {
+            hintElement.parentNode.removeChild(hintElement);
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        // To hide the hint
+        var hintElement = document.getElementById('hint_id_username');
+        if (hintElement) {
+            hintElement.style.display = 'none';
+        }
+    
+        // Or to remove it completely
+        if (hintElement) {
+            hintElement.parentNode.removeChild(hintElement);
+        }
+    });
 </script>
 {% endblock %}
