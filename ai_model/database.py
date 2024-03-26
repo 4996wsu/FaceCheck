@@ -261,8 +261,8 @@ def reset_docs():
     update_student_photo('hc9082', 'photos/hc9082/hc9082.jpg')
     update_student_photo('hi4718', 'photos/hi4718/hi4718.jpg')
     update_student_photo('hi6576', 'photos/hi6576/hi6576.jpg')
-    update_class_encoding_status('CSC_4996_001_W_2024', true)
-    update_class_encoding_status('CSC_4500_002_S_2024', true)
+    update_class_encoding_status('CSC_4996_001_W_2024', True)
+    update_class_encoding_status('CSC_4500_002_S_2024', True)
     add_student('hz2948', 'John', 'Doe', 'student')
 
     print("Document ID: ", doc_ref.id)
@@ -547,7 +547,7 @@ def retrieve_names_from_class(section):
     if "class_photos" in names:
         names.remove("class_photos")
         
-    return final_name_list
+    return names
     
 import numpy as np 
 # Retrieve all encodings for a class section
@@ -770,5 +770,7 @@ section = 'CSC_4996_001_W_2024'
 # update_photo_status_batch('hc9082', "Accepted")
 
 print(retrieve_names_from_class(section))
+print(retrieve_approved_names_from_class(section))
+print(retrieve_encodings_from_class(section))
 
 print("---------------------- END DATABASE TESTING ----------------------")
