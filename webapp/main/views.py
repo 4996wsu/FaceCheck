@@ -36,13 +36,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.contrib import messages
 from django.urls import reverse
+from django.contrib.messages import get_messages
 
 # Create your views here.
 
 def home(request):
-    print(request.session.get('username'))
     return render(request, 'main/home.html')
 
 def stats(request):
@@ -51,16 +50,25 @@ def stats(request):
 def manageclass(request):
     return render(request, 'main/manageclass.html')
 
+def clear_messages(request):
+    storage = get_messages(request)
+    for message in storage:
+        pass
+
 def sign_up(request):
+    clear_messages(request)
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
+            clear_messages(request)
             user = form.save(commit=False)  # Don't save the user yet
             otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
             request.session['otp'] = otp  # Store the OTP in the session
             request.session['username'] = form.cleaned_data.get('username')
             request.session['email'] = form.cleaned_data.get('email')
             request.session['password'] = form.cleaned_data.get('password1')
+            request.session['first_name'] = form.cleaned_data.get('first_name')
+            request.session['last_name'] = form.cleaned_data.get('last_name')
             request.session['otp_time'] = str(datetime.now())  # Store the current time
             send_mail(
                 'Your OTP',
@@ -79,6 +87,7 @@ def sign_up(request):
     return render(request, 'registration/sign_up.html', {'form': form})
 
 def otp_verification(request):
+    clear_messages(request)
     if request.method == 'POST':
         otp = request.POST.get('otp')
         otp_time_str = request.session.get('otp_time')
@@ -93,7 +102,9 @@ def otp_verification(request):
                     User.objects.create_user(
                         username=request.session.get('username'),
                         email=request.session.get('email'),
-                        password=request.session.get('password')
+                        password=request.session.get('password'),
+                        first_name=request.session.get('first_name'),
+                        last_name=request.session.get('last_name')
                     )
                     # Add user to firebase
                     add_student(request.session.get('username'), request.session.get('first_name'), request.session.get('last_name'))
