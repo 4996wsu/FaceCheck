@@ -65,6 +65,10 @@ body::before {
     }
 }
 
+.container {
+    padding-bottom: 2em;
+}
+
 a {
     color: #62d668;
     font-family: "Oswald", sans-serif;
