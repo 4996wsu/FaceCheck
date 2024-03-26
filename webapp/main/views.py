@@ -1,3 +1,4 @@
+from django import forms
 from django.shortcuts import render, redirect
 from django.contrib.auth.tokens import default_token_generator
 from database import update_student_photo, add_student
@@ -55,6 +56,37 @@ def clear_messages(request):
     for message in storage:
         pass
 
+
+class RegisterForm(forms.ModelForm):
+    email = forms.EmailField(required=False)
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+        
+    def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
+        self.fields['username'].label = 'Access ID'
+        self.fields['username'].widget.attrs['placeholder'] = 'Ex: hc9082'
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError('Passwords do not match.')
+
+        return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password1'])
+        if commit:
+            user.save()
+        return user
+
 def sign_up(request):
     clear_messages(request)
     if request.method == 'POST':
@@ -65,16 +97,18 @@ def sign_up(request):
             otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
             request.session['otp'] = otp  # Store the OTP in the session
             request.session['username'] = form.cleaned_data.get('username')
-            request.session['email'] = form.cleaned_data.get('email')
+            #request.session['email'] = form.cleaned_data.get('email')
+            request.session['email'] = form.cleaned_data.get('username') + '@wayne.edu'
             request.session['password'] = form.cleaned_data.get('password1')
             request.session['first_name'] = form.cleaned_data.get('first_name')
             request.session['last_name'] = form.cleaned_data.get('last_name')
             request.session['otp_time'] = str(datetime.now())  # Store the current time
+            
             send_mail(
-                'Your OTP',
-                f'Your OTP is {otp}',
+                'Verification Code',
+                f'Your verification code is {otp}.\nDo not share this information with anyone else.',
                 settings.DEFAULT_FROM_EMAIL,
-                [form.cleaned_data.get('email')],
+                [request.session['email']],
                 fail_silently=False,
             )
             return redirect('otp_verification')  # Redirect to OTP verification view

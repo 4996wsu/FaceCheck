@@ -170,6 +170,11 @@ a:hover {
         margin-right: 0px;
     }
 
+    #email_text {
+        margin-top: 40px;
+        margin-left: -17px;
+    }
+
     .toggle-password {
         margin-top: 34px;
     }
@@ -188,4 +193,8 @@ a:hover {
 .invalid-feedback {
     color: #ff3347;
     text-shadow: 1px 1px 2px black;
+}
+
+input::placeholder {
+    color: #999;
 }
