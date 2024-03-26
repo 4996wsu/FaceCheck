@@ -3,133 +3,69 @@
 
 {% block content %}
     <!-- TEMPORARY STYLE SHEET, DELETE LATER -->
-    <style>
-        h2 {
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        hr {
-            width: 100%;
-            margin-left: 0;
-            margin-right: 0;
-        }
-        body {
-            color: white;
-            background-image: none;
-            background-color: #131313;
-        }
-
-        @media (min-width: 1280px) {
-            #indented_label {
-                margin-left: 1em;
-            }
-        }
-
-        @media (max-width: 1279px) {
-            #indented_label::before {
-                white-space: pre;
-                display: block;
-            }
-
-            #semester_select,
-            #class_id_select,
-            #date_select,
-            #searchbar,
-            #filter_select {
-                width: 100%;
-                box-sizing: border-box;
-                margin-bottom: 0.5em;
-            }
-
-            .input-field {
-                display: grid; 
-                grid-template-columns: auto 1fr; 
-                gap: 0.5em; 
-                align-items: center; 
-            }
-        
-            .input-field label {
-                text-align: right; 
-            }
-        
-            .input-field select {
-                width: 100%; 
-            }
-        }
-
-        /*  TABLE FORMATTING STYLES  */
-        #stats_table {
-            margin-bottom: 3em;
-        }
-        th, tr {
-            padding-right: 1rem;
-        }
-        .headcol_id, .headcol_name {
-            position: sticky;
-            white-space: nowrap;
-            left: 0;
-            background-color: #131313;
-            z-index: 1;
-        }
-        .headcol_id {
-            width: 5.5em;
-        }
-        .headcol_name {
-            width: 10em;
-        }
-        .col, .col_name {
-            position: relative;
-            white-space: nowrap;
-        }
-        .col_name {
-            width: 10em;
-        }
-    </style>
-
     <!-- STATISTICS PAGE CODE -->
-    <h2>Statistics</h2><hr>
-    <div id = "input_fields">
-        <label for="semester_select">Semester: </label>
-        <select name="semester_select" id="semester_select" onchange = "change_semester()">
-            <option value="default">N/A</option>
-        </select>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/styles/stats.css">
 
-        <label for="class_id_select" id="indented_label">Class: </label>
-        <select name="class_id_select" id="class_id_select" disabled onchange = "change_class()">
-            <option value="default">N/A</option>
-        </select>
+    
+    <h2 class="headline"><span class="span"> Classroom </span>Presence at a Glance</h2><hr>
 
-        <label for="date_select" id="indented_label">Date: </label>
-        <select name="date_select" id="date_select" onchange = "change_date()" disabled>
-            <option value="default">N/A</option>
-        </select>
 
-        <!-- SEARCH BAR -->
-        <br><br><a>Search for a student: </a>
-        <input id = "searchbar"
-            onkeyup = "search_student()"
-            type = "text" name = "search"
-            maxlength = "20"
-            placeholder = "Ex: hc9082">
 
-        <label for="filter_select" id="indented_label">Search/sort by: </label>
-        <select name="filter_select" id="filter_select" onchange = "change_filter()">
-            <option value="accessid">Access ID</option>
-            <option value="fname">First name</option>
-            <option value="lname">Last name</option>
-        </select>
+    <div class="manage_container">
+        <div id = "input_fields">
+            <div class="option_bar_container">
+                <div>
+                    <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
+                        <option value="default">Semester</option>
+                    </select>
+                </div>
+                <div>
+                    <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
+                        <option value="default">Class</option>
+                    </select>
+                </div>
+                <div>
+                    <select name="date_select" id="date_select" class="option_bar" onchange="change_date()" disabled>
+                        <option value="default">Date</option>
+                    </select>
+                </div>
+                <!-- Wrapper for the last two elements -->
+                <div class="centered-elements">
+                    <div class="search-container">
+                        <input id="searchbar" class="option_bar" onkeyup="search_student()" type="text" name="search" maxlength="20" placeholder="Ex: hc9082">
+                        <img class="search-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/search--v1.png" alt="search--v1"/>
+                    </div>
+                    <div class="select-container">
+                        <select name="filter_select" id="filter_select" class="option_bar" onchange="change_filter()">
+                            <option value="accessid">Access ID</option>
+                            <option value="fname">First name</option>
+                            <option value="lname">Last name</option>
+                        </select>
+                        <img class="filter-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/filter--v1.png" alt="filter--v1"/>
+                    </div>
+                </div>
+            </div>
+            <p class="add_instruction" id = "errors">
+                Select a semester, class, and date to show attendance data.
+            </p>
+            <div id = "stats_table" style="overflow-x:auto;">
+                <table id = "stats">
+                    <thead id="thead"></thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+            
+        
+        </div>
+
     </div>
-
     <hr>
-    <a id = "errors">Select a semester, class, and date to show attendance data.</a>
 
-    <!-- STATS TABLE BASE -->
-    <div id = "stats_table" style="overflow-x:auto;">
-        <table id = "stats">
-            <thead id="thead"></thead>
-            <tbody id="tbody"></tbody>
-        </table>
-    </div>
+
+
     
 
     <!-- JAVASCIPT CODE -->
@@ -282,7 +218,7 @@
                     removeOptions(semester_select);
                     var default_option = document.createElement('option');
                     default_option.value = 0;
-                    default_option.innerHTML = "-- Click to select semester --"
+                    default_option.innerHTML = "Semester"
                     default_option.disabled = true;
                     default_option.selected = true;
                     default_option.style.display = 'none';
@@ -371,7 +307,7 @@
 
                 var default_option = document.createElement('option');
                 default_option.value = 0;
-                default_option.innerHTML = "-- Click to select class --"
+                default_option.innerHTML = "Class"
                 default_option.disabled = true;
                 default_option.selected = true;
                 default_option.style.display = 'none';
@@ -451,7 +387,7 @@
                     removeOptions(date_select);
                     var default_option = document.createElement('option');
                     default_option.value = 0;
-                    default_option.innerHTML = "-- Click to select date --"
+                    default_option.innerHTML = "Date"
                     default_option.disabled = true;
                     default_option.selected = true;
                     default_option.style.display = 'none';
