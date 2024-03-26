@@ -5,30 +5,39 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<link rel="stylesheet" href="../static/styles/login.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-<HASH>" crossorigin="anonymous" />
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+    
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Login</div>
+            <div class="card" id="card">
+                <div class="card-header">Log In</div>
 
-                <div class="card-body">
+                <div class="card-body" id="card-body">
                     <form id="loginForm" method="post">
                         {% csrf_token %}
-                        {{ form.username|as_crispy_field }}
-                        <div class="input-group">
-                            <input type="password" name="password" class="form-control" id="id_password">
+                        {{ form.username|as_crispy_field}}
+                        <div id="id_password">Password*<br></div>
+                        <div class="input-group" id="inputs">
+                            <input type="password" name="password" class="form-control" id="password">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" id="showpass">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
-                        <p>Don't have an account? Create one <a href="{% url 'sign_up' %}">Here</a></p>
-                        <p>Forgot your password? Reset it <a href="{% url 'password_reset' %}">Here</a></p>
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <p><a href="{% url 'password_reset' %}" id="link_forgotpass">Forgot password?</a></p>
+                        <button type="submit" class="btn btn-primary" id="submit_btn">Login</button>
                     </form>
+                </div>
+
+                <div id="links">
+                    <p>New to FaceCheck? <a href="{% url 'sign_up' %}" id="link_signup">Sign up now</a></p>
+                    <p>Return <a href="{% url 'home' %}" id="link_home">Home</a></p>
                 </div>
             </div>
         </div>
