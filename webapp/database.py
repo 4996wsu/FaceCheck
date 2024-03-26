@@ -189,8 +189,7 @@ def update_student_photo(name, file):
         embedding_list = face_encode(cropped_image, device=device)
 # If face_encode returns a single tensor, make sure it's on the right device
         embedding_list = [emb.to(device) for emb in embedding_list]
-        if duplicate_faces(embedding_list,emb, names,name):
-            print("Error: Duplicate face detected.")
+        
             
         embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
@@ -200,10 +199,16 @@ def update_student_photo(name, file):
         userEncodingKey = 'users.' + name + '.encoding'
         update_doc(user_doc, userEncodingKey, embedding_link)
         print("Face uploaded.")
-        return 'Success'
+
+        if duplicate_faces(embedding_list,emb, names,name)== 'flagged':
+            print("Error: Duplicate face detected.")
+            return "flagged"
+        elif duplicate_faces(embedding_list,emb, names,name)== 'unknown':
+            print("Error: Unknown face detected.")
+            return "unknown"
     else:
         print("Error: No face detected, or there was an error processing the image.")
-        return None
+        return "error"
         
 
 # Update photo status for professor to approve        

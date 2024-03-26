@@ -145,13 +145,16 @@ def enroll(request):
             name = request.user.username
             
             result = update_student_photo(name, image_url)
+            print("result", result)
             delete_file_from_firebase(image.name)
             # Success message and error handling        
             
-            if result == None:
+            if result == "error":
                 messages.warning(request, 'Photo is invalid. Please upload a photo with one face in it.')
-            else:
-                messages.warning(request, 'Successfully uploaded photo.')
+            elif result == 'flagged':
+                messages.warning(request, "Your photo has matched with another person's photo.Please Resolve it with your teacher.")
+            elif result == 'unknown':
+                messages.success(request, 'Successfully uploaded photo.')
             
             return render(request, 'main/enrollment.html', {'form': form})
 

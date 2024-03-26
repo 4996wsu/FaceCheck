@@ -41,7 +41,6 @@ def duplicate_faces(embedding_list, known_embeddings, name_list,name, threshold=
         else:
             recognized_name = "Unknown"
         recognized_names.append(recognized_name)
-        print(name)
         if recognized_names[0] != "Unknown" and recognized_names[0] != name:
             update_photo_status_batch(name,"Flagged")
             update_photo_status_batch(recognized_names[0],"Flagged")
@@ -49,6 +48,5 @@ def duplicate_faces(embedding_list, known_embeddings, name_list,name, threshold=
             return 'flagged'
         else:
             update_photo_status_batch(name,"Pending")
-            print("Unknown")
-            return 'unknown pedning'
-    print(recognized_names)
+            print("Unknown21212121")
+            return 'unknown'

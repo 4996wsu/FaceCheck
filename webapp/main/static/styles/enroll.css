@@ -15,8 +15,7 @@ body::before {
     top: 0;
     background-image: url('../images/face.jpg');
     opacity: 0.5;
-    background-size: contain;
-    width: 50%;
+    background-size: cover;
     background-repeat: no-repeat;
     right: 30%;
     bottom: 0%; 
@@ -242,4 +241,36 @@ form{
     text-align: left;
     font-size: 14px;
 }
+
+/* style for error message */
+/* Add this to your enroll.css or a relevant stylesheet */
+
+/* Success messages */
+.messages .success {
+    color: green;
+    border: 1px solid green;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+/* Error or warning messages */
+.messages .warning, .messages .error {
+    color: red;
+    border: 1px solid red;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+/* General styles for messages list */
+.messages {
+    list-style-type: none; /* Removes default bullet points */
+    padding: 0;
+}
+
+.messages li {
+    margin-bottom: 10px; /* Space between messages */
+}
+
 
