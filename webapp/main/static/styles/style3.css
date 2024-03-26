@@ -1,26 +1,30 @@
 body, html {
+    font-family: "Oswald", sans-serif;
     height: 100%;
     margin: 0;
 }
 h1 {
-    font-family: 'Helvetica', sans-serif; /* Replace with the font of your choice */
      /* 2.5 times the size of the standard text */
     color: #ffffff; /* Adjust the color as needed */
 }
 
 /* h2 {
-    font-family: 'Helvetica', sans-serif; 
     font-size: 2em;
     color: #ffffff;
 } */
 .hero-banner h1 {
     font-size: 3em; /* Larger size for hero banner title */
     color: #ffffff; /* Assuming a dark background image */
+    font-family: "Oswald", sans-serif;
 }
 
 .hero-banner p {
     font-size: 16px; /* Larger size for readability on a busy background */
     color: #ffffff;
+    font-family: "Oswald", sans-serif;
+}
+.lead {
+    font-weight: bold;
 }
 
 .navbar-brand {
@@ -69,6 +73,7 @@ body::before {
     bottom: 0%; /* This will cover the top half of the screen */
     left: 0;
     background-image: url('../images/2428085.jpg');
+    background-position-y: 10px;
     background-size: contain;/* This is the red color for the top half */
     border-radius: 0% 0% 60% 0%; /* This creates the curve on the bottom right */
     z-index: -1;
@@ -76,6 +81,20 @@ body::before {
     height: 100%;
     min-height: 100vh; /* Make sure it covers the full viewport height */
     overflow-y: visible; /
+}
+
+@media (max-width: 1000px) {
+    body::before {
+        background-image: none;
+        background: linear-gradient(to bottom, #000C1C, #012853);
+    }
+}
+
+@media (max-width: 400px) {
+    body::before {
+        background-image: none;
+        background-color: #131313;
+    }
 }
 
 .hero-banner {
@@ -100,7 +119,6 @@ body::before {
     box-sizing: border-box; /* Ensure padding is included in the width */
     width: 100%; /* Full width to enable centering */
     display: flex;
-    font-family: "Oswald", sans-serif;
     justify-content: flex-end; /* Aligns content to the right */
     align-items: center; /* Centers content vertically */
     text-align: left; /* Aligns text to the right */
@@ -110,16 +128,16 @@ body::before {
 }
 .gradient-text {
     font-weight:900;
-    background: -webkit-linear-gradient(45deg, rgb(13, 69, 220), white);
+    background: -webkit-linear-gradient(45deg, rgb(72, 121, 255), white);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block; /* Required for gradient to apply properly */
-  }
+}
 .container {
     max-width: 560px; /* Or whatever max width you prefer */
     width: 100%; /* Uses full width of the hero-banner */
-    margin-right:1rem; /* Aligns the container to the right */
+    margin-right:2.5rem; /* Aligns the container to the right */
     padding-right: 0; /* Ensures no padding is adding space on the right */
 }
 .username {
@@ -144,6 +162,11 @@ body::before {
     font-size: 16px;
 }
 
+@media screen and (min-width: 781px) {
+    body {
+        overflow: hidden;
+    }
+}
 
 @media screen and (max-width: 780px) {
     
@@ -162,7 +185,6 @@ body::before {
         box-sizing: border-box; /* Ensure padding is included in the width */
         width: 100%; /* Full width to enable centering */
         display: flex;
-        font-family: "Oswald", sans-serif;
         
     }
     .signup{
@@ -192,4 +214,10 @@ body::before {
     .container p{
         font-size: 20px;
     }
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 5px; /* Optional: Add some space between buttons */
 }
