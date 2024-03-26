@@ -88,3 +88,14 @@ h2 {
     color: #666; /* Adjust color as needed */
     margin-top: 5px; /* Adjust margin as needed */
 }
+
+.img-fluid {
+    width: 300px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .img-fluid {
+        width: 150px;
+    }
+}
