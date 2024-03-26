@@ -1,6 +1,7 @@
 body, html {
     height: 100%;
     margin: 0;
+    font-family: "Oswald", sans-serif;
 }
 h1 {
     font-family: 'Helvetica', sans-serif; /* Replace with the font of your choice */
