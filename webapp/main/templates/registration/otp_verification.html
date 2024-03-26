@@ -5,23 +5,29 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../static/styles/otp.css">
     <body>
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <div class="otp_container">
+        <div class="main_body">
             <div class="otp_form">
                 <form method="POST" class="otp_post">
-                    <h1>OTP Verification</h1>
+                    <h1>Password Verification</h1>
                     {% csrf_token %}
                     <label for="otp" class="otp_title">Enter OTP:</label>
                     <input type="text" id="otp" class="otp_number" name="otp" required>
-                    <input type="submit" class="otp_submit" value="Verify">
-                    <p id="timer">02:00</p>
+                    <div class="otp_submit_wrapper">
+                        <input type="submit" class="otp_submit" value="Verify">
+                        <p id="timer">02:00</p>
+                    </div>
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                                <div class="{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </form>
                 <img></img>
             </div>
@@ -56,7 +62,6 @@
             errorMessage.className = 'error'; // Use the same class as your Django error messages
             errorMessage.textContent = message;
             messagesDiv.appendChild(errorMessage);
-            
         }
     </script>
 {% endblock %}
