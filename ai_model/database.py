@@ -380,6 +380,11 @@ def add_student_to_class(section, accessid):
    
     
 #  ------------------------------  SHORTCUT FUNCTIONS  ------------------------------
+#  Get class name from class id
+def get_class_name(section):
+    class_dict = get_doc(class_doc)
+    return class_dict['classes'][section]['class_name']
+
 #  Update student attendance
 def update_student_attendance(section, name, value, date = getDate(), time = getTime()):
     student_dict = get_doc(student_doc)
