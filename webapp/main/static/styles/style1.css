@@ -40,15 +40,9 @@ h2 {
     padding-right: 2rem;
 }
 
-.nav-item {
-    font-size: 20px
-}
-.nav a{
+.nav-item, .nav a, .nav-link{
     font-size: 16px;
-
-}
-.nav-link{
-    font-size: 16px;
+    letter-spacing: 0.5px;
 }
 .navbar {
     position: sticky;
@@ -99,4 +93,23 @@ h2 {
     .img-fluid {
         width: 150px;
     }
+}
+
+#main-content {
+    display: none;
+}
+
+#access-denied {
+    display: none;
+    color: white;
+    font-size: 18px;
+    text-shadow: 3px 3px 2px black;
+}
+#access-denied a {
+    color: #62d668;
+    font-family: "Oswald", sans-serif;
+    text-decoration: none;
+}
+#access-denied a:hover {
+    color:rgb(207, 255, 209);
 }

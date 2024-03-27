@@ -5,64 +5,69 @@
     <!-- TEMPORARY STYLE SHEET, DELETE LATER -->
     <!-- STATISTICS PAGE CODE -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/styles/stats.css">
 
-    
-    <h2 class="headline"><span class="span"> Classroom </span>Presence at a Glance</h2><hr>
+    <div id="main-content">
+        <h2 class="headline"><span class="span"> Classroom </span>Presence at a Glance</h2><hr>
 
 
 
-    <div class="manage_container">
-        <div id = "input_fields">
-            <div class="option_bar_container">
-                <div>
-                    <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
-                        <option value="default">Semester</option>
-                    </select>
-                </div>
-                <div>
-                    <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
-                        <option value="default">Class</option>
-                    </select>
-                </div>
-                <div>
-                    <select name="date_select" id="date_select" class="option_bar" onchange="change_date()" disabled>
-                        <option value="default">Date</option>
-                    </select>
-                </div>
-                <!-- Wrapper for the last two elements -->
-                <div class="centered-elements">
-                    <div class="search-container">
-                        <input id="searchbar" class="option_bar" onkeyup="search_student()" type="text" name="search" maxlength="20" placeholder="Ex: hc9082">
-                        <img class="search-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/search--v1.png" alt="search--v1"/>
-                    </div>
-                    <div class="select-container">
-                        <select name="filter_select" id="filter_select" class="option_bar" onchange="change_filter()">
-                            <option value="accessid">Access ID</option>
-                            <option value="fname">First name</option>
-                            <option value="lname">Last name</option>
+        <div class="manage_container">
+            <div id = "input_fields">
+                <div class="option_bar_container">
+                    <div>
+                        <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
+                            <option value="default">Semester</option>
                         </select>
-                        <img class="filter-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/filter--v1.png" alt="filter--v1"/>
+                    </div>
+                    <div>
+                        <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
+                            <option value="default">Class</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select name="date_select" id="date_select" class="option_bar" onchange="change_date()" disabled>
+                            <option value="default">Date</option>
+                        </select>
+                    </div>
+                    <!-- Wrapper for the last two elements -->
+                    <div class="centered-elements">
+                        <div class="search-container">
+                            <input id="searchbar" class="option_bar" onkeyup="search_student()" type="text" name="search" maxlength="20" placeholder="Ex: hc9082">
+                            <img class="search-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/search--v1.png" alt="search--v1"/>
+                        </div>
+                        <div class="select-container">
+                            <select name="filter_select" id="filter_select" class="option_bar" onchange="change_filter()">
+                                <option value="accessid">Access ID</option>
+                                <option value="fname">First name</option>
+                                <option value="lname">Last name</option>
+                            </select>
+                            <img class="filter-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/filter--v1.png" alt="filter--v1"/>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <p class="add_instruction" id = "errors">
-                Select a semester, class, and date to show attendance data.
-            </p>
-            <div id = "stats_table" style="overflow-x:auto;">
-                <table id = "stats">
-                    <thead id="thead"></thead>
-                    <tbody id="tbody"></tbody>
-                </table>
-            </div>
+                <p class="add_instruction" id = "errors">
+                    Select a semester, class, and date to show attendance data.
+                </p>
+                <div id = "stats_table" style="overflow-x:auto;">
+                    <table id = "stats">
+                        <thead id="thead"></thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                
             
-        
-        </div>
+            </div>
 
+        </div>
+        <hr>
     </div>
-    <hr>
+    <div id="access-denied">
+        <p>Your account is not authorized to access this page.</p>
+        <p>Return <a href="{% url 'home' %}" id="link_home">Home</a></p>
+    </div>
 
 
 
@@ -196,6 +201,22 @@
             let classes = get_class_list();
             let users = Object.keys(userData.users);
             write_semester_menu();
+
+            //  Does user have access to this page?
+            if (username != "") {
+                if (userData.users[username]['role'] === "professor") {
+                    document.getElementById("main-content").style.display = "block";
+                    document.getElementById("access-denied").style.display = "none";
+                }
+                else {
+                    document.getElementById("main-content").style.display = "none";
+                    document.getElementById("access-denied").style.display = "block";
+                }
+            }
+            else {
+                document.getElementById("main-content").style.display = "none";
+                document.getElementById("access-denied").style.display = "block";
+            }
 
             //  Get class list based on which professor is logged in
             function get_class_list() {
