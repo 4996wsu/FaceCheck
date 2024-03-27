@@ -10,25 +10,34 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 
-    <!-- Hero Banner -->
-    <div class="hero-banner text-white">
-        <div class="container">
-            <h1 class="display-4 gradient-text">Welcome to FaceCheck</h1>
-            <p class="lead">Revolutionizing Classroom Attendance</p>
-            <hr class="my-4">
-            <p>Taking attendance is typically inconvenient, time-consuming, and repetitive. <br>
-                FaceCheck evolves the current process by allowing professors to take attendance much faster 
-                and with far less human involvement.</p>
-                {% if not user.is_authenticated %}
-                <!-- These will only appear if the user is not authenticated -->
-                <p>
-                    Get started now by creating an account or logging in.
-                </p>
-                <div class="buttons">
-                    <a class="btn btn-primary btn-md" href="{% url 'login' %}" role="button">Log In</a>
-                    <a class="btn btn-primary btn-md signup" href="{% url 'sign_up' %}" role="button">Sign Up</a>
-                </div>
-            {% endif %}
+<!-- Hero Banner -->
+<div class="hero-banner text-white">
+    <div class="hero-container container">
+        <h1 class="display-4 gradient-text">Welcome to FaceCheck</h1>
+        <p class="lead">Revolutionizing Classroom Attendance</p>
+        <hr class="my-4">
+        <p>Taking attendance is typically inconvenient, time-consuming, and repetitive. <br>
+            FaceCheck evolves the current process by allowing professors to take attendance much faster 
+            and with far less human involvement.</p>
+        {% if not user.is_authenticated %}
+        <!-- These will only appear if the user is not authenticated -->
+        <p>
+            Get started now by creating an account or logging in.
+        </p>
+        <div class="buttons">
+            <a class="btn btn-primary btn-md" href="{% url 'login' %}" role="button">Log In</a>
+            <a class="btn btn-primary btn-md signup" href="{% url 'sign_up' %}" role="button">Sign Up</a>
         </div>
+        {% endif %}
     </div>
+</div>
+
+<!-- About Us Section -->
+<div class="about">
+    <div class="container">
+        <h2>About Us</h2>
+        <p>We are FaceCheck, a team dedicated to revolutionizing classroom attendance. Our mission is to make attendance-taking more efficient and less burdensome for educators. With our innovative technology, we aim to simplify the process and enhance the overall classroom experience.</p>
+        <!-- Add more content about your team, vision, or any other relevant information -->
+    </div>
+</div>
 {% endblock %}

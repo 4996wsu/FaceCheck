@@ -6,6 +6,9 @@ body, html {
     font-family: "Oswald", sans-serif;
     height: 100%;
     margin: 0;
+    overflow-y: auto; /* Enable scrolling */
+    overflow-x: hidden;
+    
 }
 h1 {
      /* 2.5 times the size of the standard text */
@@ -84,7 +87,7 @@ body::before {
    
     height: 100%;
     min-height: 100vh; /* Make sure it covers the full viewport height */
-    overflow-y: visible; /
+    overflow-y: auto; /
 }
 
 @media (max-width: 1000px) {
@@ -102,30 +105,26 @@ body::before {
 }
 
 .hero-banner {
-    /*background:url('/static/images/hacker.jpg') ;
-    background-repeat: no-repeat;
-    background-position: center;*/
-    color: rgb(0, 0, 0); /* Adjust text color for readability */
-    text-shadow: 0 0 8px rgba(0,0,0,0.7); /* Optional: text shadow for better readability on a busy background */
-    min-height: 100vh; /* Full viewport height */
+    color: rgb(0, 0, 0);
+    text-shadow: 0 0 8px rgba(0,0,0,0.7);
+    min-height: 100vh;
     display: flex;
     align-items: center; 
-    justify-content:right; 
+    justify-content: right; /* Adjust alignment if needed */
     padding: 0;
-    max-width: 500px;
-
+    max-width: 700px;
+    margin-left: auto;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: left;
+    
 }
-.hero-banner {
-    min-height: 100vh; /* Full height of the viewport */
-    padding: 0; /* Reset any padding */
-    max-width: 700px; /* Max width of the content */
-    margin-left: auto; /* Push the content to the right */
-    box-sizing: border-box; /* Ensure padding is included in the width */
-    width: 100%; /* Full width to enable centering */
-    display: flex;
-    justify-content: flex-end; /* Aligns content to the right */
-    align-items: center; /* Centers content vertically */
-    text-align: left; /* Aligns text to the right */
+.hero-container.container{
+    max-width: 560px; 
+    /* Or whatever max width you prefer */
+    width: 100%; /* Uses full width of the hero-banner */
+    margin-right:1.5rem;
+    padding-right: 0; /* Ensures no padding is adding space on the right */
 }
 .signup{
     margin-left: 1rem;
@@ -138,13 +137,7 @@ body::before {
     -webkit-text-fill-color: transparent;
     display: inline-block; /* Required for gradient to apply properly */
 }
-.container {
-    max-width: 560px; 
-    /* Or whatever max width you prefer */
-    width: 100%; /* Uses full width of the hero-banner */
-    margin-right:1.5rem;
-    padding-right: 0; /* Ensures no padding is adding space on the right */
-}
+
 .username {
     position: sticky;
     top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
@@ -169,7 +162,7 @@ body::before {
 
 @media screen and (min-width: 781px) {
     body {
-        overflow: hidden;
+        overflow: auto;
     }
 }
 
@@ -225,4 +218,28 @@ body::before {
     display: grid;
     grid-template-columns: repeat(2, auto);
     gap: 5px; /* Optional: Add some space between buttons */
+}
+.about{
+    background-color: #f8f9fa; /* Background color for the About Us section */
+    padding: 50px 0; /* Padding around the content */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.about.container {
+    text-align: center; /* Center align content */
+    max-width: 800px; /* Or adjust as needed */
+}
+
+.about h2 {
+    color: #343a40; /* Color for the section title */
+    font-size: 32px; /* Font size for the section title */
+    margin-bottom: 20px; /* Bottom margin for spacing */
+}
+
+.about p {
+    color: #6c757d; /* Color for the section text */
+    font-size: 18px; /* Font size for the section text */
+    line-height: 1.6; /* Line height for better readability */
 }
