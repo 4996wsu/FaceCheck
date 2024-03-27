@@ -135,9 +135,10 @@ body::before {
     display: inline-block; /* Required for gradient to apply properly */
 }
 .container {
-    max-width: 560px; /* Or whatever max width you prefer */
+    max-width: 560px; 
+    /* Or whatever max width you prefer */
     width: 100%; /* Uses full width of the hero-banner */
-    margin-right:2.5rem; /* Aligns the container to the right */
+    margin-right:1.5rem;
     padding-right: 0; /* Ensures no padding is adding space on the right */
 }
 .username {

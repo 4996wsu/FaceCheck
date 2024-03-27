@@ -17,7 +17,8 @@ body::before {
     opacity: 0.5;
     background-size: cover;
     background-repeat: no-repeat;
-    right: 30%;
+    background-position-x: -150px;
+    right: 40%;
     bottom: 0%; 
     left: 0%;
     background-color: #1d1c1c; 
