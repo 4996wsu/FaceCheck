@@ -261,7 +261,7 @@ body::before {
 
 .manage_container::after {
     /* Custom dropdown arrow */
-    content: '^';
+    content: '';
     position: absolute;
     top: 50%;
     right: 1rem;
@@ -312,7 +312,6 @@ body::before {
 }
 
 
-
 .filter-icon {
     position: absolute;
     right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
@@ -322,6 +321,48 @@ body::before {
     height: 20px; /* Adjust as needed */
     pointer-events: none; 
 }
+.drop-container {
+    position: relative;
+    display: inline-block;
+}
+
+
+.drop-icon {
+    position: absolute;
+    right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
+    width: 20px; /* Adjust as needed */
+    height: 20px; /* Adjust as needed */
+    pointer-events: none; 
+}
+.drop-container {
+    position: relative;
+    display: inline-block;
+    width: 200px; /* Fixed width of the container */
+    /* Add more styles if needed */
+}
+
+.option_bar {
+    width: 100%; /* Make the select fill the container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    -webkit-appearance: none; /* Remove default styling provided by the browser */
+    -moz-appearance: none; /* Remove default styling provided by Firefox */
+    appearance: none; /* Use this to make the select look the same across browsers */
+    padding-right: 30px; /* Adjust as needed, should be enough to not overlap the image */
+    /* Add more styles if needed (e.g., padding, border) */
+}
+
+.drop-icon {
+    position: absolute;
+    right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
+    width: 20px; /* Adjust as needed */
+    height: 20px; /* Adjust as needed */
+    pointer-events: none; 
+}
+
 
 
 
@@ -494,6 +535,9 @@ tr{
     }
     .headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
         font-size: 10px;
+    }
+    .drop-container {
+        width: 100%; /* Full width for easier interaction */
     }
 }
 /* Base table styles */
