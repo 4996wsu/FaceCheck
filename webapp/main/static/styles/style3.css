@@ -76,13 +76,13 @@ body::before {
     content: '';
     position: absolute;
     top: 0;
-    right: 45%;
+    right: 50%;
     bottom: 0%; /* This will cover the top half of the screen */
     left: 0;
     background-image: url('../images/2428085.jpg');
     background-position-y: 10px;
     background-size: contain;/* This is the red color for the top half */
-    border-radius: 0% 0% 60% 0%; /* This creates the curve on the bottom right */
+    border-radius: 0% 0% 50% 0%; /* This creates the curve on the bottom right */
     z-index: -1;
    
     height: 100%;
@@ -393,6 +393,7 @@ body::before {
   }
   
   .cards {
+    padding-left: 50px;
     display: flex;
     flex-wrap: wrap; /* Allows cards to wrap to the next line on small screens */
     justify-content: center; /* Centers cards in the container */
@@ -400,7 +401,7 @@ body::before {
   }
   
   .team-card {
-    width: 200px; /* Sets a fixed width for each card */
+    width: 300px; /* Sets a fixed width for each card */
     border: 1px solid #ccc; /* Adds a light border around each card */
     border-radius: 10px; /* Rounds the corners of the card */
     padding: 20px; /* Adds padding inside the cards for spacing */
@@ -408,7 +409,13 @@ body::before {
     display: flex; /* Uses flexbox to layout the image and text */
     flex-direction: column; /* Stacks image and text vertically */
     align-items: center; /* Centers the content horizontally */
-    gap: 10px; 
+    gap: 10px;
+    background-color: #131313;
+  }
+  .team-card:hover {
+    transform: translateY(-5px); /* Lifts the card slightly on hover */
+    transition: transform 0.3s ease;
+    background-color: #000C1C; /* Adds a smooth transition effect */
   }
   
   .team-card img {
@@ -422,5 +429,8 @@ body::before {
     color: #ffffff;
     margin: 0; /* Removes default margins */
   }
+
+
+
   
   
