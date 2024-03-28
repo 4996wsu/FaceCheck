@@ -290,7 +290,7 @@ body::before {
 }
 
 #searchbar::placeholder {
-    color: white;
+    color: #999;
 }
 .search-container {
     position: relative;

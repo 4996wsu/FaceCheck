@@ -184,7 +184,7 @@ flex: 1;
 }
 
 #searchbar::placeholder {
-    color: white;
+    color: #999;
     width: 200px;
 }
 .search-container {
