@@ -64,234 +64,238 @@ body::before {
     gap: 35px; /* Space between the last two elements */
 }
   
-  .option_bar {
-    border-radius: 8px; 
-  
-  
+.option_bar {
+border-radius: 8px; 
+
+
+
+}
+
+.option_bar:hover {
+border-color: #adb5bd; 
+}
+
+.option_bar:focus {
+border-color: #495057; 
+box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.25); 
+}
+
+
+.option_bar_container .option_bar {
+flex: 1;
+}
+.manage_container{
+    width: 100%; /* Makes the width responsive to the size of the viewport */
+    max-width: 800px; /* Your new desired maximum width */
+    min-width: 300px; 
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    border-radius: 20px;
+    padding-top: 3rem;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
     
-  }
-  
-  .option_bar:hover {
-    border-color: #adb5bd; 
-  }
-  
-  .option_bar:focus {
-    border-color: #495057; 
-    box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.25); 
-  }
-  
-  
-  .option_bar_container .option_bar {
-    flex: 1;
-  }
-  .manage_container{
-      width: 100%; /* Makes the width responsive to the size of the viewport */
-      max-width: 800px; /* Your new desired maximum width */
-      min-width: 300px; 
-      font-family: "Oswald", sans-serif;
-      letter-spacing: 1px;
-      border-radius: 20px;
-      padding-top: 3rem;
-      background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
-       
-      
-  }
-  .contain-body{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-  }
-  .manage_container select, #searchbar{
-      background-color: rgb(0, 0, 0); 
-      color: white;
-      padding: 10px 20px;
-      letter-spacing: 1px;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-  }
-  .option_bar option{
-      background-color: #fdfdfd; 
-      color: black;
-      padding: 12px 20px;
-      cursor: pointer;
-      width: fit-content;
-  }
-  
-  
-  .manage_container {
-      width: 100%;
-      max-width: 800px; /* Max width of the manage_container */
-      min-width: 300px;
-      margin: auto; /* This will center the container on the page */
-      padding: 3rem; /* This will add padding inside the container */
-      font-family: "Oswald", sans-serif;
-      letter-spacing: 1px;
-      border-radius: 20px;
-      background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
-      position: relative; /* Set position to relative to use for absolute positioning inside */
-      overflow: hidden; /* Ensure no child can go out of the box */
-  }
-  
-  .manage_container select {
-      background-color: rgb(0, 0, 0);
-      color: white;
-      padding: 10px 20px;
-      letter-spacing: 1px;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-      width: 100%; /* This ensures the select box doesn't extend beyond its parent */
-      -webkit-appearance: none; /* Removes default chrome and safari appearance */
-      -moz-appearance: none; /* Removes default style Firefox */
-      appearance: none; /* Removes default browser appearance */
-  }
-
-  /* Style for custom dropdown arrow */
-  .manage_container select::-ms-expand {
-      display: none; /* For IE10+ */
-  }
-  
-  .manage_container::after {
-      /* Custom dropdown arrow */
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: 1rem;
-      transform: translateY(-50%);
-      pointer-events: none;
-      color: white;
-  }
-  
-  /* Responsive design adjustments */
-  @media screen and (max-width: 780px) {
-      .manage_container {
-          width: 95%; /* Slightly smaller width on smaller screens */
-          padding: 2rem; /* Adjust padding for smaller screens */
-      }
-  
-      .manage_container select, #searchbar {
-          width: auto; /* This will ensure the select adjusts to text size */
-      }
-      .manage_container option{
-          font-size: 5px;
-      }
-  }
-  
-  #searchbar::placeholder {
-      color: white;
-      width: 200px;
-  }
-  .search-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-  }
-  
-  
-  
-  .search-icon {
-      position: absolute;
-      right: 5px; 
-      top: 50%;
-      transform: translateY(-50%); /* Center align the icon vertically */
-      height: 20px;
-      width: 20px;
-      pointer-events: none; 
-  }
-  
-  .select-container {
-      position: relative;
-      display: inline-block;
-  }
-  
-  
-  
-  .filter-icon {
-      position: absolute;
-      right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
-      top: 50%;
-      transform: translateY(-50%); /* Center align the icon vertically */
-      width: 20px; /* Adjust as needed */
-      height: 20px; /* Adjust as needed */
-      pointer-events: none; 
-  }
-  
-  
-  #input_fields select,input, .select-container{
-    width:200px;
-    border-radius: 5px;
-  }
-  td.col{
-    color: green;
-    font-weight: 900;
-    font-size: large;
-  }
-  
-  /* Adjustments for Tablets */
-  @media (max-width: 768px) {
-      body::before {
-          background-image: none; /* Remove background image */
-      }
-      .option_bar_container {
     
+}
+.contain-body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.manage_container select, #searchbar{
+    background-color: rgb(0, 0, 0); 
+    color: white;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+.option_bar option{
+    background-color: #fdfdfd; 
+    color: black;
+    padding: 12px 20px;
+    cursor: pointer;
+    width: fit-content;
+}
 
-          flex-direction: column; /* Stack options vertically */
-          gap: 10px;
 
-      }
-      
-      .option_bar option {
+.manage_container {
+    width: 100%;
+    max-width: 800px; /* Max width of the manage_container */
+    min-width: 300px;
+    margin: auto; /* This will center the container on the page */
+    padding: 3rem; /* This will add padding inside the container */
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    border-radius: 20px;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+    position: relative; /* Set position to relative to use for absolute positioning inside */
+    overflow: hidden; /* Ensure no child can go out of the box */
+}
+
+.manage_container select {
+    background-color: rgb(0, 0, 0);
+    color: white;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%; /* This ensures the select box doesn't extend beyond its parent */
+    -webkit-appearance: none; /* Removes default chrome and safari appearance */
+    -moz-appearance: none; /* Removes default style Firefox */
+    appearance: none; /* Removes default browser appearance */
+}
+.manage_container select:disabled {
+    opacity: 0.5; 
+    cursor: not-allowed;
+}
+
+/* Style for custom dropdown arrow */
+.manage_container select::-ms-expand {
+    display: none; /* For IE10+ */
+}
+
+.manage_container::after {
+    /* Custom dropdown arrow */
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: white;
+}
+
+/* Responsive design adjustments */
+@media screen and (max-width: 780px) {
+    .manage_container {
+        width: 95%; /* Slightly smaller width on smaller screens */
+        padding: 2rem; /* Adjust padding for smaller screens */
+    }
+
+    .manage_container select, #searchbar {
+        width: auto; /* This will ensure the select adjusts to text size */
+    }
+    .manage_container option{
+        font-size: 5px;
+    }
+}
+
+#searchbar::placeholder {
+    color: white;
+    width: 200px;
+}
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+
+
+.search-icon {
+    position: absolute;
+    right: 5px; 
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
+    height: 20px;
+    width: 20px;
+    pointer-events: none; 
+}
+
+.select-container {
+    position: relative;
+    display: inline-block;
+}
+
+
+
+.filter-icon {
+    position: absolute;
+    right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
+    width: 20px; /* Adjust as needed */
+    height: 20px; /* Adjust as needed */
+    pointer-events: none; 
+}
+
+
+#input_fields select,input, .select-container{
+width:200px;
+border-radius: 5px;
+}
+td.col{
+color: green;
+font-weight: 900;
+font-size: large;
+}
+
+/* Adjustments for Tablets */
+@media (max-width: 768px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+    .option_bar_container {
+
+
+        flex-direction: column; /* Stack options vertically */
+        gap: 10px;
+
+    }
+    
+    .option_bar option {
+    width: 100%; /* Full width for easier interaction */
+        display: flex;
+        justify-content: center; /* Center text */
+    }
+    #searchbar {
         width: 100%; /* Full width for easier interaction */
-          display: flex;
-          justify-content: center; /* Center text */
-      }
-      #searchbar {
-          width: 100%; /* Full width for easier interaction */
-      }
-      
-  }
-  
-  /* Adjustments for Mobile Devices */
-  @media (max-width: 480px) {
-      body::before {
-          background-image: none; /* Remove background image */
-      }
-      .option_bar_container {
-          flex-direction: column; /* Stack options vertically */
-          gap: 10px;
-      }
-      #input_fields select,input, .select-container{
-        width:100%;
-      }
-      .centered-elements{
-        gap:10px;
-      }
+    }
+    
+}
 
-  
-      .option_bar {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr); /* Two columns */
-          gap: 10px;
-      }
-      
-      .option_bar option {
-          display: flex;
-          justify-content: center; /* Center text */
-      }
-      
-      /* Ensure the search and filter icons remain properly aligned */
-      .search-icon, .filter-icon {
-          right: 10px; /* Adjust based on actual padding and sizes */
-      }
-      .search-icon {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%); /* Center align the icon vertically */
-       
-      }
-  }
+/* Adjustments for Mobile Devices */
+@media (max-width: 480px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+    .option_bar_container {
+        flex-direction: column; /* Stack options vertically */
+        gap: 10px;
+    }
+    #input_fields select,input, .select-container{
+    width:100%;
+    }
+    .centered-elements{
+    gap:10px;
+    }
+
+
+    .option_bar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two columns */
+        gap: 10px;
+    }
+    
+    .option_bar option {
+        display: flex;
+        justify-content: center; /* Center text */
+    }
+    
+    /* Ensure the search and filter icons remain properly aligned */
+    .search-icon, .filter-icon {
+        right: 10px; /* Adjust based on actual padding and sizes */
+    }
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); /* Center align the icon vertically */
+    
+    }
+}
   .drop-container {
     position: relative;
     display: inline-block;
