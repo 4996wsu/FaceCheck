@@ -3,7 +3,7 @@ body {
     padding: 0;
     height: 100vh; 
     background-image: none;
-
+    font-family: "Oswald", sans-serif;
     background-color: rgb(15, 15, 15); /* Light gray background */
     overflow: hidden; 
 
@@ -20,20 +20,14 @@ body::before {
     z-index: -1; /* Ensure this is behind the content but above the body background */
 }
 p{
-    font-family: 'Helvetica', sans-serif;
-    color: rgb(0, 0, 0);
     font-size: 1 em;
 }
 
 label{
-    font-family: 'Helvetica', sans-serif;
-    color: rgb(0, 0, 0);
     font-size: 1.5em;
 }
 h1 {
-    font-family: 'Helvetica', sans-serif; /* Replace with the font of your choice */
-    font-size: 2.5em; /* 2.5 times the size of the standard text */
-    color: #000000; /* Adjust the color as needed */
+    font-family: "Oswald", sans-serif;
 }
 .centered-container {
     display: flex;
@@ -66,7 +60,6 @@ h1 {
     flex: 1; 
     padding: 20px;
     box-sizing: border-box;
-    
 }
 
 /* Style the form and button for a cleaner look */
@@ -95,21 +88,7 @@ form {
 .error {
     color: red;
 }
-.enroll_msg {
 
-    color: black;
-    padding: 20px;
-    border-radius: 10px;
-}
-.enroll_msg Label {
-    font-family: "Oswald", sans-serif;
-    color: black;
-    margin-bottom: 2.5rem;
-    font-size: 2em;
-    font-weight: bold;
-
-
-}
 input[type="file"] {
     color: white;
     padding: 10px 20px;
@@ -118,13 +97,6 @@ input[type="file"] {
     cursor: pointer;
   }
 
-.enroll_form Label {
-    font-size: 2em;
-    font-family: "Oswald", sans-serif;
-    color: black;
-    font-weight: bold;
-
-}
 @media (min-width: 700px) {
     body::before {
         background-image:url('../images/classroom.png');
@@ -136,7 +108,10 @@ input[type="file"] {
     }
 }
 
-
+.main_body {
+    color: white;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+}
 
 
 @media (min-width: 780px) {
@@ -227,19 +202,12 @@ input[type="file"] {
     cursor: pointer;
     width: auto;
     margin-left: 2px;
-    color: black;
 }
 form{
     display: flex;
     
     justify-content: center;
     align-items: center;
-}
-.enroll_msg p{
-    font-family: "Oswald", sans-serif;
-    color: black;
-    text-align: left;
-    font-size: 18px;
 }
 .requirements{
     font-family: "Oswald", sans-serif;
@@ -248,3 +216,41 @@ form{
     font-size: 18px;
 }
 
+.error {
+    display: none;
+}
+.error_otp {
+    color: #ff3347;
+}
+
+a {
+    color: #62d668;
+    font-family: "Oswald", sans-serif;
+    text-decoration: none;
+    text-shadow: 1px 1px 2px black;
+}
+a:hover {
+    color:rgb(207, 255, 209);
+}
+
+.otp_submit {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 120%;
+    flex: 1;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    padding: 5px 15px 5px 15px;
+    border-radius: 20px;
+    height: 175%;
+    margin: 0 auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.otp_submit:hover {
+    background-color: #246925;
+}
