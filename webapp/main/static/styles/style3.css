@@ -220,7 +220,7 @@ body::before {
     gap: 5px; /* Optional: Add some space between buttons */
 }
 .about{
-    background-color: #f8f9fa; /* Background color for the About Us section */
+    background-color: #131313; /* Background color for the About Us section */
     padding: 50px 0; /* Padding around the content */
     display: flex;
     justify-content: center; /* Center horizontally */
@@ -233,13 +233,52 @@ body::before {
 }
 
 .about h2 {
-    color: #343a40; /* Color for the section title */
+    color: #ffffff;
+    font-family: "Oswald", sans-serif;; /* Color for the section title */
     font-size: 32px; /* Font size for the section title */
     margin-bottom: 20px; /* Bottom margin for spacing */
 }
 
 .about p {
-    color: #6c757d; /* Color for the section text */
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Color for the section text */
     font-size: 18px; /* Font size for the section text */
     line-height: 1.6; /* Line height for better readability */
+}
+.meet-the-team {
+    background-color: #131313; /* Background color for the Meet the Team section */
+    padding: 50px 0; /* Padding around the content */
+    display: flex; /* Make the container flex */
+    align-items: flex-start; /* Align items at the start */
+}
+
+.team-member {
+    margin-bottom: 20px; /* Add spacing between team members */
+}
+.team-member h2 {
+    font-size: 32px;
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Add spacing below the team member's name */
+}
+
+.team-member h3 {
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Add spacing below the team member's name */
+}
+
+.team-member p {
+    margin-bottom: 10px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Add spacing below the team member's role */
+}
+.team-photo {
+    margin-left: auto; /* Push the photo to the right */
+    max-width: 30%; /* Limit the width of the photo */
+}
+
+.team-photo img {
+    max-width: 100%; /* Make the image responsive */
+    height: 50%; /* Maintain aspect ratio */
 }

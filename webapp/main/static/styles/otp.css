@@ -4,7 +4,7 @@ body {
     height: 100vh; 
     background-image: none;
 
-    background-color: grey; /* Light gray background */
+    background-color: rgb(15, 15, 15); /* Light gray background */
     overflow: hidden; 
 
 }
@@ -125,7 +125,16 @@ input[type="file"] {
     font-weight: bold;
 
 }
-
+@media (min-width: 700px) {
+    body::before {
+        background-image:url('../images/classroom.png');
+    }
+}
+@media (max-width: 699px) {
+    body::before {
+        background-color: #131313;
+    }
+}
 
 
 
@@ -136,6 +145,7 @@ input[type="file"] {
         max-width: 900px;
         min-height: 500px; 
         height: auto;  
+        
     }
 }
 @media screen and (max-width: 780px) {

@@ -15,7 +15,7 @@
                 <form method="POST" class="otp_post">
                     <h1>Password Verification</h1>
                     {% csrf_token %}
-                    <label for="otp" class="otp_title">Enter OTP:</label>
+                    <label for="otp" class="otp_title">Enter Your Code:</label>
                     <input type="text" id="otp" class="otp_number" name="otp" required>
                     <div class="otp_submit_wrapper">
                         <input type="submit" class="otp_submit" value="Verify">
