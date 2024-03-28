@@ -99,7 +99,8 @@ input[type="file"] {
 
 @media (min-width: 700px) {
     body::before {
-        background-image:url('../images/classroom.png');
+        background-image:url('../images/otp.png');
+        background-size: contain;
     }
 }
 @media (max-width: 699px) {
