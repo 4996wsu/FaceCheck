@@ -25,13 +25,29 @@
                 <div id = "input_fields">
                     <!-- <label for="semester_select">Semester: </label> -->
                     <div class="option_bar_container">
-                        <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
-                            <option value="default">Semester</option>
-                        </select>
-                    
-                        <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
-                            <option value="default">Class</option>
-                        </select>
+                        <div class="drop-container">
+                            <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
+                                <option value="default">Semester</option>
+                            </select>
+
+
+                            <img class="drop-icon" 
+                                src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" 
+                                alt="filter--v1"/>
+                        </div>
+                        
+                        
+                        <div class="drop-container">
+                            <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
+                                <option value="default">Class</option>
+                            </select>
+                            <img class="drop-icon" 
+                                src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" 
+                                alt="filter--v1"/>
+                            
+                            
+                        </div>
+
                         <div class="search-container">
                             <input id="searchbar"
                                 class="option_bar"
@@ -45,44 +61,21 @@
                                 alt="search--v1"/>
                         </div>
 
-                        <div class="select-container">
+                        <div class="drop-container">
                             <select name="filter_select" id="filter_select" class="option_bar" onchange="change_filter()">
                                 <option value="accessid">Access ID</option>
                                 <option value="fname">First name</option>
                                 <option value="lname">Last name</option>
                             </select>
-                            <img class="filter-icon" 
+                            <img class="drop-icon" 
                                 src="https://img.icons8.com/ios-filled/50/FFFFFF/filter--v1.png" 
                                 alt="filter--v1"/>
                         </div>
                     </div>
-            
-            
-                    <!-- TAB CONTENT -->
-                    <div id="tab_manage_class" class="tab-content active">
-                        <!-- SEARCH BAR -->
-                        <!-- <br><a>Search for a student: </a>
-                        <input id = "searchbar"
-                            onkeyup = "search_student()"
-                            type = "text" name = "search"
-                            maxlength = "20"
-                            placeholder = "Ex: hc9082">
-            
-                        <label for="filter_select" id="indented_label">Search/sort by: </label>
-                        <select name="filter_select" id="filter_select" onchange = "change_filter()">
-                            <option value="accessid">Access ID</option>
-                            <option value="fname">First name</option>
-                            <option value="lname">Last name</option>
-                        </select> -->
-            
-                        <hr>
-                        <!-- ACTIONS MENU -->
-                        
-            
+                    <div id="tab_manage_class" class="tab-content active">            
+                        <hr>                        
                         <a id = "notification"></a>
                         <p id = "errors">Select a semester and class to manage a class.</p>
-            
-                        <!-- STATS TABLE BASE -->
                         <div id = "stats_table" style="overflow-x:auto;">
                             <table id = "stats">
                                 <thead id="thead"></thead>
@@ -96,8 +89,7 @@
                             <option value="flag">Flag Photo</option>
                             <option value="remove_student" style="color: red;">Remove Student</option>
                         </select><br>
-                    </div>
-            
+                    </div>            
                     <div id="tab_add_students" class="tab-content">
                         <hr>
                         <p class="add_instruction">
@@ -120,9 +112,7 @@
                         <a id = "add_student_results"></a>
                         <a id = "add_student_errors"></a>
                     </div>
-                    
                 </div>
-
             </div>
         </div>
     </div>

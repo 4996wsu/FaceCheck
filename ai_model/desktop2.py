@@ -16,7 +16,8 @@ from pathlib import Path
 import firebase_admin
 from datetime import datetime, timedelta
 import numpy as np
-from database import get_name
+from database import get_name, get_class_name
+
 global attendance_running
 attendance_running = False
 
@@ -96,7 +97,8 @@ def attempt_start_attendance():
     else:
         combine_pt_files(class_id)  # Save the constructed class_id globally
 
-    class_id_label.config(text=f"Class ID: {class_id}")
+    class_name =get_class_name(class_id)
+    class_id_label.config(text=f"{class_name}")
     attendance_button.pack_forget()
     end_attendance_button.pack(pady=20)
 
