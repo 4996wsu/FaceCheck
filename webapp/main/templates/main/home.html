@@ -11,8 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 
 <!-- Hero Banner -->
-<div class="hero-banner text-white">
-    <div class="hero-container container">
+<div class="hero-banner text-white main">
+    <div class="hero-container container ">
         <h1 class="display-4 gradient-text">Welcome to FaceCheck</h1>
         <p class="lead">Revolutionizing Classroom Attendance</p>
         <hr class="my-4">
@@ -32,32 +32,58 @@
     </div>
 </div>
 
-<!-- About Us Section -->
-<div class="meet-the-team">
-    <div class="container">
-        <h2 class="display-4 gradient-text">About Us</h2>
-            <div class="team-member">
-                <p>We are FaceCheck, a team dedicated to revolutionizing classroom attendance. Our mission is to make attendance-taking more efficient and less burdensome for educators. With our innovative technology, we aim to simplify the process and enhance the overall classroom experience.</p>
-            </div>
-         <!-- Add more content about your team, vision, or any other relevant information -->
-    </div>
-    <div class="container">
-        <h2 class="display-4 gradient-text">Meet the Team</h2>
-        <div class="team-member">
-            <h3>Mohamad Hachem: Team Lead</h3>
-            <p>Add info</p>
+
+<div class="about_us">
+    <div class="content_container">
+        <div class="image">
+            <img src="../static/images/face1.png" alt="Team Photo">
         </div>
-        <div class="team-member">
-            <h3>Ahmed Minhaj: Backend Lead</h3>
-            <p>Add info</p>
+        <div class="content">
+            <h2 class=" gradient-text">Our Vision</h2>
+        <p>Our vision is to create a seamless and efficient attendance-taking process that benefits both educators and students. By automating the process, we aim to save time, reduce errors, and improve overall classroom engagement. With FaceCheck, we hope to transform the way attendance is managed in educational settings.</p>
+
         </div>
-        <div class="team-member">
-            <h3>Aafnan Mahmoud: Database Lead</h3>
-            <p>Add info</p>
-        </div>
-    </div>
-    <div class="team-photo">
-        <img src="../static/images/robot.png" alt="Team Photo">
+        
     </div>
 </div>
+<div class="team">
+    <div class="content">
+        <h2 class="gradient-text">Meet Our Team</h2>
+
+    </div>
+    <div class="team-photo">
+
+    </div>
+    <div class="cards">
+        <div class="team-card">
+            <img src="../static/images/robot.png" alt="">
+            <h3>John Doe</h3>
+            <p>Software Engineer</p>
+          </div>
+          <div class="team-card">
+            <img src="../static/images/robot.png" alt="">
+
+            <h3>Jane Smith</h3>
+            <p>Product Manager</p>
+          </div>
+          <div class="team-card">
+            <img src="../static/images/robot.png" alt="">
+
+            <h3>Alex Johnson</h3>
+            <p>UX Designer</p>
+          </div>
+          
+    </div>
+</div>
+<script>
+    document.addEventListener('scroll', function() {
+        var image = document.querySelector('.image img');
+        if (window.scrollY > 100) { // Adjust trigger point as needed
+          image.style.transform = 'translateX(0)'; // Moves the image into view
+        } else {
+          image.style.transform = 'translateX(-80%)'; // Moves the image out of view
+        }
+      });
+      
+</script>
 {% endblock %}

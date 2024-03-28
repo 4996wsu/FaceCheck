@@ -112,7 +112,8 @@ body::before {
     align-items: center; 
     justify-content: right; /* Adjust alignment if needed */
     padding: 0;
-    max-width: 700px;
+    margin: 0;
+    max-width: 550px;
     margin-left: auto;
     box-sizing: border-box;
     width: 100%;
@@ -120,11 +121,22 @@ body::before {
     
 }
 .hero-container.container{
-    max-width: 560px; 
+    display: flex;
+    justify-content: right;
     /* Or whatever max width you prefer */
     width: 100%; /* Uses full width of the hero-banner */
-    margin-right:1.5rem;
-    padding-right: 0; /* Ensures no padding is adding space on the right */
+    margin-left:7em;
+    padding-right: 10px;
+     /* Ensures no padding is adding space on the right */
+}
+.container{
+    margin: 0;
+}
+.hero-container.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    align-items: right;
 }
 .signup{
     margin-left: 1rem;
@@ -157,7 +169,8 @@ body::before {
 }
 
 .container p{
-    font-size: 16px;
+    font-size: 18px;
+    line-height: 30px;
 }
 
 @media screen and (min-width: 781px) {
@@ -183,7 +196,20 @@ body::before {
         box-sizing: border-box; /* Ensure padding is included in the width */
         width: 100%; /* Full width to enable centering */
         display: flex;
+        justify-content: center;
+        margin: 0;
+
         
+    }
+    .hero-container.container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+    }
+    .container p{
+        text-align: center;
     }
     .signup{
         margin-left: 1rem;
@@ -282,3 +308,119 @@ body::before {
     max-width: 100%; /* Make the image responsive */
     height: 50%; /* Maintain aspect ratio */
 }
+/* Ensures the container takes up the full viewport height and displays its children in a row */
+.about_us {
+    display: flex;
+    height: 100vh; /* Adjust the height as needed */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+  }
+  
+  .content_container {
+    display: flex;
+    flex-grow: 1;
+    overflow-x: hidden; /* Ensure no horizontal scroll */
+  }
+  
+  .image, .content {
+    flex: 1; /* Each takes up half the space */
+    overflow: hidden; /* Prevents any overflow from causing scroll bars */
+    margin: 20px;
+  }
+
+  .content{
+    padding-right: 10px;
+    color: #ffffff;
+    font-size: 16px;
+  }
+
+
+  .image img {
+    width: 100%;
+    transition: transform 2s ease-out; /* Smooth transition for the roll-out effect */
+    transform: translateX(-90%); /* Start off-screen */
+    position: sticky; /* Stick to a side */
+    top: 0; /* Align to the top of its container */
+    border-radius: 90% 50% 90% 10% ;
+  }
+
+  
+  /* Adjustments for responsive design and ensuring the image fills its container */
+  @media (max-width: 768px) {
+    .about_us, .content_container {
+      flex-direction: column; /* Stack vertically on smaller screens */
+    }
+  
+    .image img {
+      position: relative; /* Reset to normal flow on smaller screens */
+      transform: translateX(0); /* No translation needed for vertical layout */
+    }
+    .content h2{
+        font-size: 25px;
+    }
+    .content p{
+        font-size: 16px;
+    }
+  }
+  
+  /* CSS for gradient text, ensure it's responsive */
+  .gradient-text {
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .team {
+    display: flex;
+
+    
+    flex-direction: column; 
+    justify-content: center;/* Stacks children vertically */
+    align-items: center; /* Centers children horizontally */
+    text-align: center; /* Ensures text within children is centered */
+    gap: 20px; /* Adds some space between the headline and the cards container */
+    padding-bottom: 100px;
+  }
+
+  
+  .team-healine h2 {
+    margin: 20px 0; /* Adds margin above and below the headline for spacing */
+  }
+  
+  .cards {
+    display: flex;
+    flex-wrap: wrap; /* Allows cards to wrap to the next line on small screens */
+    justify-content: center; /* Centers cards in the container */
+    gap: 100px; /* Adds space between individual cards */
+  }
+  
+  .team-card {
+    width: 200px; /* Sets a fixed width for each card */
+    border: 1px solid #ccc; /* Adds a light border around each card */
+    border-radius: 10px; /* Rounds the corners of the card */
+    padding: 20px; /* Adds padding inside the cards for spacing */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow for depth */
+    display: flex; /* Uses flexbox to layout the image and text */
+    flex-direction: column; /* Stacks image and text vertically */
+    align-items: center; /* Centers the content horizontally */
+    gap: 10px; 
+  }
+  
+  .team-card img {
+    width: 100px; /* Sets the width of the image */
+    height: 100px; /* Sets the height of the image */
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image covers the area without stretching */
+  }
+  
+  .team-card h3, .team-card p {
+    color: #ffffff;
+    margin: 0; /* Removes default margins */
+  }
+  
+  
