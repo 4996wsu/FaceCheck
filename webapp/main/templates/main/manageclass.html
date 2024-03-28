@@ -758,8 +758,10 @@
                 //  Reset action select if deletion was rejected. Do not update status message if this happens.
                 if (action === "none")
                     action_select.selectedIndex = 0;
-                else
-                    notif_msg.innerHTML = msg + "<br>Please refresh the page to see any changes made.<br><br>";
+                else {
+                    // notif_msg.innerHTML = msg + "<br>Please refresh the page to see any changes made.<br><br>";
+                    window.location.reload();
+                }
             }
             window.select_action = select_action;
 
@@ -842,6 +844,12 @@
                     if (ID in userData.users) {
                         if (!(ID in studentData.students[class_id])) {
                             console.log(ID + " exists.");
+
+                            var status = "N/A";
+                            if (userData.users[ID]['picture'] != 'NO PHOTO') {
+                                status = "Pending";
+                            }
+
                             const data_to_push = {
                                 'students': {
                                     [class_id]: {
@@ -852,7 +860,7 @@
                                                     'Overall': true
                                                 }
                                             },
-                                            'picture_status': 'N/A'
+                                            'picture_status': status
                                         }
                                     }
                                 }
