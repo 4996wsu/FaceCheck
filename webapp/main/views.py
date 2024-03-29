@@ -1,16 +1,21 @@
+from django import forms
 from django.shortcuts import render, redirect
 from django.contrib.auth.tokens import default_token_generator
-from database import update_student_photo
+from database import update_student_photo, add_student
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from django.contrib.auth.forms import PasswordResetForm
-from .forms import RegisterForm, ProfileForm
+from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 import firebase_admin
 from firebase_admin import credentials, storage
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -36,9 +41,11 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.contrib import messages
 from django.urls import reverse
+from django.contrib.messages import get_messages
+
 # Create your views here.
+
 def home(request):
     return render(request, 'main/home.html')
 
@@ -48,33 +55,46 @@ def stats(request):
 def manageclass(request):
     return render(request, 'main/manageclass.html')
 
+def clear_messages(request):
+    storage = get_messages(request)
+    for message in storage:
+        pass
+
 def sign_up(request):
+    clear_messages(request)
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
+            clear_messages(request)
             user = form.save(commit=False)  # Don't save the user yet
             otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
             request.session['otp'] = otp  # Store the OTP in the session
             request.session['username'] = form.cleaned_data.get('username')
-            request.session['email'] = form.cleaned_data.get('email')
+            #request.session['email'] = form.cleaned_data.get('email')
+            request.session['email'] = form.cleaned_data.get('username') + '@wayne.edu'
             request.session['password'] = form.cleaned_data.get('password1')
+            request.session['first_name'] = form.cleaned_data.get('first_name')
+            request.session['last_name'] = form.cleaned_data.get('last_name')
             request.session['otp_time'] = str(datetime.now())  # Store the current time
+            
             send_mail(
-                'Your OTP',
-                f'Your OTP is {otp}',
+                'Verification Code',
+                f'Your verification code is {otp}.\nDo not share this information with anyone else.',
                 settings.DEFAULT_FROM_EMAIL,
-                [form.cleaned_data.get('email')],
+                [request.session['email']],
                 fail_silently=False,
             )
             return redirect('otp_verification')  # Redirect to OTP verification view
         else:
-            print(form.errors)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegisterForm()
-
     return render(request, 'registration/sign_up.html', {'form': form})
 
 def otp_verification(request):
+    clear_messages(request)
     if request.method == 'POST':
         otp = request.POST.get('otp')
         otp_time_str = request.session.get('otp_time')
@@ -83,14 +103,19 @@ def otp_verification(request):
             if datetime.now() - otp_time > timedelta(minutes=2):  # Check if more than 2 minutes have passed
                 messages.error(request, 'OTP expired. Please sign up again.')
                 # Redirect to the signup page
-                return redirect('signup')
+                return redirect('sign-up')
             elif otp == str(request.session.get('otp')):
                 try:
                     User.objects.create_user(
                         username=request.session.get('username'),
                         email=request.session.get('email'),
-                        password=request.session.get('password')
+                        password=request.session.get('password'),
+                        first_name=request.session.get('first_name'),
+                        last_name=request.session.get('last_name')
                     )
+                    # Add user to firebase
+                    add_student(request.session.get('username'), request.session.get('first_name'), request.session.get('last_name'))
+                    
                     messages.success(request, 'User created successfully')
                     # Clear the session variables related to OTP
                     del request.session['otp']
@@ -138,13 +163,16 @@ def enroll(request):
             name = request.user.username
             
             result = update_student_photo(name, image_url)
+            print("result", result)
             delete_file_from_firebase(image.name)
             # Success message and error handling        
             
-            if result == None:
+            if result == "error":
                 messages.warning(request, 'Photo is invalid. Please upload a photo with one face in it.')
-            else:
-                messages.warning(request, 'Successfully uploaded photo.')
+            elif result == 'flagged':
+                messages.warning(request, "Your photo has matched with another person's photo. Please resolve it with your professors.")
+            elif result == 'unknown':
+                messages.success(request, 'Successfully uploaded photo.')
             
             return render(request, 'main/enrollment.html', {'form': form})
 

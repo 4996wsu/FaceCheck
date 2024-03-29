@@ -29,6 +29,7 @@ collectionName = "infoCollection"
 class_doc = "class_doc"
 student_doc = "student_doc"
 user_doc = "user_doc"
+professor_doc = "professor_doc"
 
 
 #  ------------------------------  MAIN FUNCTIONALITY  ------------------------------
@@ -103,12 +104,18 @@ def add_class(section, prof):
         print("Class '" + section + "' successfully added.")
     
 #  Add new student to **DATABASE**
-def add_student(accessid, fname, lname, role):
+def add_student(accessid, fname, lname, role = "student"):
     user_dict = get_doc(user_doc)
     
     if lookup(accessid, user_dict) != None:
         print("Error: Cannot add user '" + accessid + "' because the user already exists.")
     else:
+        # Determine if the user should receive the professor role
+        prof_dict = get_doc(professor_doc)
+        if lookup(accessid, prof_dict) != None:
+            role = "professor"
+        
+        # Add student to database
         key = 'users.' + accessid + '.fname'
         update_doc(user_doc, key, fname)
         key = 'users.' + accessid + '.lname'
@@ -116,7 +123,7 @@ def add_student(accessid, fname, lname, role):
         key = 'users.' + accessid + '.picture'
         update_doc(user_doc, key, "NO PHOTO")
         key = 'users.' + accessid + '.encoding'
-        update_doc(user_doc, key, "NO ENCODING")
+        update_doc(user_doc, key, "NO ENCODING")        
         key = 'users.' + accessid + '.role'
         update_doc(user_doc, key, role)
         log_arr = [getTime(), "Created account"]
@@ -164,6 +171,10 @@ def update_student_photo(name, file):
     name_list = [name]
     from duplicate import duplicate_faces
     class_id= 'CSC_4996_001_W_2024'
+    if retrieve_class_embedding(class_id) != "NO ENCODING":
+        download_file_combine(retrieve_class_embedding(class_id), f'{class_id}.pt')
+    else:
+        combine_pt_files(class_id)
     emb, names = torch.load(f'{class_id}.pt', map_location='cpu')
 # Move loaded embeddings to the same device as your current embeddings
     emb = [e.to(device) for e in emb]
@@ -178,8 +189,7 @@ def update_student_photo(name, file):
         embedding_list = face_encode(cropped_image, device=device)
 # If face_encode returns a single tensor, make sure it's on the right device
         embedding_list = [emb.to(device) for emb in embedding_list]
-        if duplicate_faces(embedding_list,emb, names,name):
-            print("Error: Duplicate face detected.")
+        
             
         embedding_link = make_pt_file(face_encode(cropped_image,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')), name_list)
         
@@ -189,10 +199,16 @@ def update_student_photo(name, file):
         userEncodingKey = 'users.' + name + '.encoding'
         update_doc(user_doc, userEncodingKey, embedding_link)
         print("Face uploaded.")
-        return 'Success'
+
+        if duplicate_faces(embedding_list,emb, names,name)== 'flagged':
+            print("Error: Duplicate face detected.")
+            return "flagged"
+        elif duplicate_faces(embedding_list,emb, names,name)== 'unknown':
+            print("Error: Unknown face detected.")
+            return "unknown"
     else:
         print("Error: No face detected, or there was an error processing the image.")
-        return None
+        return "error"
         
 
 # Update photo status for professor to approve        

@@ -1,0 +1,587 @@
+#nav_stats {
+    font-weight: bolder;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: auto; /* Allow the body height to expand as needed */
+    min-height: 100vh; /* Ensure it is at least as tall as the viewport */
+    background-image: none;
+    background-color: #131313;
+    overflow-y: auto; /* Show scrollbar when content overflows */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    background-image:url('../images/stats1.png');
+    opacity: 0.7;
+    background-size: contain;
+    right: 0%;
+    bottom: 0%; 
+    left: 40%;
+    
+    background-color: #495057;
+    border-radius: 90% 0% 40% 0%; 
+    z-index: -1;
+    pointer-events: none;
+}
+
+
+
+
+
+.option_bar_container {
+    font-family: "Oswald", sans-serif;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns of equal width */
+    gap: 20px; /* Space between grid items */
+    margin-bottom: 20px; 
+}
+@media screen and (max-width: 768px) {
+    .option_bar_container {
+        display: flex;
+        width: 100%; /* Full width on smaller screens */
+        flex-direction: column;/* 2 columns on smaller screens */
+    }
+    .option_bar {
+        width: 100%; /* Full width for each option */
+    }
+    .centered-elements{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+}
+
+.centered-elements {
+    grid-column: 1 / -1; /* Makes the wrapper span all columns */
+    display: flex;
+    justify-content: center;
+    gap: 35px; /* Space between the last two elements */
+}
+  
+.option_bar {
+border-radius: 8px; 
+
+
+
+}
+
+.option_bar:hover {
+border-color: #adb5bd; 
+}
+
+.option_bar:focus {
+border-color: #495057; 
+box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.25); 
+}
+
+
+.option_bar_container .option_bar {
+flex: 1;
+}
+.manage_container{
+    width: 100%; /* Makes the width responsive to the size of the viewport */
+    max-width: 800px; /* Your new desired maximum width */
+    min-width: 300px; 
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    border-radius: 20px;
+    padding-top: 3rem;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+    
+    
+}
+.contain-body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.manage_container select, #searchbar{
+    background-color: rgb(0, 0, 0); 
+    color: white;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+.option_bar option{
+    background-color: #fdfdfd; 
+    color: black;
+    padding: 12px 20px;
+    cursor: pointer;
+    width: fit-content;
+}
+
+
+.manage_container {
+    width: 100%;
+    max-width: 800px; /* Max width of the manage_container */
+    min-width: 300px;
+    margin: auto; /* This will center the container on the page */
+    padding: 3rem; /* This will add padding inside the container */
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    border-radius: 20px;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+    position: relative; /* Set position to relative to use for absolute positioning inside */
+    overflow: hidden; /* Ensure no child can go out of the box */
+}
+
+.manage_container select {
+    background-color: rgb(0, 0, 0);
+    color: white;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width: 100%; /* This ensures the select box doesn't extend beyond its parent */
+    -webkit-appearance: none; /* Removes default chrome and safari appearance */
+    -moz-appearance: none; /* Removes default style Firefox */
+    appearance: none; /* Removes default browser appearance */
+}
+.manage_container select:disabled {
+    opacity: 0.5; 
+    cursor: not-allowed;
+}
+
+/* Style for custom dropdown arrow */
+.manage_container select::-ms-expand {
+    display: none; /* For IE10+ */
+}
+
+.manage_container::after {
+    /* Custom dropdown arrow */
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: white;
+}
+
+/* Responsive design adjustments */
+@media screen and (max-width: 780px) {
+    .manage_container {
+        width: 95%; /* Slightly smaller width on smaller screens */
+        padding: 2rem; /* Adjust padding for smaller screens */
+    }
+
+    .manage_container select, #searchbar {
+        width: auto; /* This will ensure the select adjusts to text size */
+    }
+    .manage_container option{
+        font-size: 5px;
+    }
+}
+
+#searchbar::placeholder {
+    color: #999;
+    width: 200px;
+}
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+
+
+.search-icon {
+    position: absolute;
+    right: 5px; 
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
+    height: 20px;
+    width: 20px;
+    pointer-events: none; 
+}
+
+.select-container {
+    position: relative;
+    display: inline-block;
+}
+
+
+
+.filter-icon {
+    position: absolute;
+    right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
+    top: 50%;
+    transform: translateY(-50%); /* Center align the icon vertically */
+    width: 20px; /* Adjust as needed */
+    height: 20px; /* Adjust as needed */
+    pointer-events: none; 
+}
+
+
+#input_fields select,input, .select-container{
+width:200px;
+border-radius: 5px;
+}
+td.col{
+color: green;
+font-weight: 900;
+font-size: large;
+}
+
+/* Adjustments for Tablets */
+@media (max-width: 768px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+    .option_bar_container {
+
+
+        flex-direction: column; /* Stack options vertically */
+        gap: 10px;
+
+    }
+    
+    .option_bar option {
+    width: 100%; /* Full width for easier interaction */
+        display: flex;
+        justify-content: center; /* Center text */
+    }
+    #searchbar {
+        width: 100%; /* Full width for easier interaction */
+    }
+    
+}
+
+/* Adjustments for Mobile Devices */
+@media (max-width: 480px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+    .option_bar_container {
+        flex-direction: column; /* Stack options vertically */
+        gap: 10px;
+    }
+    #input_fields select,input, .select-container{
+    width:100%;
+    }
+    .centered-elements{
+    gap:10px;
+    }
+
+
+    .option_bar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two columns */
+        gap: 10px;
+    }
+    
+    .option_bar option {
+        display: flex;
+        justify-content: center; /* Center text */
+    }
+    
+    /* Ensure the search and filter icons remain properly aligned */
+    .search-icon, .filter-icon {
+        right: 10px; /* Adjust based on actual padding and sizes */
+    }
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); /* Center align the icon vertically */
+    
+    }
+}
+  .drop-container {
+    position: relative;
+    display: inline-block;
+    width: 200px; /* Fixed width of the container */
+    /* Add more styles if needed */
+}
+
+.option_bar {
+    width: 100%; /* Make the select fill the container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    -webkit-appearance: none; /* Remove default styling provided by the browser */
+    -moz-appearance: none; /* Remove default styling provided by Firefox */
+    appearance: none; /* Use this to make the select look the same across browsers */
+    padding-right: 30px; /* Adjust as needed, should be enough to not overlap the image */
+    /* Add more styles if needed (e.g., padding, border) */
+}
+
+.drop-icon {
+    position: absolute;
+    right: 5px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    width: 20px; 
+    height: 20px; 
+    pointer-events: none; 
+}
+
+
+
+
+  /* stats tables */
+
+
+  #stats_table {
+    margin-bottom: 3em;
+}
+th, tr {
+    padding-right: 1rem;
+}
+
+.headcol_id {
+    width: 5.5em;
+}
+.headcol_name {
+    width: 10em;
+}
+.headcol_checkbox {
+    width: 2em;
+}
+.col, .col_name {
+    position: relative;
+    white-space: nowrap;
+}
+.col_name {
+    width: 10em;
+}
+
+
+
+#stats_table {
+    margin-bottom: 3em;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Add shadow for depth */
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%; /* Full width tables often look good on modern pages */
+    overflow-y: visible; /* Enable horizontal scrolling on smaller screens */
+}
+
+#stats {
+    border-collapse: collapse; /* Ensures that the table borders are combined */
+    width: 100%; /* Full width for a modern look */
+    font-family: "Oswald", sans-serif; 
+    background-color: #131313; /* White color for the table */
+}
+
+#stats thead {
+    background-color: #ffffff; /* Dark background for the table header */
+    color: black; /* White text color */
+}
+
+#stats th, #stats td {
+    padding: 0.5rem 1rem; /* Spacing within cells */
+    text-align: left; /* Left-align text */
+    border-bottom: 1px solid #ddd; /* Borders between rows */
+}
+
+#stats th {
+    height: 3rem; /* Fixed height for header cells */
+}
+
+.headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
+    left: 0;
+    z-index: 2; /* Ensure it's above other items */
+    font-size: 16px;
+}
+.headcol_id, .headcol_name, .headcol_checkbox {
+    position: sticky;
+    white-space: nowrap;
+    background-color: #131313;
+    left: 0;
+    z-index: 1;
+}
+
+.headcol_id {
+    min-width: 3em; /* Use min-width for flexible layouts */
+}
+
+.headcol_name {
+    min-width: 5em; /* Use min-width for flexible layouts */
+}
+
+.headcol_checkbox {
+    width: 1em; /* Keep checkboxes small */
+}
+
+.col, .col_name {
+    white-space: nowrap;
+}
+
+.col_name {
+    min-width: 5em; /* Use min-width for flexible layouts */
+}
+
+/* Hover styles for rows */
+#stats tr:hover {
+    background-color: #1d1c1c; /* Light grey background on hover */
+}
+tr{
+    font-size: 15px;
+}
+
+/* Responsive design for smaller screens */
+@media screen and (max-width: 768px) {
+    .headcol_id, .headcol_name, .headcol_checkbox {
+        width: auto; /* Allow the sticky columns to be more fluid on small screens */
+    }
+
+    #stats th, #stats td {
+        padding: 0.5rem; /* Smaller padding on small screens */
+    }
+    .headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
+        font-size: 10px;
+    }
+    .drop-container {
+        width: 100%; /* Full width for the container */
+    }
+}
+/* Base table styles */
+#stats {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #131313;
+    color: white;
+}
+
+#stats th, #stats td {
+    padding: 0.5rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+/* The rest of your existing CSS ... */
+
+/* Make the header of the first two columns sticky */
+#stats th:nth-child(1), #stats th:nth-child(2) {
+    position: sticky;
+    left: 0;
+    background-color: #131313; /* This color should match your table header's background */
+    z-index: 2; /* Must be above tbody rows */
+}
+
+/* Make the first two data columns sticky */
+#stats td:nth-child(1), #stats td:nth-child(2) {
+    position: sticky;
+    left: 0;
+    background-color: #131313; /* This color should match your table body's background */
+    z-index: 1; /* Below the header row */
+}
+
+/* Separate sticky column styles to ensure they stick to the correct side */
+#stats th:nth-child(1), #stats td:nth-child(1) {
+    z-index: 3; /* Must be above the second sticky column for overlapping */
+}
+
+#stats th:nth-child(2), #stats td:nth-child(2) {
+    left: 5.5em; /* This value should be the width of the first column */
+    z-index: 2;
+}
+
+/* The rest of your existing CSS ... */
+
+
+/* Adjust the table for mobile devices */
+@media screen and (max-width: 768px) {
+    .headline {
+        font-size: 24px; /* Smaller font size for headlines */
+    }
+
+    .headline span {
+        font-size: 24px; /* Smaller font size for highlighted text */
+    }
+
+    #stats th, #stats td {
+        padding: 0.3rem; /* Reduce padding */
+        font-size: 14px; /* Smaller font size for table content */
+    }
+
+    .headcol_id, .headcol_name, .headcol_checkbox, .col, .col_name {
+        width: auto; /* Adjust width to be more fluid */
+    }
+
+
+    
+}
+/* Adjustments for Tablets and Mobile Devices */
+@media screen and (max-width: 768px) {
+    /* Reduce font size for table headers and cells to save space */
+    #stats th, #stats td {
+        padding: 0.25rem 0.5rem; /* Smaller padding to reduce space */
+        font-size: 12px; /* Smaller font size for compact display */
+    }
+
+    /* Adjust specific columns to minimize width while maintaining content visibility */
+    .headcol_id, .headcol_checkbox, .col {
+        min-width: 4em; /* Adjust minimum width as needed */
+    }
+
+    .headcol_name, .col_name {
+        min-width: 7em; /* Adjust minimum width as needed */
+    }
+
+    /* Ensure table header and row heights are adjusted to fit content snugly */
+    #stats th, tr {
+        height: auto; /* Allow height to adjust based on content, removing fixed height */
+    }
+
+    /* Adjust headline font sizes for tighter fit */
+    .headline, .headline span {
+
+        font-size: 25px; /* Smaller font size for headlines on smaller screens */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* More aggressive space-saving measures for mobile devices */
+    #stats th, #stats td {
+        padding: 0.2rem; /* Even smaller padding */
+        font-size: 12px; /* Even smaller font size for a more compact display */
+    }
+
+    /* Further reduce minimum column widths for mobile screens */
+    .headcol_id, .headcol_checkbox, .col {
+        min-width: 3em; /* Adjust based on content */
+    }
+
+    .headcol_name, .col_name {
+        min-width: 5em; /* Adjust based on content */
+    }
+
+    /* Adjust headline and span font sizes for mobile */
+    .headline, .headline span {
+        text-shadow: none;
+        font-size: 22px; /* Adjust font size for smaller screens */
+    }
+}
+
+
+/* headline */
+.headline{
+    font-size: 30px;
+    font-weight: 800;
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    color: white;
+    font-synthesis-style: weight;
+    text-shadow: 2px 2px gray;
+    text-align: center;
+}
+.headline span{
+    color: blanchedalmond;
+    font-size: 30px;
+    font-weight: 1000;
+    text-shadow: 2px 3px black;
+}
+.add_instruction{
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+    font-family: "Oswald", sans-serif;
+}

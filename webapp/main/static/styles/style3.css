@@ -1,0 +1,436 @@
+#nav_home {
+    font-weight: bolder;
+}
+
+body, html {
+    font-family: "Oswald", sans-serif;
+    height: 100%;
+    margin: 0;
+    overflow-y: auto; /* Enable scrolling */
+    overflow-x: hidden;
+    
+}
+h1 {
+     /* 2.5 times the size of the standard text */
+    color: #ffffff; /* Adjust the color as needed */
+}
+
+/* h2 {
+    font-size: 2em;
+    color: #ffffff;
+} */
+.hero-banner h1 {
+    font-size: 3em; /* Larger size for hero banner title */
+    color: #ffffff; /* Assuming a dark background image */
+    font-family: "Oswald", sans-serif;
+}
+
+.hero-banner p {
+    font-size: 16px; /* Larger size for readability on a busy background */
+    color: #ffffff;
+    font-family: "Oswald", sans-serif;
+}
+.lead {
+    font-weight: bold;
+}
+
+.navbar-brand {
+    width: 20%;
+    height: auto;
+}
+
+.navbar-nav {
+    width: 100%;
+    justify-content: center;
+}
+
+.navbar-nav .nav-item {
+    padding-right: 2rem;
+}
+
+.nav-item {
+    font-size: 130%;
+}
+
+.navbar {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+}
+
+/* Apply the background to the whole page */
+body {
+    margin: 0;
+    padding: 0;
+    height: auto; /* Allow body to grow as tall as the content */
+    min-height: 100vh; /* At least as tall as the viewport */
+    background-image: none;
+    background-color: #131313;
+    overflow-y: auto; /* Add scrollbar if needed */
+    overflow-x: hidden; /* Keep horizontal scrollbar hidden */
+}
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    bottom: 0%; /* This will cover the top half of the screen */
+    left: 0;
+    background-image: url('../images/2428085.jpg');
+    background-position-y: 10px;
+    background-size: contain;/* This is the red color for the top half */
+    border-radius: 0% 0% 50% 0%; /* This creates the curve on the bottom right */
+    z-index: -1;
+   
+    height: 100%;
+    min-height: 100vh; /* Make sure it covers the full viewport height */
+    overflow-y: auto; /
+}
+
+@media (max-width: 1000px) {
+    body::before {
+        background-image: none;
+        background: linear-gradient(to bottom, #000C1C, #012853);
+    }
+}
+
+@media (max-width: 400px) {
+    body::before {
+        background-image: none;
+        background-color: #131313;
+    }
+}
+
+.hero-banner {
+    color: rgb(0, 0, 0);
+    text-shadow: 0 0 8px rgba(0,0,0,0.7);
+    min-height: 100vh;
+    display: flex;
+    align-items: center; 
+    justify-content: right; /* Adjust alignment if needed */
+    padding: 0;
+    margin: 0;
+    max-width: 550px;
+    margin-left: auto;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: left;
+    
+}
+.hero-container.container{
+    display: flex;
+    justify-content: right;
+    /* Or whatever max width you prefer */
+    width: 100%; /* Uses full width of the hero-banner */
+    margin-left:7em;
+    padding-right: 10px;
+     /* Ensures no padding is adding space on the right */
+}
+.container{
+    margin: 0;
+}
+.hero-container.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    align-items: right;
+}
+.signup{
+    margin-left: 1rem;
+}
+.gradient-text {
+    font-weight:900;
+    background: -webkit-linear-gradient(45deg, rgb(72, 121, 255), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block; /* Required for gradient to apply properly */
+}
+
+.username {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+    font-size: 16px;
+}
+.subtext {
+    font-size: 14px;
+    color: #666; /* Adjust color as needed */
+    margin-top: 5px; /* Adjust margin as needed */
+}
+.container h1{
+    font-size: 39px;
+}
+
+.container p{
+    font-size: 18px;
+    line-height: 30px;
+}
+
+@media screen and (min-width: 781px) {
+    body {
+        overflow: auto;
+    }
+}
+
+@media screen and (max-width: 780px) {
+    
+    body::before {
+        right: 0;
+        bottom: 0%;
+        background-repeat: no-repeat;
+        opacity: 0.5;
+        border-radius: 0% 0% 0% 0%;
+    }
+    .hero-banner {
+        min-height: 100vh; /* Full height of the viewport */
+        padding: 0; /* Reset any padding */
+        max-width: 700px; /* Max width of the content */
+        margin-left: auto; /* Push the content to the right */
+        box-sizing: border-box; /* Ensure padding is included in the width */
+        width: 100%; /* Full width to enable centering */
+        display: flex;
+        justify-content: center;
+        margin: 0;
+
+        
+    }
+    .hero-container.container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+    }
+    .container p{
+        text-align: center;
+    }
+    .signup{
+        margin-left: 1rem;
+    }
+    .gradient-text {
+        font-size: 80px;
+        font-weight:900;
+        background: -webkit-linear-gradient(45deg, rgb(13, 69, 220), white);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block; /* Required for gradient to apply properly */
+      }
+    .container {
+        
+        max-width: 800px; /* Or whatever max width you prefer */
+        width: 100%; /* Uses full width of the hero-banner */
+        margin-right:1rem;
+        margin-top: 3rem; /* Aligns the container to the right */
+        padding-right: 0; /* Ensures no padding is adding space on the right */
+    }
+    .container h1{
+        font-size: 30px;
+    }
+
+    .container p{
+        font-size: 20px;
+    }
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 5px; /* Optional: Add some space between buttons */
+}
+.about{
+    background-color: #131313; /* Background color for the About Us section */
+    padding: 50px 0; /* Padding around the content */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.about.container {
+    text-align: center; /* Center align content */
+    max-width: 800px; /* Or adjust as needed */
+}
+
+.about h2 {
+    color: #ffffff;
+    font-family: "Oswald", sans-serif;; /* Color for the section title */
+    font-size: 32px; /* Font size for the section title */
+    margin-bottom: 20px; /* Bottom margin for spacing */
+}
+
+.about p {
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Color for the section text */
+    font-size: 18px; /* Font size for the section text */
+    line-height: 1.6; /* Line height for better readability */
+}
+.meet-the-team {
+    background-color: #131313; /* Background color for the Meet the Team section */
+    padding: 50px 0; /* Padding around the content */
+    display: flex; /* Make the container flex */
+    align-items: flex-start; /* Align items at the start */
+}
+
+.team-member {
+    margin-bottom: 20px; /* Add spacing between team members */
+}
+.team-member h2 {
+    font-size: 32px;
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Add spacing below the team member's name */
+}
+
+.team-member h3 {
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Add spacing below the team member's name */
+}
+
+.team-member p {
+    margin-bottom: 10px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif; /* Add spacing below the team member's role */
+}
+.team-photo {
+    margin-left: auto; /* Push the photo to the right */
+    max-width: 30%; /* Limit the width of the photo */
+}
+
+.team-photo img {
+    max-width: 100%; /* Make the image responsive */
+    height: 50%; /* Maintain aspect ratio */
+}
+/* Ensures the container takes up the full viewport height and displays its children in a row */
+.about_us {
+    display: flex;
+    height: 100vh; /* Adjust the height as needed */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+  }
+  
+  .content_container {
+    display: flex;
+    flex-grow: 1;
+    overflow-x: hidden; /* Ensure no horizontal scroll */
+  }
+  
+  .image, .content {
+    flex: 1; /* Each takes up half the space */
+    overflow: hidden; /* Prevents any overflow from causing scroll bars */
+    margin: 20px;
+  }
+
+  .content{
+    padding-right: 10px;
+    color: #ffffff;
+    font-size: 16px;
+  }
+
+
+  .image img {
+    width: 100%;
+    transition: transform 2s ease-out; /* Smooth transition for the roll-out effect */
+    transform: translateX(-90%); /* Start off-screen */
+    position: sticky; /* Stick to a side */
+    top: 0; /* Align to the top of its container */
+    border-radius: 90% 50% 90% 10% ;
+  }
+
+  
+  /* Adjustments for responsive design and ensuring the image fills its container */
+  @media (max-width: 768px) {
+    .about_us, .content_container {
+      flex-direction: column; /* Stack vertically on smaller screens */
+    }
+  
+    .image img {
+      position: relative; /* Reset to normal flow on smaller screens */
+      transform: translateX(0); /* No translation needed for vertical layout */
+    }
+    .content h2{
+        font-size: 25px;
+    }
+    .content p{
+        font-size: 16px;
+    }
+  }
+  
+  /* CSS for gradient text, ensure it's responsive */
+  .gradient-text {
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .team {
+    display: flex;
+
+    
+    flex-direction: column; 
+    justify-content: center;/* Stacks children vertically */
+    align-items: center; /* Centers children horizontally */
+    text-align: center; /* Ensures text within children is centered */
+    gap: 20px; /* Adds some space between the headline and the cards container */
+    padding-bottom: 100px;
+  }
+
+  
+  .team-healine h2 {
+    margin: 20px 0; /* Adds margin above and below the headline for spacing */
+  }
+  
+  .cards {
+    padding-left: 50px;
+    display: flex;
+    flex-wrap: wrap; /* Allows cards to wrap to the next line on small screens */
+    justify-content: center; /* Centers cards in the container */
+    gap: 100px; /* Adds space between individual cards */
+  }
+  
+  .team-card {
+    width: 300px; /* Sets a fixed width for each card */
+    border: 1px solid #ccc; /* Adds a light border around each card */
+    border-radius: 10px; /* Rounds the corners of the card */
+    padding: 20px; /* Adds padding inside the cards for spacing */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow for depth */
+    display: flex; /* Uses flexbox to layout the image and text */
+    flex-direction: column; /* Stacks image and text vertically */
+    align-items: center; /* Centers the content horizontally */
+    gap: 10px;
+    background-color: #131313;
+  }
+  .team-card:hover {
+    transform: translateY(-5px); /* Lifts the card slightly on hover */
+    transition: transform 0.3s ease;
+    background-color: #000C1C; /* Adds a smooth transition effect */
+  }
+  
+  .team-card img {
+    width: 100px; /* Sets the width of the image */
+    height: 100px; /* Sets the height of the image */
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image covers the area without stretching */
+  }
+  
+  .team-card h3, .team-card p {
+    color: #ffffff;
+    margin: 0; /* Removes default margins */
+  }
+
+
+
+  
+  

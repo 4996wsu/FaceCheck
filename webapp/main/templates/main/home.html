@@ -1,23 +1,90 @@
 {% extends 'main/base.html' %}
 {% block title %}Home Page{% endblock %}
 
-{% load static %} <!-- Load the static tag library -->
+{% load static %} 
+<!-- Load the static tag library -->
 
 {% block content %}
-    <!-- Hero Banner -->
-    <div class="hero-banner py-5 text-center text-white">
-        <div class="container">
-            <h1 class="display-4">Welcome to FaceCheck</h1>
-            <p class="lead">Revolutionizing Classroom Attendance</p>
-            <hr class="my-4">
-            <p>Taking attendance is typically inconvenient, time-consuming, and repetitive. <br>
-                FaceCheck evolves the current process by allowing professors to take attendance much faster <br>
-                and with far less human involvement.</p>
-                {% if not user.is_authenticated %}
-                <!-- These buttons will only appear if the user is not authenticated -->
-                <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log In</a>
-                <a class="btn btn-primary btn-lg" href="{% url 'sign_up' %}" role="button">Sign Up</a>
-            {% endif %}
+<link rel="stylesheet" href="../static/styles/style3.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+
+<!-- Hero Banner -->
+<div class="hero-banner text-white main">
+    <div class="hero-container container ">
+        <h1 class="display-4 gradient-text">Welcome to FaceCheck</h1>
+        <p class="lead">Revolutionizing Classroom Attendance</p>
+        <hr class="my-4">
+        <p>Taking attendance is typically inconvenient, time-consuming, and repetitive. <br>
+            FaceCheck evolves the current process by allowing professors to take attendance much faster 
+            and with far less human involvement.</p>
+        {% if not user.is_authenticated %}
+        <!-- These will only appear if the user is not authenticated -->
+        <p>
+            Get started now by creating an account or logging in.
+        </p>
+        <div class="buttons">
+            <a class="btn btn-primary btn-md" href="{% url 'login' %}" role="button">Log In</a>
+            <a class="btn btn-primary btn-md signup" href="{% url 'sign_up' %}" role="button">Sign Up</a>
         </div>
+        {% endif %}
     </div>
+</div>
+
+<hr class="my-4">
+<div class="about_us">
+    <div class="content_container">
+        <div class="image">
+            <img src="../static/images/face1.png" alt="Team Photo">
+        </div>
+        <div class="content">
+            <h2 class=" gradient-text">Our Vision</h2>
+        <p>Our vision is to create a seamless and efficient attendance-taking process that benefits both educators and students. By automating the process, we aim to save time, reduce errors, and improve overall classroom engagement. With FaceCheck, we hope to transform the way attendance is managed in educational settings.</p>
+
+        </div>
+        
+    </div>
+</div>
+<hr class="my-4">
+<div class="team">
+    <div class="content">
+        <h2 class="gradient-text">Meet Our Team</h2>
+
+    </div>
+    <div class="team-photo">
+
+    </div>
+    <div class="cards">
+        <div class="team-card">
+            <img src="../static/images/hi6576.jpg" alt="">
+            <h3>Mohammad Hachem</h3>
+            <p>Product Manager</p>
+          </div>
+          <div class="team-card">
+            <img src="../static/images/minhaj.jpg" alt="">
+
+            <h3>Ahmed Minhaj</h3>
+            <p>Backend Lead</p>
+          </div>
+          <div class="team-card">
+            <img src="../static/images/aafnan.jpg" alt="">
+
+            <h3>Aafnan Mahmud</h3>
+            <p>Database Lead</p>
+          </div>
+          
+    </div>
+</div>
+<script>
+    document.addEventListener('scroll', function() {
+        var image = document.querySelector('.image img');
+        if (window.scrollY > 100) { // Adjust trigger point as needed
+          image.style.transform = 'translateX(0)'; // Moves the image into view
+        } else {
+          image.style.transform = 'translateX(-80%)'; // Moves the image out of view
+        }
+      });
+      
+</script>
 {% endblock %}

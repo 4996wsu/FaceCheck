@@ -1,0 +1,288 @@
+#nav_enroll {
+    font-weight: bolder;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: auto; /* Allow the body height to expand as needed */
+    min-height: 100vh; /* Ensure it is at least as tall as the viewport */
+    background-image: none;
+    background-color: #131313;
+    overflow-y: auto; /* Show scrollbar when content overflows */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    background-image: url('../images/face.jpg');
+    opacity: 0.5;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-x: -150px;
+    right: 40%;
+    bottom: 0%; 
+    left: 0%;
+    background-color: #1d1c1c; 
+    border-radius: 0% 0% 40% 0%; 
+    z-index: -1;
+    pointer-events: none;
+}
+
+
+.centered-container {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    height: calc(100vh - 100px);
+    margin: 0;
+    padding: 0;
+}
+
+
+.main_body {
+    width: 100%; /* Fluid width */
+    max-width: 800px; /* Max width */
+    min-width: 300px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5)); 
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: left;
+    flex-direction: row; 
+    flex: 0 1 90%;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 0;
+}
+
+.main_body > div {
+    flex: 1; 
+    padding: 20px;
+    box-sizing: border-box;
+    
+}
+
+/* Style the form and button for a cleaner look */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.main_body button {
+    background-color: #4CAF50; /* Green for submit button */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: fit-content;
+    font-family: "Oswald", sans-serif;
+}
+
+.main_body button:hover {
+    background-color: #3e8e41; /* Darker green on hover */
+}
+
+/* Style messages if present */
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.messages li {
+    margin-bottom: 5px;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+.enroll_msg {
+
+    color: black;
+    padding: 20px;
+    border-radius: 10px;
+}
+.enroll_msg Label {
+    font-family: "Oswald", sans-serif;
+    color: black;
+    margin-bottom: 2.5rem;
+    font-size: 25px;
+    font-weight: bold;
+
+
+}
+input[type="file"] {
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+.enroll_form Label {
+    font-size: 25px;
+    font-family: "Oswald", sans-serif;
+    color: black;
+    font-weight: bold;
+
+}
+
+
+
+
+
+@media screen and (max-width: 780px) {
+    .centered-container{
+        justify-content: center;
+    }
+    .main_body {
+        flex-direction: column;
+        max-width: 500px;
+        min-height: 500px; 
+        height: auto;  
+    }
+    body::before {
+        background-image: none;
+    }
+    
+}
+
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    display: flex;
+    align-items: center; 
+}
+
+.form-label {
+    margin-right: 20px; 
+}
+
+.form-image {
+    width: 50px; 
+    height: auto; 
+}
+.upload-container {
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+    justify-content: flex-start; /* Align items to the start of the container */
+}
+
+.upload-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Ensures the text and icon are aligned properly */
+}
+
+.upload-icon {
+    margin-right: 10px; /* Adjust space between icon and text */
+    width: 30px; /* Adjust as needed */
+    height: auto; /* To maintain aspect ratio */
+}
+
+#file-upload {
+    display: none; /* Hide the actual file input */
+}
+.form-group {
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+    justify-content: flex-start; /* Align items to the start of the container */
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+}
+
+.form-group .upload-icon {
+    margin-right: 10px; /* Adjust space between icon and text */
+}
+
+.form-image {
+    width: 50px; /* Adjust as needed */
+    height: auto; /* To maintain aspect ratio */
+}
+
+.file-input-container {
+    display: flex;
+    align-items: center; /* File input on a new line */
+}
+
+.file-input-container input[type="file"] {
+    cursor: pointer;
+    width: auto;
+    margin-left: 2px;
+    color: black;
+}
+form{
+    display: flex;
+    
+    justify-content: center;
+    align-items: center;
+}
+.enroll_msg p{
+    font-family: "Oswald", sans-serif;
+    color: black;
+    text-align: left;
+    font-size: 14px;
+}
+.requirements{
+    font-family: "Oswald", sans-serif;
+    color: black;
+    text-align: left;
+    font-size: 14px;
+}
+
+/* style for error message */
+/* Add this to your enroll.css or a relevant stylesheet */
+
+/* Success messages */
+.messages .success {
+    color: green;
+    font-weight: bold;
+    border: 1px solid green;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+/* Error or warning messages */
+.messages .warning, .messages .error {
+    color: #ff3347;
+    color: red;
+
+    text-shadow: 1px 1px 1px rgb(36, 35, 35);
+
+    font-weight: bold;
+    border: 1px solid red;
+    padding: 10px;
+    margin-top: 15px;
+    letter-spacing: 1px;
+    font-weight: 400;
+    border-radius: 5px;
+}
+
+/* General styles for messages list */
+.messages {
+    list-style-type: none; /* Removes default bullet points */
+    padding: 0;
+}
+
+.messages li {
+    margin-bottom: 10px; /* Space between messages */
+}
+
+

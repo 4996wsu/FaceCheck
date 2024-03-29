@@ -68,7 +68,7 @@ def recognize_faces(frame, device, mtcnn, resnet, embedding_list, name_list):
                 min_dist = min(dist_list)
                 min_dist_idx = dist_list.index(min_dist)
                 
-                if min_dist < 1.2:# Attention: Here the threshold is 1.2, it is just a number I pick up
+                if min_dist < 0.9:
                     recognized_name = name_list[min_dist_idx]
                 else:
                     recognized_name = "Unknown"

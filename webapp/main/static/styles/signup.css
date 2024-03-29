@@ -1,0 +1,200 @@
+h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+hr {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    color: white;
+}
+.headline{
+    font-size: 30px;
+    font-weight: 800;
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    font-synthesis-style: weight;
+    text-shadow: 2px 2px gray;
+}
+.headline span{
+    color: blanchedalmond;
+    font-size: 30px;
+    font-weight: 1000;
+    text-shadow: 2px 2px black;
+}
+body {
+    color: white;
+    font-family: "Oswald", sans-serif; 
+    background-image: none;
+    background-color: #131313;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: auto; /* Allow the body height to expand as needed */
+    min-height: 100vh; /* Ensure it is at least as tall as the viewport */
+    background-image: none;
+    background-color: #131313;
+    overflow-y: auto; /* Show scrollbar when content overflows */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+    font-size: 18px;
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    opacity: 0.7;
+    background-size: contain;
+    right: 20%;
+    bottom: 0%; 
+    left: 0%;
+    background-color: #1d1c1c; 
+    border-radius: 0% 90% 0% 40%; 
+    z-index: -1;
+    pointer-events: none;
+}
+@media (min-width: 700px) {
+    body::before {
+        background-image:url('../images/classroom.png');
+    }
+}
+@media (max-width: 699px) {
+    body::before {
+        background-color: #131313;
+    }
+}
+
+.container {
+    padding-bottom: 2em;
+}
+
+a {
+    color: #62d668;
+    font-family: "Oswald", sans-serif;
+    text-decoration: none;
+    text-shadow: 1px 1px 2px black;
+}
+a:hover {
+    color:rgb(207, 255, 209);
+}
+
+#links {
+    text-align: center;
+}
+
+#submit_btn {
+    background-color: #4CAF50;
+    font-size: 120%;
+    flex: 1;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: 50%;
+    border-radius: 20px;
+    height: 150%;
+    margin: 0 auto;
+    margin-top: 10px;
+}
+
+#showpass:hover {
+    background-color: #343434;
+}
+
+#submit_btn:hover {
+    background-color: #246925;
+}
+
+#card {
+    color: white;
+    background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+}
+
+.card-header, .card-body {
+    width: 95%;
+    height: 95%;
+    margin: 10px 10px 10px 10px;
+}
+
+.card-header {
+    font-size: 25px;
+}
+
+#id_username, #id_email, #id_password1, #id_password2, #id_first_name, #id_last_name, #showpass {
+    background-color: #131313;
+    color: white;
+}
+#id_username_helptext {
+    color: white;
+}
+#id_password1_helptext, #id_password2_helptext {
+    display: none;
+}
+#pass-helptext {
+    font-size: 16px;
+}
+#id_password {
+    padding-bottom: 10px;
+}
+
+@media (min-width: 1280px) {
+    #id_first_name,
+    #id_last_name {
+        display: inline-block;
+        width: 100%;
+        margin-right: 5px;
+    }
+
+    #id_first_name,
+    #id_last_name {
+        display: inline-block;
+        width: 100%;
+        margin-right: 5px;
+    }
+
+    .form-group.row {
+        display: flex;
+    }
+
+    .form-group.row .col-md-6 {
+        flex: 10;
+        width: 100%;
+        margin-right: 0px;
+    }
+
+    .form-group.row .col-md-2 {
+        flex: 1;
+        width: 100%;
+        margin-right: 0px;
+    }
+
+    #email_text {
+        margin-top: 40px;
+        margin-left: -17px;
+    }
+
+    .toggle-password {
+        margin-top: 34px;
+    }
+
+    #showpass {
+        width:50px;
+    }
+}
+
+@media (max-width: 1279px) {
+    #showpass {
+        margin: 0 auto;
+    }
+}
+
+.invalid-feedback {
+    color: #ff3347;
+    text-shadow: 1px 1px 2px black;
+}
+
+input::placeholder {
+    color: #999;
+}
