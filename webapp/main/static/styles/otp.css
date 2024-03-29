@@ -4,7 +4,7 @@ body {
     height: 100vh; 
     background-image: none;
     font-family: "Oswald", sans-serif;
-    background-color: rgb(15, 15, 15); /* Light gray background */
+    background-color:#131313; /* Light gray background */
     overflow: hidden; 
 
 }
@@ -12,7 +12,7 @@ body::before {
     content: '';
     position: absolute;
     top: 0;
-    right: 30%;
+    right: 45%;
     bottom: 0%; /* This will cover the top half of the screen */
     left: 0;
     background-color: #1d1c1c; /* This is the red color for the top half */
@@ -99,7 +99,7 @@ input[type="file"] {
 
 @media (min-width: 700px) {
     body::before {
-        background-image:url('../images/otp.png');
+        background-image:url('../images/otp-color.png');
         background-size: contain;
     }
 }
@@ -112,6 +112,7 @@ input[type="file"] {
 .main_body {
     color: white;
     background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
+    width: 600px;
 }
 
 

@@ -261,11 +261,17 @@ form{
 
 /* Error or warning messages */
 .messages .warning, .messages .error {
+    color: #ff3347;
     color: red;
+
+    text-shadow: 1px 1px 1px rgb(36, 35, 35);
+
     font-weight: bold;
     border: 1px solid red;
     padding: 10px;
     margin-top: 15px;
+    letter-spacing: 1px;
+    font-weight: 400;
     border-radius: 5px;
 }
 
