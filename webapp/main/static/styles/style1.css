@@ -1,6 +1,7 @@
 body, html {
     height: 100%;
     margin: 0;
+    font-family: "Oswald", sans-serif;
 }
 h1 {
     font-family: 'Helvetica', sans-serif; /* Replace with the font of your choice */
@@ -16,13 +17,13 @@ h2 {
 .hero-banner h1 {
     font-family: 'Georgia', serif; /* A more decorative font for impact */
     font-size: 3em; /* Larger size for hero banner title */
-    color: #fff; /* Assuming a dark background image */
+    color: #ffffff; /* Assuming a dark background image */
 }
 
 .hero-banner p {
     font-family: 'Georgia', serif;
     font-size: 1.5em; /* Larger size for readability on a busy background */
-    color: #fff;
+    color: #ffffff;
 }
 
 .navbar-brand {
@@ -39,10 +40,10 @@ h2 {
     padding-right: 2rem;
 }
 
-.nav-item {
-    font-size: 130%;
+.nav-item, .nav a, .nav-link{
+    font-size: 16px;
+    letter-spacing: 0.5px;
 }
-
 .navbar {
     position: sticky;
     top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
@@ -51,22 +52,64 @@ h2 {
     /* Add the rest of your styles here */
     padding: 1rem 2rem;
 }
-
-/* Apply the background to the whole page */
-body {
-    background-image: url('/static/images/background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed; /* This will give a parallax-like effect */
-    background-color: #000000;
+#nav_stats, #nav_enroll, #nav_manage {
+    display: none;
 }
 
+/* Apply the background to the whole page */
+
 .hero-banner {
-    background: none;
+    /*background:url('/static/images/hacker.jpg') ;
+    background-repeat: no-repeat;
+    background-position: center;*/
     color: rgb(0, 0, 0); /* Adjust text color for readability */
     text-shadow: 0 0 8px rgba(0,0,0,0.7); /* Optional: text shadow for better readability on a busy background */
     min-height: 100vh; /* Full viewport height */
     display: flex;
     align-items: center; /* Center content vertically */
     justify-content: center; /* Center content horizontally */
+}
+.username {
+    position: sticky;
+    top: 0; /* Set the top edge of the navbar to stick at the top of the viewport */
+    z-index: 1000; /* Ensure it's above other content */
+    background-color: #000000; /* Assuming you have a dark navbar, specify a background color to avoid seeing the text from scrolling content */
+    /* Add the rest of your styles here */
+    padding: 1rem 2rem;
+    font-size: 16px;
+}
+.subtext {
+    font-size: 16px;
+    color: #666; /* Adjust color as needed */
+    margin-top: 5px; /* Adjust margin as needed */
+}
+
+.img-fluid {
+    width: 300px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .img-fluid {
+        width: 150px;
+    }
+}
+
+#main-content {
+    display: none;
+}
+
+#access-denied {
+    display: none;
+    color: white;
+    font-size: 18px;
+    text-shadow: 3px 3px 2px black;
+}
+#access-denied a {
+    color: #62d668;
+    font-family: "Oswald", sans-serif;
+    text-decoration: none;
+}
+#access-denied a:hover {
+    color:rgb(207, 255, 209);
 }
