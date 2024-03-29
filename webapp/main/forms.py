@@ -10,7 +10,6 @@ class RegisterForm(forms.ModelForm):
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput, required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
@@ -49,4 +48,3 @@ class RegisterForm(forms.ModelForm):
 
 class ImageUploadForm(forms.Form):
     image = forms.ImageField(label='Upload your photo', label_suffix='')
-

@@ -9,9 +9,13 @@ from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 import firebase_admin
 from firebase_admin import credentials, storage
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
