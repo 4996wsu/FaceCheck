@@ -60,10 +60,9 @@
                         <tbody id="tbody"></tbody>
                     </table>
                 </div>
-                
-            
+                <!-- FACE COUNT GRAPH -->
+                <div id="face_count_graph"></div>
             </div>
-
         </div>
         <hr>
     </div>
@@ -77,6 +76,7 @@
     
 
     <!-- JAVASCIPT CODE -->
+    <script src="https://cdn.anychart.com/releases/8.12.0/js/anychart-base.min.js" type="text/javascript"></script>
     <script type="module">
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -497,6 +497,7 @@
                     }
                 }
                 else {
+                    document.getElementById("face_count_graph").innerHTML = "";
                     error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
                     empty_table();
                 }
@@ -715,7 +716,7 @@
                                 const { photoUrl, timestamp } = results[i];
                                 // This if statement checks if there is no class photo for a given time,
                                 // in case there was an error processing attendance for a given time.
-                                console.log(studentData.students[class_id]['class_photos'][date][photo_timestamps[i]])
+                                //console.log(studentData.students[class_id]['class_photos'][date][photo_timestamps[i]])
                                 if (studentData.students[class_id]['class_photos'][date][photo_timestamps[i]] != "NO PHOTO") {
                                     row += `<td>
                                                 <button onclick="openImagePreview('${photoUrl}','${date}','${photo_timestamps[i]}')">
@@ -731,12 +732,92 @@
                         //  Conclude table and add to page
                         row += '</tr>'
                         table.innerHTML += row
+
+                        //  Draw graph
+                        show_face_count();
                     })
                     .catch(error => {
                         console.error("Error fetching photo URLs:", error);
                     });
             }
 
+
+            //  Show face count
+            function show_face_count() {
+                //  Get all students except "class_photos" since that does not represent a student
+                let accessIDs = (Object.keys(studentData.students[class_id])).filter(item => item !== 'class_photos');
+                accessIDs.sort();
+                //  Get all timestamps for the chosen date
+                let timestamps = (Object.keys(studentData.students[class_id][accessIDs[0]]['attendance'][date])).filter(item => item !== 'Overall');
+                timestamps.sort();
+
+                var data = [];
+                for (let i = 0; i < timestamps.length; i++) {
+                    //  Get face count
+                    let face_count = 0;
+                    for (let accessID of accessIDs) {
+                        if (studentData.students[class_id][accessID]['attendance'][date] !== undefined)
+                            if (studentData.students[class_id][accessID]['attendance'][date][timestamps[i]] !== undefined)
+                                if (studentData.students[class_id][accessID]['attendance'][date][timestamps[i]] === true)
+                                    face_count++;
+                            else
+                                console.log("Face count :: Cannot get timestamp for " + accessID);
+                        else
+                            console.log("Face count :: Cannot get date for " + accessID);
+                    }
+
+                    // Format time
+                    let timeArr = timestamps[i].split("_");
+                    if (parseInt(timeArr[0]) > 12) {
+                        timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
+                        timeArr[2] = "PM"
+                    }
+                    else if (parseInt(timeArr[0]) === 12) {
+                        timeArr[0] = parseInt(timeArr[0]) + "";
+                        timeArr[2] = "PM"
+                    }
+                    else {
+                        timeArr[2] = "AM"
+                    }
+                    let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
+                    console.log("Face count for " + time + ": " + face_count);
+                    data.push([time, face_count]);
+                }
+
+                document.getElementById("face_count_graph").innerHTML = "";
+
+                //  Create graph
+                var chart = anychart.line();
+                var data_set = anychart.data.set(data);
+                var series_data = data_set.mapAs({x: 0, value: 1});
+                var series = chart.line(series_data);
+
+                //  Graph stylings using the AnyChart API
+                chart.title("Attendance Per Time Interval");
+                chart.container("face_count_graph");
+                chart.yScale().minimum(0).ticks({interval: 1});
+                chart.yGrid().enabled(true);
+
+                chart.title().fontFamily("Oswald, sans-serif");
+                chart.xAxis().labels().fontFamily("Oswald, sans-serif");
+                chart.yAxis().labels().fontFamily("Oswald, sans-serif");
+                chart.tooltip().fontFamily("Oswald, sans-serif").fontSize(14);
+
+                chart.title().fontColor("#FFFFFF");                 // Title color
+                chart.xAxis().labels().fontColor("#FFFFFF");        // X-axis labels color
+                chart.yAxis().labels().fontColor("#FFFFFF");        // Y-axis labels color
+                chart.yGrid().stroke({color: "#333333"});           // Y-axis tick marks color
+                chart.background().fill("#131313");                 // Background fill
+                series.stroke({color: "#4CAF50", thickness: 2});    // Line color
+
+                //  Edit tooltip
+                chart.tooltip().format(function() {
+                    return 'No. of Students Present: ' + this.value;
+                });
+
+                //  Draw gaph
+                chart.draw();
+            }
         }
     </script>
 {% endblock %}

@@ -585,3 +585,8 @@ tr{
     color: white;
     font-family: "Oswald", sans-serif;
 }
+
+#face_count_graph {
+    width: 100%;
+    height: 150%;
+}
