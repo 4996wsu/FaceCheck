@@ -9,13 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/styles/stats.css">
 
+
+    <!-- Main page content -->
     <div id="main-content">
         <h2 class="headline"><span class="span">Attendance Statistics</span></h2><hr>
 
-
-
+        <!-- Main container -->
         <div class="manage_container">
+
+            <!-- Input fields -->
             <div id = "input_fields">
+                <!-- Option drop-down menus -->
                 <div class="option_bar_container">
                     <div class="drop-container">
                         <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
@@ -23,18 +27,21 @@
                         </select>
                         <img class="drop-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" alt="circled-chevron-down"/>
                     </div>
+
                     <div class="drop-container">
                         <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
                             <option value="default">Class</option>
                         </select>
                         <img class="drop-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" alt="circled-chevron-down"/>
                     </div>
+
                     <div class="drop-container">
                         <select name="date_select" id="date_select" class="option_bar" onchange="change_date()" disabled>
                             <option value="default">Date</option>
                         </select>
                         <img class="drop-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" alt="circled-chevron-down"/>
                     </div>
+
                     <!-- Wrapper for the last two elements -->
                     <div class="centered-elements">
                         <div class="search-container">
@@ -51,21 +58,27 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- User instructions -->
                 <p class="add_instruction" id = "errors">
                     Select a semester, class, and date to show attendance data.
                 </p>
+
+                <!-- Statistics table -->
                 <div id = "stats_table" style="overflow-x:auto;">
                     <table id = "stats">
                         <thead id="thead"></thead>
                         <tbody id="tbody"></tbody>
                     </table>
                 </div>
-                <!-- FACE COUNT GRAPH -->
+
+                <!-- Face count graph -->
                 <div id="face_count_graph"></div>
             </div>
         </div>
-        <hr>
     </div>
+
+    <!-- Seperate container for if user is denied access to the page -->
     <div id="access-denied">
         <p>Your account is not authorized to access this page.</p>
         <p>Return <a href="{% url 'home' %}" id="link_home">Home</a></p>
