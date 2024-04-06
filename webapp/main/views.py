@@ -14,7 +14,7 @@ from django.http import JsonResponse
 import firebase_admin
 from firebase_admin import credentials, storage
 from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetCompleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView
@@ -45,6 +45,15 @@ from django.urls import reverse
 from django.contrib.messages import get_messages
 
 # Create your views here.
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'registration/password_reset.html'
+    
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
+
+class CustomPasswordResetComplete(PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
 
 def home(request):
     return render(request, 'main/home.html')
@@ -54,6 +63,7 @@ def stats(request):
 
 def manageclass(request):
     return render(request, 'main/manageclass.html')
+
 
 def clear_messages(request):
     storage = get_messages(request)
@@ -181,12 +191,4 @@ def enroll(request):
     else:
         form = ImageUploadForm()
     return render(request, 'main/enrollment.html', {'form': form})
-class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-    template_name = 'main/password_reset.html'
-    email_template_name = 'main/password_reset_email.html'
-    subject_template_name = 'main/password_reset_subject'
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
-    success_url = reverse_lazy('users-home')
+
