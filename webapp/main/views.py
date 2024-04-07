@@ -47,13 +47,12 @@ from django.contrib.messages import get_messages
 # Create your views here.
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset.html'
-    
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     template_name = 'registration/password_reset_done.html'
 
-class CustomPasswordResetComplete(PasswordResetDoneView):
-    template_name = 'registration/password_reset_done.html'
+class CustomPasswordResetComplete(PasswordResetCompleteView):
+    template_name = 'registration/password_done.html'
 
 def home(request):
     return render(request, 'main/home.html')

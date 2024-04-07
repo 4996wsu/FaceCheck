@@ -17,8 +17,7 @@ urlpatterns = [
     path('verify_otp/', views.otp_verification, name='verify_otp'), 
     path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/done/', views.CustomPasswordResetComplete.as_view(), name='password_done'),
-   
-    ]
+   path('reset/done/', views.CustomPasswordResetComplete.as_view(), name='password_done'),  # Corrected view name
+]
 
 urlpatterns += staticfiles_urlpatterns()
