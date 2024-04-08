@@ -455,6 +455,9 @@
 
             //  Handle search bar
             function search_student() {
+                console.log("Searching...")
+
+                //  Get search input
                 let input = document.getElementById('searchbar').value;
 
                 //  Reset action menu
@@ -636,6 +639,7 @@
                     });
             }
 
+
             //  Handle checkbox changed
             function checkbox_changed(studentId) {
                 const checkbox = document.getElementById(`checkbox_${studentId}`);
@@ -727,17 +731,24 @@
                         case "remove_student":
                             const path = `students.${class_id}.${accessid}`;
 
+                            //  Remove data from Firebase
                             const updated_data = delete_nested_fields(studentData, path);
                             await setDoc(doc_ref, updated_data);
+                            //  Remove data locally
+                            studentData = updated_data;
 
                             msg = "<br>Selected students have been deleted.";
                             break;
                     }
 
                     //  Only update photo status if the user has one
+                    //  Do not execute if "Remove Student" is the chosen action
                     if ((action != "none") && (action != "remove_student")) {
                         if (studentData.students[class_id][accessid]['picture_status'] != 'N/A') {
+                            //  Update in Firebase
                             await setDoc(doc_ref, data_to_push, { merge: true });
+                            //  Update locally
+                            studentData = deep_merge(studentData, data_to_push);
                         }
                         else {
                             console.log("Data for " + accessid + " was not adjusted.")
@@ -760,12 +771,14 @@
                     action_select.selectedIndex = 0;
                 else {
                     // notif_msg.innerHTML = msg + "<br>Please refresh the page to see any changes made.<br><br>";
-                    window.location.reload();
+                    // window.location.reload();
+                    search_student();   // Refresh table
                 }
             }
             window.select_action = select_action;
 
 
+            //  Delete nested fields inside given data and path
             function delete_nested_fields(data, path) {
                 const keys = path.split('.');
                 let nested_data = data;
@@ -782,7 +795,23 @@
                 return data;
             }
 
-
+            
+            //  Merges data into data from Firebase locally so that the page does not need to be refreshed
+            function deep_merge(target, source) {
+                for (const key in source) {
+                    if (source.hasOwnProperty(key)) {
+                        if (typeof source[key] === 'object' && source[key] !== null && !Array.isArray(source[key])) {
+                            // Recursively merge nested objects
+                            target[key] = deep_merge(target[key] || {}, source[key]);
+                        } else {
+                            // Overwrite non-object properties
+                            target[key] = source[key];
+                        }
+                    }
+                }
+                return target;
+            }
+            
             /* ----------------------------------------  NEW STUDENT PAGE CODE  ----------------------------------------*/
 
             
@@ -866,8 +895,13 @@
                                 }
                             };
 
+                            //  Update in Firebase
                             const doc_ref = doc(db, "infoCollection", "student_doc");
                             await setDoc(doc_ref, data_to_push, { merge: true });
+                            //  Update locally
+                            studentData = deep_merge(studentData, data_to_push);
+                            //  Refresh table
+                            search_student();
                             data_success.push(ID);
                         }
                         else {
