@@ -61,7 +61,7 @@
                                 alt="search--v1"/>
                         </div>
 
-                        <div class="drop-container">
+                        <div class="drop-container" id="filter-container">
                             <select name="filter_select" id="filter_select" class="option_bar" onchange="change_filter()">
                                 <option value="accessid">Access ID</option>
                                 <option value="fname">First name</option>
@@ -150,14 +150,18 @@
             // Grab the search and select containers
             var searchContainer = document.querySelector('.search-container');
             var selectContainer = document.querySelector('.select-container');
+            var dropContainer = document.querySelector('.drop-container');
+            var filterContainer = document.getElementById('filter-container');
             
             // Check if the active tab is 'tab_add_students', hide search and select containers if true
             if (tabName === 'tab_add_students') {
                 if(searchContainer) searchContainer.style.display = 'none';
                 if(selectContainer) selectContainer.style.display = 'none';
+                if(filterContainer) filterContainer.style.display = 'none';
             } else {
                 if(searchContainer) searchContainer.style.display = 'block';
                 if(selectContainer) selectContainer.style.display = 'block';
+                if(filterContainer) filterContainer.style.display = 'block';
             }
         }
         window.openTab = openTab;
@@ -261,11 +265,12 @@
             //  Save identifier keys and write initial table based on inputs
             var username = "{{ user.username }}";
             console.log("Logged in as:", username);
-            let semester = 'N/A';
-            let class_id = 'N/A';
+            var semester = 'N/A';
+            var class_id = 'N/A';
             var students;   //  This is initialized with a value after a class is chosen
-            let classes = get_class_list();
-            let users = Object.keys(userData.users);
+            var classes = get_class_list();
+            var users = Object.keys(userData.users);
+            var selected_rows = get_selected_rows();
             add_student_row();
             write_semester_menu();
 
@@ -425,6 +430,10 @@
                         console.log(class_id);
                         students = Object.keys(studentData.students[class_id]);
                         console.log("Number of students: " + students.length);
+
+                        // deselect any selected rows
+                        deselect_rows();
+                    
                         search_student();
                     }
                     else {
@@ -539,7 +548,7 @@
             async function write_manage_table(accessIDs) {
                 console.log("Writing manage table");
                 error_msg.innerHTML = "";
-            
+
                 // Create an array to store promises for fetching photo URLs
                 const photoPromises = [];
 
@@ -633,6 +642,9 @@
                                 table.innerHTML += row;
                             }
                         }
+
+                        // Reselect rows once table is fully populated
+                        select_rows(selected_rows);
                     })
                     .catch(error => {
                         console.error("Error fetching photo URLs:", error);
@@ -645,12 +657,14 @@
                 const checkbox = document.getElementById(`checkbox_${studentId}`);
                 const isChecked = checkbox.checked;
                 console.log(`Checkbox for student ${studentId} is checked: ${isChecked}`);
+
+                selected_rows = get_selected_rows();
                 toggle_action_menu();
             }
             window.checkbox_changed = checkbox_changed;
 
 
-            //  Get all selected ows
+            //  Get all selected rows
             function get_selected_rows() {
                 var selected_rows = [];
                 const checkboxes = document.getElementsByName('select_checkbox');
@@ -661,6 +675,33 @@
                 });
                 console.log(selected_rows);
                 return selected_rows;
+            }
+
+
+            //  Select a set of rows automatically
+            //  Can also be used to re-select rows after a search
+            function select_rows(selected_rows) {
+                console.log("SELECTED ROWS: " + selected_rows)
+                for (let i = 0; i < selected_rows.length; i++) {
+                    console.log(`checkbox_${selected_rows[i]}`);
+                    if (document.getElementById(`checkbox_${selected_rows[i]}`) !== undefined) {
+                        document.getElementById(`checkbox_${selected_rows[i]}`).checked = true;
+                    }
+                    else {
+                        console.log(`checkbox_${selected_rows[i]} does not exist.`)
+                    }
+                }
+                toggle_action_menu();
+            }
+
+            //  Automatically deselect any selected rows
+            function deselect_rows() {
+                const checkboxes = document.getElementsByName('select_checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                selected_rows = [];
+                toggle_action_menu();
             }
 
 
@@ -737,6 +778,8 @@
                             //  Remove data locally
                             studentData = updated_data;
 
+                            deselect_rows();
+
                             msg = "<br>Selected students have been deleted.";
                             break;
                     }
@@ -745,6 +788,7 @@
                     //  Do not execute if "Remove Student" is the chosen action
                     if ((action != "none") && (action != "remove_student")) {
                         if (studentData.students[class_id][accessid]['picture_status'] != 'N/A') {
+                            deselect_rows();
                             //  Update in Firebase
                             await setDoc(doc_ref, data_to_push, { merge: true });
                             //  Update locally
@@ -795,7 +839,7 @@
                 return data;
             }
 
-            
+
             //  Merges data into data from Firebase locally so that the page does not need to be refreshed
             function deep_merge(target, source) {
                 for (const key in source) {
