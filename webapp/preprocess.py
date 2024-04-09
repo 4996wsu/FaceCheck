@@ -5,7 +5,6 @@ from torchvision import datasets
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from firebase_admin import storage
 import io
-
 import firebase_admin
 from firebase_admin import credentials
 import torch
@@ -19,33 +18,29 @@ import numpy as np
 # Path to your Firebase service account JSON file
 cred_path = 'db_credentials.json'
 
-# Initialize the Firebase Admin SDK
-#cred = credentials.Certificate(cred_path)
-#firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
-
 def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709):
     mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
-    # frame = cv2.imread(image_path)
-    # if frame is None:
-    #     raise FileNotFoundError(f"The specified image_path does not exist or is not accessible: {image_path}")
-    # frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    # faces, _ = mtcnn.detect(frame_rgb)
-    
+
+    # Load the image
     response = requests.get(image_path)
     if response.status_code != 200:
+        # If the image cannot be downloaded, raise an error
         raise FileNotFoundError(f"The specified image_path cannot be downloaded: {image_path}")
+    
+    
     image_bytes = BytesIO(response.content)
     image = Image.open(image_bytes)
     
     image_rgb = image.convert('RGB')
     frame_rgb = np.array(image_rgb)
+    #Face detection
     faces, _ = mtcnn.detect(frame_rgb)
     
-    
+    #if there is only one face detected, crop the face
     if faces is not None and len(faces) == 1:
         face = faces[0]
+        # Get the coordinates of faces to crop
         x1, y1, x2, y2 = [int(coord) for coord in face]
-        # Ensure coordinates are within image bounds
         x1, y1 = max(0, x1), max(0, y1)
         x2, y2 = min(frame_rgb.shape[1], x2), min(frame_rgb.shape[0], y2)
         if x2 <= x1 or y2 <= y1:
@@ -64,6 +59,7 @@ device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def face_encode(cropped_face, device):
     embedding_list = [] 
+    #Initialize the model
     resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
 
     # Define transformations
@@ -83,7 +79,7 @@ def face_encode(cropped_face, device):
 
     return embedding_list
 
-
+# Save the embeddings and names to a .pt file
 def make_pt_file(embedding_list, name_list):
     # Save the file to an in-memory file-like object
     file_name = f'{name_list[0]}.pt'
@@ -103,15 +99,6 @@ def make_pt_file(embedding_list, name_list):
 
     # Get the URL of the blob
     url = blob.public_url
-    print(url)
     return url
     
-#cropped_face = detect_and_crop_face('photos/hc9082/hc9082.jpg')
-#name_list=['hc9082']
 
-#if cropped_face is not None:
-    #embedding_list=face_encode(cropped_face, device)
-    #make_pt_file(embedding_list, name_list)
-    cv2.imwrite('cropped_face.jpg', cropped_face)
-#else:
-    print("No face detected.")

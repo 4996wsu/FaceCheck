@@ -171,6 +171,8 @@ def enroll(request):
                 messages.warning(request, 'Photo is invalid. Please upload a photo with one face in it.')
             elif result == 'flagged':
                 messages.warning(request, "Your photo has matched with another person's photo. Please resolve it with your professors.")
+            elif result == 'flagged_before':
+                messages.warning(request, "Your photo was flagged before. Please resolve it with your professors.")
             elif result == 'unknown':
                 messages.success(request, 'Successfully uploaded photo.')
             

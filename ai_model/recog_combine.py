@@ -9,7 +9,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 # Load the model and data
-load_data = torch.load('data.pt', map_location=device)
+load_data = torch.load('CSC_4996_001_W_2024.pt', map_location=device)
 embedding_list, name_list = load_data
 embedding_list = [i.to(device) for i in embedding_list]
 
@@ -39,13 +39,15 @@ def predict_face_names(img):
             # Find the minimum distance
             min_dist = min(dist_list)
             # Check if distance is less than threshold, it's a match
-            if min_dist < 0.90:
+            if min_dist < 0.95:
                 # Get the index of the minimum distance
                 min_dist_idx = dist_list.index(min_dist)
                 # Get the corresponding name
                 recognized_name = name_list[min_dist_idx]
+                print(f"Recognized {recognized_name} with distance {min_dist:.2f}")
                 recognized_names.append(recognized_name)
             else:
+                print(f"Unknown face with distance {min_dist:.2f}")
                 recognized_names.append("Unknown")
 
     return recognized_names

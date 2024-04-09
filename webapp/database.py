@@ -203,6 +203,9 @@ def update_student_photo(name, file):
         if duplicate_faces(embedding_list,emb, names,name)== 'flagged':
             print("Error: Duplicate face detected.")
             return "flagged"
+        elif duplicate_faces(embedding_list,emb, names,name)== 'flagged_before':
+            print("Error: Duplicate face detected.")
+            return "flagged_before"
         elif duplicate_faces(embedding_list,emb, names,name)== 'unknown':
             print("Error: Unknown face detected.")
             return "unknown"
@@ -240,7 +243,27 @@ def update_photo_status_batch(name, value):
                 key = 'students.' + section + '.' + name + '.picture_status'
                 print("Updated photo status for '" + name + "' in class '" + section + "'.")
                 update_doc(student_doc, key, value)
+def check_picture_status(student_name):
+    student_dict = get_doc(student_doc)
+
+    # Iterate through each course
+    for course_id, course_info in student_dict['students'].items():
+        # Skip class_photos entries
+        if course_id == 'class_photos':
+            continue
         
+        # Check if the student exists in this course
+        if student_name in course_info:
+            # Get the picture status for the student
+            picture_status = course_info[student_name]['picture_status']
+            # If the picture status is 'Flagged', return False
+            if picture_status == 'Flagged':
+                return False
+    
+    # If none of the picture statuses are 'Flagged', return True
+    return True
+print(check_picture_status('hi4718'))
+
     
 #  Remove student photo
 def remove_student_photo(name):

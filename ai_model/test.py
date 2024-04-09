@@ -1,93 +1,111 @@
-from facenet_pytorch import MTCNN
 import torch
 import torch.nn as nn
-from torchvision import models, transforms
-from PIL import Image
+import timm
+from facenet_pytorch import MTCNN
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
 import cv2
-import numpy as np
+import os
+import time
+from PIL import Image
 
-# Initialize MTCNN for face detection
-mtcnn = MTCNN(keep_all=True, device='cpu')
+class CustomEfficientNet(nn.Module):
+    def __init__(self, num_output_features=512):
+        super(CustomEfficientNet, self).__init__()
+        self.base_model = timm.create_model('tf_efficientnet_b7_ns', pretrained=True)  # If warning, adjust model name
+        self.base_model.classifier = nn.Identity()
+        self.classifier = nn.Linear(self.base_model.num_features, num_output_features)
 
-# Step 1: Load Your Trained Model
-def load_model(model_path, embedding_dimension=128):
-    model = models.resnet50(pretrained=False)
-    model.fc = nn.Linear(model.fc.in_features, embedding_dimension)
-    model.load_state_dict(torch.load(model_path, map_location='cpu'))
-    model.eval()  # Set to evaluation mode
-    return model
+    def forward(self, x):
+        x = self.base_model(x)
+        x = self.classifier(x)
+        return x
 
-# Step 2: Preprocess Input Image and Extract Face Encoding
-def get_transform():
-    return transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+def load_models(device):
+    mtcnn = MTCNN(keep_all=True, device=device)
+    efficientnet = CustomEfficientNet().to(device).eval()
+    return mtcnn, efficientnet
 
-def extract_face_encoding(model, image_path):
-    transform = get_transform()
-    image = Image.open(image_path).convert('RGB')
-    image = transform(image).unsqueeze(0)  # Add batch dimension
-    with torch.no_grad():
-        encoding = model(image)
-    return encoding
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+mtcnn, efficientnet = load_models(device)
 
-# Initialize your model
-model_path = 'triplet_model_face_recognition.pth'
-model = load_model(model_path)
+dataset = datasets.ImageFolder('photos')
+idx_to_class = {i: c for c, i in dataset.class_to_idx.items()}
+loader = DataLoader(dataset, collate_fn=lambda x: x[0])
 
-# Load images and extract encodings for both people
-people_images = {
-    'Ahmed': 'dataset/data/ahmed/ahmed.jpg',
-    'aafnan': 'dataset/data/afnan/afnan.jpg',
-    'Mohammed': 'dataset\data\mo\mo.jpeg'
+name_list = []
+embedding_list = []
+
+for img, idx in loader:
+    img_cropped, prob = mtcnn(img, return_prob=True)
+    if img_cropped is not None and prob > 0.92:
+        img_cropped = img_cropped.squeeze()  # Adjust tensor shape if needed
+        img_cropped_pil = transforms.ToPILImage()(img_cropped)  # Convert to PIL Image
+        img_cropped_pil = transforms.Resize((224, 224), antialias=True)(img_cropped_pil)
+        img_cropped_tensor = transforms.ToTensor()(img_cropped_pil)
+        img_cropped_tensor = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(img_cropped_tensor)
+        img_cropped_tensor = img_cropped_tensor.to(device)
+        emb = efficientnet(img_cropped_tensor.unsqueeze(0))
+        embedding_list.append(emb.detach().cpu().flatten())
+        name_list.append(idx_to_class[idx])
+
+data = [embedding_list, name_list]
+torch.save(data, 'data.pt')  # Save embeddings and names
+
+# Webcam face recognition code remains unchanged
+# Ensure to use the fixed approach for image preprocessing after face detection
 
 
-}
-
-people_encodings = {name: extract_face_encoding(model, path) for name, path in people_images.items()}
-
-# Start webcam feed
-cap = cv2.VideoCapture(0)
+# Webcam face recognition
+cam = cv2.VideoCapture(0)
 
 while True:
-    ret, frame = cap.read()
+    ret, frame = cam.read()
     if not ret:
+        print("Failed to grab frame, try again")
         break
 
-    # Detect faces in the frame
-    boxes, _ = mtcnn.detect(frame)
-    if boxes is not None:
-        for box in boxes:
-            box = box.astype(int)
-            face = frame[box[1]:box[3], box[0]:box[2]]
-            face = Image.fromarray(face)
-            face_transformed = get_transform()(face).unsqueeze(0)
-            
-            with torch.no_grad():
-                current_encoding = model(face_transformed)
+    img = Image.fromarray(frame)
+    img_cropped_list, prob_list = mtcnn(img, return_prob=True)
 
-            closest_person = None
-            smallest_distance = float('inf')
-            
-            for name, encoding in people_encodings.items():
-                distance = torch.norm(encoding - current_encoding)
-                print("Distance:", distance)  # Add this line to debug distance values
+    if img_cropped_list is not None:
+        boxes, _ = mtcnn.detect(img)
 
-                if distance < smallest_distance:
-                    smallest_distance = distance
-                    closest_person = name
-            
-            threshold = 5  # Adjust based on your model's performance
-            if smallest_distance < threshold:
-                print(f"{closest_person} detected!")
-                cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 3)
-                cv2.putText(frame, closest_person, (box[0], box[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        for i, prob in enumerate(prob_list):
+            if prob > 0.90:
+                img_cropped = img_cropped_list[i].to(device)
+                emb = efficientnet(img_cropped.unsqueeze(0)).detach().cpu().flatten()
 
-    cv2.imshow('Webcam', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+                dist_list = []
+                for emb_db in embedding_list:
+                    dist = torch.dist(emb, emb_db).item()
+                    dist_list.append(dist)
+
+                min_dist = min(dist_list)
+                min_dist_idx = dist_list.index(min_dist)
+                name = name_list[min_dist_idx]
+
+                box = boxes[i]
+                frame = cv2.putText(frame, name + ' ' + str(min_dist), (int(box[0]), int(box[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
+                frame = cv2.rectangle(frame, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (255, 0, 0), 2)
+
+    cv2.imshow("IMG", frame)
+
+    k = cv2.waitKey(1)
+    if k % 256 == 27:  # ESC key
+        print('Esc pressed, closing...')
         break
+    elif k % 256 == 32:  # Space key to save image
+        print('Enter your name:')
+        name = input()
 
-cap.release()
+        # Create directory if not exists
+        if not os.path.exists('photos/' + name):
+            os.makedirs('photos/' + name)
+
+        img_name = "photos/{}/{}.jpg".format(name, int(time.time()))
+        cv2.imwrite(img_name, frame)
+        print("Saved: {}".format(img_name))
+
+cam.release()
 cv2.destroyAllWindows()

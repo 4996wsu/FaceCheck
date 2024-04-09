@@ -7,6 +7,11 @@ import time
 import subprocess
 import sys
 
+
+#this is old desktop app code which we used in first prototype
+#DON'T USE THIS CODE
+
+
 # soruce: https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile
 def resource_path(relative_path):
     try:

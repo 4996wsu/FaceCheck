@@ -5,6 +5,7 @@ import torch
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 mtcnn = MTCNN(keep_all=True, device=device)
 
+
 def detect_faces(frame):
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     faces, _ = mtcnn.detect(frame_rgb)
