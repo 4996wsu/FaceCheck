@@ -328,10 +328,6 @@ font-size: large;
 
   /* stats tables */
 
-
-  #stats_table {
-    margin-bottom: 3em;
-}
 th, tr {
     padding-right: 1rem;
 }
@@ -356,7 +352,7 @@ th, tr {
 
 
 #stats_table {
-    margin-bottom: 3em;
+    margin-bottom: 1em;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Add shadow for depth */
     border-collapse: separate;
     border-spacing: 0;
@@ -596,6 +592,16 @@ button {
 
 button:hover {
     background-color: #246925;
+}
+
+.overall_button {
+    all: unset;
+    background-color: transparent;
+    width: 25px;
+    cursor: pointer;
+}
+.overall_button:hover {
+    background-color: #333333;
 }
 
 #face_count_graph {
