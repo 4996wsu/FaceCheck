@@ -656,10 +656,10 @@
 
 
             //  Handle checkbox changed
-            function checkbox_changed(studentId) {
-                const checkbox = document.getElementById(`checkbox_${studentId}`);
+            function checkbox_changed(accessid) {
+                const checkbox = document.getElementById(`checkbox_${accessid}`);
                 const isChecked = checkbox.checked;
-                console.log(`Checkbox for student ${studentId} is checked: ${isChecked}`);
+                console.log(`Checkbox for student ${accessid} is checked: ${isChecked}`);
 
                 selected_rows = get_selected_rows();
                 toggle_action_menu();
