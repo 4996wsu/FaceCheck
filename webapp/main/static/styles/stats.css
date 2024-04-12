@@ -328,10 +328,6 @@ font-size: large;
 
   /* stats tables */
 
-
-  #stats_table {
-    margin-bottom: 3em;
-}
 th, tr {
     padding-right: 1rem;
 }
@@ -356,7 +352,7 @@ th, tr {
 
 
 #stats_table {
-    margin-bottom: 3em;
+    margin-bottom: 1em;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Add shadow for depth */
     border-collapse: separate;
     border-spacing: 0;
@@ -584,4 +580,50 @@ tr{
     margin-bottom: 1rem;
     color: white;
     font-family: "Oswald", sans-serif;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    width: 95%;
+    height: 120%;
+    border-radius: 10px;
+}
+
+button:hover {
+    background-color: #246925;
+}
+
+
+/* Buttons for the overall attendance values in the table */
+.overall_button {
+    all: unset;
+    background-color: transparent;
+    width: 25px;
+    cursor: pointer;
+}
+.overall_button:hover {
+    background-color: #333333;
+}
+
+
+/* Face count graph styles */
+#face_count_graph {
+    width: 100%;
+    height: 150%;
+}
+
+
+/* Buttons for confirming/reverting changes to the table */
+#update_buttons {
+    display: none;
+    width: 50%;
+    height: 125%;
+    margin-bottom: 1em;
+}
+
+#confirm_changes,
+#revert_changes {
+    flex: 1;
+    margin: 0 5px;
 }

@@ -667,3 +667,13 @@ tr{
     margin-top: 10px;
 }
 
+.photo_button {
+    background-color: #4CAF50;
+    color: white;
+    width: 75%;
+    height: 120%;
+    border-radius: 10px;
+}
+.photo_button:hover {
+    background-color: #246925;
+}
