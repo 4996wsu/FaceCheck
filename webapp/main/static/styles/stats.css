@@ -594,6 +594,8 @@ button:hover {
     background-color: #246925;
 }
 
+
+/* Buttons for the overall attendance values in the table */
 .overall_button {
     all: unset;
     background-color: transparent;
@@ -604,7 +606,24 @@ button:hover {
     background-color: #333333;
 }
 
+
+/* Face count graph styles */
 #face_count_graph {
     width: 100%;
     height: 150%;
+}
+
+
+/* Buttons for confirming/reverting changes to the table */
+#update_buttons {
+    display: none;
+    width: 50%;
+    height: 125%;
+    margin-bottom: 1em;
+}
+
+#confirm_changes,
+#revert_changes {
+    flex: 1;
+    margin: 0 5px;
 }

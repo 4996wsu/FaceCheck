@@ -72,6 +72,11 @@
                     </table>
                 </div>
 
+                <div id = "update_buttons">
+                    <button id = "confirm_changes" onClick="confirm_changes()">Confirm chages</button>
+                    <button id = "revert_changes" onClick = "revert_changes()">Revert chages</button>
+                </div>
+
                 <!-- Face count graph -->
                 <div id="face_count_graph"></div>
             </div>
@@ -93,7 +98,7 @@
     <script type="module">
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 
         //  Remove all options from a select menu
@@ -211,13 +216,16 @@
             //  Save identifier keys and write initial table based on inputs
             var username = "{{ user.username }}";
             console.log("Logged in as:", username);
-            let date = 'N/A';
-            let semester = 'N/A';
-            let class_id = 'N/A';
+            var date = 'N/A';
+            var semester = 'N/A';
+            var class_id = 'N/A';
             var students;   //  This is initialized with a value after a class is chosen
-            let classes = get_class_list();
-            let users = Object.keys(userData.users);
+            var classes = get_class_list();
+            var users = Object.keys(userData.users);
             write_semester_menu();
+
+            //  Initialize a temporary data variable in case the user makes changes to overall attendance
+            var tempStudentData = JSON.parse(JSON.stringify(studentData));
 
             //  Does user have access to this page?
             if (username != "") {
@@ -328,6 +336,11 @@
                     default_option.style.display = 'none';
                     date_select.appendChild(default_option);
                     date = "N/A";
+
+                    //  Update temporary studentData and hide buttons, then re-search for students.
+                    studentData = JSON.parse(JSON.stringify(tempStudentData));
+                    tempStudentData = JSON.parse(JSON.stringify(studentData));
+                    show_buttons();
                     search_student();
                 }
                 else {
@@ -390,6 +403,11 @@
                         write_date_menu();
                         date_select.removeAttribute("disabled");
                         error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
+
+                        //  Update temporary studentData and hide buttons.
+                        studentData = JSON.parse(JSON.stringify(tempStudentData));
+                        tempStudentData = JSON.parse(JSON.stringify(studentData));
+                        show_buttons();
                     }
                     else {
                         console.log("Error: Class '" + input + "' does not exist in the attendance database.");
@@ -451,6 +469,11 @@
                 let input = date_select.value;
                 if (input != "N/A") {
                     date = input;
+
+                    //  Update temporary studentData and hide buttons, then re-search for students.
+                    studentData = JSON.parse(JSON.stringify(tempStudentData));
+                    tempStudentData = JSON.parse(JSON.stringify(studentData));
+                    show_buttons();
                     search_student();
                 }
                 else {
@@ -470,6 +493,7 @@
                     searchbar.placeholder = "Enter first name";
                 else if (filter === 'lname')
                     searchbar.placeholder = "Enter last name";
+
                 search_student();
             }
             window.change_filter = change_filter;
@@ -686,7 +710,7 @@
                                         // in case there was an error processing attendance for a given time.
                                         if (student_timestamps.includes(key)) {
                                             if (attendance[key] === true)
-                                                value = "\u2714";
+                                                value = "\u00A0\u2714";
                                             else
                                                 value = "\u274C";
                                         }
@@ -694,7 +718,19 @@
                                             console.log("Error: missing timestamp for " + currentStudent + ".");
                                         }
                                         
-                                        row += '<td class = "col">' + value + '</td>';
+                                        // Add button if writing overall attendance
+                                        if (key === "Overall") {
+                                            row += `<td class = "col">
+                                                        <button class = "overall_button" 
+                                                        id = "overall_button_${currentStudent}_${date}_${key}" 
+                                                        onClick = "change_overall_attendance('${currentStudent}', '${date}', '${key}')">` + 
+                                                            value + 
+                                                        `</button>
+                                                    </td>`;
+                                        }
+                                        else {
+                                            row += `<td class = "col">` + value + `</td>`;
+                                        }
                                     }
                                     row += '</tr>'
                                     table.innerHTML += row
@@ -755,7 +791,98 @@
                     });
             }
 
+            //  Check if all nested objects are equal between two objects
+            function deep_equal(obj1, obj2) {
+                // Check if both are objects
+                if (typeof obj1 === 'object' && typeof obj2 === 'object') {
+                    // Get the keys of each object
+                    const keys1 = Object.keys(obj1);
+                    const keys2 = Object.keys(obj2);
+            
+                    // Check if the number of keys is the same
+                    if (keys1.length !== keys2.length) {
+                        return false;
+                    }
+            
+                    // Check if all keys in obj1 are present in obj2 and have the same values
+                    for (let key of keys1) {
+                        if (!keys2.includes(key) || !deep_equal(obj1[key], obj2[key])) {
+                            return false;
+                        }
+                    }
+            
+                    // If all keys and values are the same, return true
+                    return true;
+                } else {
+                    // If both are not objects, perform a simple comparison
+                    return obj1 === obj2;
+                }
+            }
 
+            //  Change overall attendance
+            function change_overall_attendance(accessid, date, time) {
+                let btn = document.getElementById(`overall_button_${accessid}_${date}_${time}`)
+                var value;
+
+                //  Toggle button text content and save value
+                if (btn.textContent === "\u00A0\u2714") {
+                    value = false;
+                    btn.textContent = "\u274C";
+                }
+                else {
+                    value = true;
+                    btn.textContent = "\u00A0\u2714";
+                }
+
+                //  Make changes in local data
+                if (class_id != "N/A") {
+                    studentData.students[class_id][accessid]['attendance'][date][time] = value;
+                }
+
+                //  Show buttons if needed
+                show_buttons();
+            }
+            window.change_overall_attendance = change_overall_attendance;
+
+            //  Check if student data has been modified on webapp
+            function show_buttons() {
+                let div = document.getElementById("update_buttons");
+                if (!deep_equal(studentData, tempStudentData)) {
+                    div.style.display = "flex";
+                    console.log("Showing buttons");
+                }
+                else {
+                    div.style.display = "none";
+                    console.log("Hiding buttons");
+                }
+            }
+
+            //  Reset any changes if not confirmed already
+            async function revert_changes() {
+                studentData = JSON.parse(JSON.stringify(tempStudentData));
+
+                //  Hide buttons since there are no longer unsaved changes
+                show_buttons();
+
+                //  Refresh table
+                search_student();
+            }
+            window.revert_changes = revert_changes;
+
+            //  Confirm changes to student data
+            async function confirm_changes() {
+                tempStudentData = JSON.parse(JSON.stringify(studentData));
+
+                //  Update in Firebase
+                const doc_ref = doc(db, "infoCollection", "student_doc");
+                await setDoc(doc_ref, studentData, { merge: true });
+
+                //  Hide buttons since there are no longer unsaved changes
+                show_buttons();
+            }
+            window.confirm_changes = confirm_changes;
+
+            
             //  Show face count
             function show_face_count() {
                 //  Get all students except "class_photos" since that does not represent a student
