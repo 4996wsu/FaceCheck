@@ -15,6 +15,7 @@ import cv2
 from datetime import datetime
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 import torch
+
 # from preprocess import encode_face
 
 
@@ -407,7 +408,7 @@ def update_overall_attendance(section, name, value, date = getDate()):
         update_doc(student_doc, key, value)
         print("Student '" + name + " marked as " + str(value) + " OVERALL on " + date + ".")
 
-#  Update student photo
+#  Update student photo 
 def update_student_photo(name, file):
     bucket = storage.bucket()
     imageBlob = bucket.blob(name + "_photo")
@@ -566,7 +567,7 @@ def retrieve_encodings_from_class(section):
     print(encoding_list)
     return encoding_list 
 
-
+#AHmed Minhaj
 def download_pt_file_student(url):
     response = requests.get(url)
     response.raise_for_status()
@@ -596,23 +597,28 @@ def update_class_encoding_status(section, value):
     key = 'classes.' + section + '.class_encoding_update'
     update_doc(class_doc, key, value)
 
-
+#this function combine all the pt files of the students in the class and make a class pt file and then save it as the section name
 def combine_pt_files(section):
     combined_embedding_list = []
     combined_name_list = []
-
+    # Retrieve all encodings for the class
     urls = retrieve_encodings_from_class(section)
+
     for url in urls:
+        #get the embedding and name from the url
         embedding, name = download_pt_file_student(url)
+        #append the embedding and name to the list
         combined_embedding_list.append(embedding)
         combined_name_list.append(name)
-    #print(combined_embedding_list)
-    combined_data = {'embedding_list': combined_embedding_list, 'name_list': combined_name_list}
+    #save the combined embedding and name list as a pt file
     torch.save([combined_embedding_list,combined_name_list], f'{section}.pt')
+    #upload the file to the firebase
     update_class_encoding(section, f'{section}.pt')
 
-
+#this function will download the file from the url and save it as the section name
 def download_file_combine(url, section):
+    # Download the file from the URL
+    #credit: https://stackoverflow.com/questions/16694907/download-large-file-in-python-with-requests
     with requests.get(url, stream=True) as response:
         response.raise_for_status()
         with open(section, 'wb') as file:
@@ -621,26 +627,24 @@ def download_file_combine(url, section):
     
     print(f"File downloaded and saved as {section}")
 
-from datetime import datetime
-
+#this function will return the low attendance students
 def get_low_attendance_students(section):
     # Get today's date in the same format as your attendance records
-
-
     first_today_str = datetime.now().strftime('%m-%d-%Y')
+    #Convert the date to the format used in the attendance records
     today_str = first_today_str.replace("-", "_")
-    #print("today_str",today_str)
-    
+
+    # Retrieve the document from Firebase
     doc = get_doc('student_doc')
-    #print(doc)
     if doc is None:
         print("No document found")
         return []
 
+    # Get the students for the specified section
     students = doc['students'].get(section, {})
     low_attendance_students = []
     for student_id, student_data in students.items():
-        #print("student_id",student_id)
+        # Skip the class_photos key
         if student_id == 'class_photos':
             continue
         # Initialize counts for today
@@ -657,46 +661,45 @@ def get_low_attendance_students(section):
         # Calculate attendance rate for today
         attendance_rate_today = (attended_sessions_today / total_sessions_today) * 100 if total_sessions_today > 0 else 0
         
-        # Print attendance info for debugging
-        #print(f"Student ID: {student_id}, Attended Sessions Today: {attended_sessions_today}, Total Sessions Today: {total_sessions_today}, Attendance Rate Today: {attendance_rate_today}%")
-        
         # Decide if the student has low attendance today
         if attendance_rate_today <= 50:###AATTENTION 50% is just a number I picked up AND IT IS A THRESHOLD
-            #print(f"Student {student_id} has low attendance today ({attendance_rate_today}%)")
             low_attendance_students.append(student_id)
-            print("low_attendance_students",low_attendance_students)
-    names = retrieve_names_from_class(section)
-    result = [name for name in names if name not in low_attendance_students]
-    print(  "result",result)
 
-    for name in result:
+    #list of all students for the section
+    names = retrieve_names_from_class(section)
+    # Remove low attendance students from the list of all students
+    
+    high_attendance = [name for name in names if name not in low_attendance_students]
+
+    # Update overall attendance for high attendance students as True
+    for name in high_attendance:
         update_overall_attendance(section, name, True, today_str)
         
-
+    # Return the list of low attendance students
     return low_attendance_students
-section = 'CSC_4996_001_W_2024'
-#get_low_attendance_students(section)
-#names = retrieve_names_from_class(section)
-# Assuming the get_doc function is defined and works as intended
 
+
+#this function grabs the class id and returns the subjects, course numbers, class sections, terms, and years so that we can use it as a dropdown menu
 def get_class_id(doc_id):
     # Retrieve the document from Firebase
     doc = get_doc(doc_id)
-    
+    #error handling
     if not doc or 'classes' not in doc:
         print("Document not found or does not contain 'classes'.")
         return [], [], [], [], []
-    
+    # Initialize lists to store unique values
     subjects, course_numbers, class_sections, terms, years = [], [], [], [], []
     # Mapping for term codes to their full names
     term_mapping = {"S": "Summer", "W": "Winter", "F": "Fall"}
     
+    # Iterate over each class in the document
     for class_id, details in doc['classes'].items():
         parts = class_id.split("_")
+        # Check if the class ID is in the correct format
         if len(parts) == 5:
             subject, course_number, class_section, term_code, year = parts
             
-            # Check for duplicates before appending
+            # Check for duplicates before appending so that we only store unique values
             if subject not in subjects:
                 subjects.append(subject)
             if course_number not in course_numbers:
@@ -711,7 +714,7 @@ def get_class_id(doc_id):
     
     return subjects, course_numbers, class_sections, terms, years
 
-
+#this function will give us the full names of the students
 def get_name(names):
     doc = get_doc('user_doc')
     if doc is None:
@@ -723,20 +726,8 @@ def get_name(names):
         full_names.append(full_name)
     print(full_names)
     return full_names
-# To use the function, you would call it with your document ID
-# Example usage:
-#subjects, course_numbers, class_sections, terms, years = get_class_id('class_doc')
-
-# Print the arrays to verify no duplicates
-# print("Subjects:", subjects)
-# print("Course Numbers:", course_numbers)
-# print("Class Sections:", class_sections)
-# print("Terms:", terms)
-# print("Years:", years)
 
 
-#low_attendance_students = get_low_attendance_students(section)
-#print("Students with <= 10% attendance:", low_attendance_students)
 #  ------------------------------  TESTING CODE  ------------------------------
 print("---------------------- START DATABASE TESTING ----------------------")
 # reset_docs()

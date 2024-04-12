@@ -5,7 +5,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../static/styles/enroll.css">
-
+<style>
+    .spinner {
+        border: 4px solid rgba(0,0,0,.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #02a007;
+        animation: spin 1s ease infinite;
+        display: inline-block; /* Make sure it's set to display */
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
+    
 <div class="centered-container">
     <div class="main_body">
         <div class="enroll_msg">
@@ -38,6 +54,7 @@
                     {{ form.image }}
                 </div>
                 <button type="submit" class="submit-button">Upload</button>
+                <div class="spinner" style="display: none;"></div>
             </form>
             {% if messages %}
             <ul class="messages">
@@ -50,6 +67,26 @@
     </div>
 </div>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.enroll_form form');
+        const submitButton = form.querySelector('.submit-button');
+        const spinner = document.querySelector('.spinner');
+    
+        form.addEventListener('submit', function(e) {
+            // Show the spinner
+            spinner.style.display = 'inline-block';
+            
+            // Hide the submit button
+            submitButton.style.display = 'none';
+        });
+    });
+    </script>
+    
+    
+    
+    
 
 <!--  JAVASCRIPT CODE  -->
 <script type="module">
@@ -67,6 +104,9 @@
         appId: "1:691465641368:web:31f2d89844617d5a0b5fed",
         measurementId: "G-FH3W7GY9NH"
     };
+
+    
+    
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);

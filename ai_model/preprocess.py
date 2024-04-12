@@ -5,7 +5,6 @@ from torchvision import datasets
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from firebase_admin import storage
 import io
-
 import firebase_admin
 from firebase_admin import credentials
 import torch
@@ -17,7 +16,10 @@ cred_path = 'db_credentials.json'
 #cred = credentials.Certificate(cred_path)
 #firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
 
+
+# Function to detect and crop the face from an image to get a better face embedding
 def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709):
+    # Load the MTCNN face detector
     mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
     frame = cv2.imread(image_path)
     if frame is None:
@@ -25,6 +27,7 @@ def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     faces, _ = mtcnn.detect(frame_rgb)
     
+    # If a face is detected and only one face is in the frame, then crop the face
     if faces is not None and len(faces) == 1:
         face = faces[0]
         x1, y1, x2, y2 = [int(coord) for coord in face]
@@ -44,7 +47,7 @@ def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-
+# Function to extract the face embeddings of the cropped face
 def face_encode(cropped_face, device):
     embedding_list = [] 
     resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
@@ -70,8 +73,12 @@ def face_encode(cropped_face, device):
 def make_pt_file(embedding_list, name_list):
     # Save the file to an in-memory file-like object
     file_name = f'{name_list[0]}.pt'
+    
+    #Create a buffer in memory using BytesIO
     buffer = io.BytesIO()
+    # Save the embeddings and names to the buffer
     torch.save([embedding_list, name_list], buffer)
+    # Reset the buffer position to the start of the buffer
     buffer.seek(0)
 
     # Get a reference to the storage service
@@ -88,7 +95,12 @@ def make_pt_file(embedding_list, name_list):
     url = blob.public_url
     print(url)
     return url
-    
+
+
+########################################################################################
+#####################################TESTING############################################
+########################################################################################
+
 #cropped_face = detect_and_crop_face('photos/hc9082/hc9082.jpg')
 #name_list=['hc9082']
 
