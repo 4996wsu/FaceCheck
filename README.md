@@ -9,7 +9,7 @@
   - [Overview](#overview)
   - [Contributors](#contributors)
   - [Software Requirements Specification](https://waynestateprod-my.sharepoint.com/:w:/g/personal/hi6576_wayne_edu/Efd8_T9tG8lDq7v1Ug7txSwB3wWseoMIsl8G_XZdJ54nXA?e=NuUeow)
-  - [Installation](https://github.com/FaceCheckOrg/FaceCheck/blob/main/installation.md)
+  - [Installation](#installation)
   - [What Our App Does](#what-our-app-does)
   - [Technology Stack](#technology-stack)
   - [Future Potential](#future-potential)
@@ -38,6 +38,7 @@ We’re thrilled to see how FaceCheck will transform classroom dynamics and make
    Email: @wayne.edu
 3. Mohamad Hachem<br />
    Email: @wayne.edu
+# Installation
 
 # What Our App Does
 
