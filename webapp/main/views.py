@@ -5,46 +5,41 @@ from database import update_student_photo, add_student
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from django.contrib.auth.forms import PasswordResetForm
-from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
-from django.shortcuts import render
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 import firebase_admin
 from firebase_admin import credentials, storage
-from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetCompleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.messages.views import SuccessMessageMixin
 import os
 from pathlib import Path
 import tempfile
-from django.shortcuts import render, redirect
 from .forms import ImageUploadForm
 from django.http import HttpResponse
-import firebase_admin
 from firebase_admin import auth
 from .forms import RegisterForm
-from django.contrib.auth import login, logout, authenticate
-from django.http import HttpResponse
 import random
-from datetime import datetime
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.contrib.messages import get_messages
 
 # Create your views here.
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'registration/password_reset.html'
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
+
+class CustomPasswordResetComplete(PasswordResetCompleteView):
+    template_name = 'registration/password_done.html'
 
 def home(request):
     return render(request, 'main/home.html')
@@ -54,6 +49,7 @@ def stats(request):
 
 def manageclass(request):
     return render(request, 'main/manageclass.html')
+
 
 def clear_messages(request):
     storage = get_messages(request)
@@ -183,12 +179,4 @@ def enroll(request):
     else:
         form = ImageUploadForm()
     return render(request, 'main/enrollment.html', {'form': form})
-class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-    template_name = 'main/password_reset.html'
-    email_template_name = 'main/password_reset_email.html'
-    subject_template_name = 'main/password_reset_subject'
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
-    success_url = reverse_lazy('users-home')
+
