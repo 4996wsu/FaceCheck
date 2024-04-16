@@ -5,40 +5,27 @@ from database import update_student_photo, add_student
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from preprocess import detect_and_crop_face, face_encode, make_pt_file
 from django.contrib.auth.forms import PasswordResetForm
-from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
-from django.shortcuts import render
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 import firebase_admin
 from firebase_admin import credentials, storage
-from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetCompleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.messages.views import SuccessMessageMixin
 import os
 from pathlib import Path
 import tempfile
-from django.shortcuts import render, redirect
 from .forms import ImageUploadForm
 from django.http import HttpResponse
-import firebase_admin
 from firebase_admin import auth
 from .forms import RegisterForm
-from django.contrib.auth import login, logout, authenticate
-from django.http import HttpResponse
 import random
-from datetime import datetime
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.urls import reverse

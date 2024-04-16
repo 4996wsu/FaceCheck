@@ -99,7 +99,7 @@ input[type="file"] {
 
 @media (min-width: 700px) {
     body::before {
-        background-image:url('../images/otp-color.png');
+        background-image:url('../images/password_reset.png');
         background-size: contain;
     }
 }
