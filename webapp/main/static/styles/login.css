@@ -1,3 +1,4 @@
+/* HEADERS AND HEADLINES */
 h2 {
     margin-bottom: 1rem;
     text-align: center;
@@ -8,6 +9,7 @@ hr {
     margin-right: 0;
     color: white;
 }
+
 .headline{
     font-size: 30px;
     font-weight: 800;
@@ -22,6 +24,8 @@ hr {
     font-weight: 1000;
     text-shadow: 2px 2px black;
 }
+
+/* GENREAL BODY STYLES */
 body {
     color: white;
     font-family: "Oswald", sans-serif; 
@@ -65,43 +69,7 @@ body::before {
     }
 }
 
-a {
-    color: #62d668;
-    font-family: "Oswald", sans-serif;
-    text-decoration: none;
-    text-shadow: 1px 1px 2px black;
-}
-a:hover {
-    color:rgb(207, 255, 209);
-}
-
-#links {
-    text-align: center;
-}
-
-#submit_btn {
-    background-color: #4CAF50;
-    font-size: 120%;
-    flex: 1;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: block;
-    width: 50%;
-    border-radius: 20px;
-    height: 150%;
-    margin: 0 auto;
-}
-
-#showpass:hover {
-    background-color: #343434;
-}
-
-#submit_btn:hover {
-    background-color: #246925;
-}
-
+/* CARD CONTAINING PAGE CONTENT */
 #card {
     color: white;
     background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
@@ -117,13 +85,53 @@ a:hover {
     font-size: 25px;
 }
 
-#id_username, #password, #showpass {
-    background-color: #131313;
-    color: white;
+/* LINKS */
+a {
+    color: #62d668;
+    font-family: "Oswald", sans-serif;
+    text-decoration: none;
+    text-shadow: 1px 1px 2px black;
 }
+a:hover {
+    color:rgb(207, 255, 209);
+}
+
+#links {
+    text-align: center;
+}
+
+/* BUTTONS */
+#submit_btn {
+    background-color: #4CAF50;
+    font-size: 120%;
+    flex: 1;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: 50%;
+    border-radius: 20px;
+    height: 150%;
+    margin: 0 auto;
+}
+
 #showpass {
     width:50px;
     margin-left: 1px;
+}
+#showpass:hover {
+    background-color: #343434;
+}
+
+#submit_btn:hover {
+    background-color: #246925;
+}
+
+/* TEXT FIELDS */
+#id_username, #password, #showpass {
+    background-color: #131313;
+    color: white;
 }
 #password {
     margin-bottom: 10px;
@@ -133,6 +141,7 @@ a:hover {
     padding-bottom: 10px;
 }
 
+/* ERRORS */
 .form-errors {
     color: #ff3347;
     text-shadow: 1px 1px 2px black;

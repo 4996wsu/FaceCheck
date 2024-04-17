@@ -1,7 +1,33 @@
+/* SELECT CURRENT TAB ON NAVBAR */
 #nav_stats {
     font-weight: bolder;
 }
 
+/* HEADLINE & INSTRUCTIONS */
+.headline{
+    font-size: 30px;
+    font-weight: 800;
+    font-family: "Oswald", sans-serif;
+    letter-spacing: 1px;
+    color: white;
+    font-synthesis-style: weight;
+    text-shadow: 2px 2px gray;
+    text-align: center;
+}
+.headline span{
+    color: blanchedalmond;
+    font-size: 30px;
+    font-weight: 1000;
+    text-shadow: 2px 3px black;
+}
+.add_instruction{
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+    font-family: "Oswald", sans-serif;
+}
+
+/* GENERAL BODY STYLES */
 body {
     margin: 0;
     padding: 0;
@@ -29,10 +55,20 @@ body::before {
     pointer-events: none;
 }
 
+/* GENERAL BUTTON STYLES */
+button {
+    background-color: #4CAF50;
+    color: white;
+    width: 95%;
+    height: 120%;
+    border-radius: 10px;
+}
 
+button:hover {
+    background-color: #246925;
+}
 
-
-
+/* OPTION BAR */
 .option_bar_container {
     font-family: "Oswald", sans-serif;
     display: grid;
@@ -40,21 +76,22 @@ body::before {
     gap: 20px; /* Space between grid items */
     margin-bottom: 20px; 
 }
-@media screen and (max-width: 768px) {
-    .option_bar_container {
-        display: flex;
-        width: 100%; /* Full width on smaller screens */
-        flex-direction: column;/* 2 columns on smaller screens */
-    }
-    .option_bar {
-        width: 100%; /* Full width for each option */
-    }
-    .centered-elements{
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-    
+  
+.option_bar {
+    border-radius: 8px; 
+}
+
+.option_bar:hover {
+    border-color: #adb5bd; 
+}
+
+.option_bar:focus {
+    border-color: #495057; 
+    box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.25); 
+}
+
+.option_bar_container .option_bar {
+    flex: 1;
 }
 
 .centered-elements {
@@ -63,27 +100,8 @@ body::before {
     justify-content: center;
     gap: 35px; /* Space between the last two elements */
 }
-  
-.option_bar {
-border-radius: 8px; 
 
-
-
-}
-
-.option_bar:hover {
-border-color: #adb5bd; 
-}
-
-.option_bar:focus {
-border-color: #495057; 
-box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.25); 
-}
-
-
-.option_bar_container .option_bar {
-flex: 1;
-}
+/* MAIN CONTAINER */
 .manage_container{
     width: 100%; /* Makes the width responsive to the size of the viewport */
     max-width: 800px; /* Your new desired maximum width */
@@ -93,14 +111,8 @@ flex: 1;
     border-radius: 20px;
     padding-top: 3rem;
     background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
-    
-    
 }
-.contain-body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+
 .manage_container select, #searchbar{
     background-color: rgb(0, 0, 0); 
     color: white;
@@ -111,14 +123,6 @@ flex: 1;
     cursor: pointer;
     width: 100%;
 }
-.option_bar option{
-    background-color: #fdfdfd; 
-    color: black;
-    padding: 12px 20px;
-    cursor: pointer;
-    width: fit-content;
-}
-
 
 .manage_container {
     width: 100%;
@@ -168,21 +172,16 @@ flex: 1;
     color: white;
 }
 
-/* Responsive design adjustments */
-@media screen and (max-width: 780px) {
-    .manage_container {
-        width: 95%; /* Slightly smaller width on smaller screens */
-        padding: 2rem; /* Adjust padding for smaller screens */
-    }
-
-    .manage_container select, #searchbar {
-        width: auto; /* This will ensure the select adjusts to text size */
-    }
-    .manage_container option{
-        font-size: 5px;
-    }
+/* OPTION BAR */
+.option_bar option{
+    background-color: #fdfdfd; 
+    color: black;
+    padding: 12px 20px;
+    cursor: pointer;
+    width: fit-content;
 }
 
+/* SEARCH BAR */
 #searchbar::placeholder {
     color: #999;
     width: 200px;
@@ -192,8 +191,6 @@ flex: 1;
     display: flex;
     align-items: center;
 }
-
-
 
 .search-icon {
     position: absolute;
@@ -210,8 +207,6 @@ flex: 1;
     display: inline-block;
 }
 
-
-
 .filter-icon {
     position: absolute;
     right: 5px; /* Adjust as needed, should correspond to padding in .option_bar */
@@ -224,79 +219,11 @@ flex: 1;
 
 
 #input_fields select,input, .select-container{
-width:200px;
-border-radius: 5px;
-}
-td.col{
-color: green;
-font-weight: 900;
-font-size: large;
+    width:200px;
+    border-radius: 5px;
 }
 
-/* Adjustments for Tablets */
-@media (max-width: 768px) {
-    body::before {
-        background-image: none; /* Remove background image */
-    }
-    .option_bar_container {
-
-
-        flex-direction: column; /* Stack options vertically */
-        gap: 10px;
-
-    }
-    
-    .option_bar option {
-    width: 100%; /* Full width for easier interaction */
-        display: flex;
-        justify-content: center; /* Center text */
-    }
-    #searchbar {
-        width: 100%; /* Full width for easier interaction */
-    }
-    
-}
-
-/* Adjustments for Mobile Devices */
-@media (max-width: 480px) {
-    body::before {
-        background-image: none; /* Remove background image */
-    }
-    .option_bar_container {
-        flex-direction: column; /* Stack options vertically */
-        gap: 10px;
-    }
-    #input_fields select,input, .select-container{
-    width:100%;
-    }
-    .centered-elements{
-    gap:10px;
-    }
-
-
-    .option_bar {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Two columns */
-        gap: 10px;
-    }
-    
-    .option_bar option {
-        display: flex;
-        justify-content: center; /* Center text */
-    }
-    
-    /* Ensure the search and filter icons remain properly aligned */
-    .search-icon, .filter-icon {
-        right: 10px; /* Adjust based on actual padding and sizes */
-    }
-    .search-icon {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%); /* Center align the icon vertically */
-    
-    }
-}
-  .drop-container {
+.drop-container {
     position: relative;
     display: inline-block;
     width: 200px; /* Fixed width of the container */
@@ -323,13 +250,15 @@ font-size: large;
     pointer-events: none; 
 }
 
-
-
-
-  /* stats tables */
-
+/* STATS TABLE STYLES */
 th, tr {
     padding-right: 1rem;
+}
+
+td.col{
+    color: green;
+    font-weight: 900;
+    font-size: large;
 }
 
 .headcol_id {
@@ -349,7 +278,15 @@ th, tr {
     width: 10em;
 }
 
-
+#stats {
+    border-collapse: collapse; /* Ensures that the table borders are combined */
+    width: 100%; /* Full width for a modern look */
+    font-family: "Oswald", sans-serif; 
+    background-color: #131313; /* White color for the table */
+    border-collapse: collapse;
+    background-color: #131313;
+    color: white;
+}
 
 #stats_table {
     margin-bottom: 1em;
@@ -358,13 +295,6 @@ th, tr {
     border-spacing: 0;
     width: 100%; /* Full width tables often look good on modern pages */
     overflow-y: visible; /* Enable horizontal scrolling on smaller screens */
-}
-
-#stats {
-    border-collapse: collapse; /* Ensures that the table borders are combined */
-    width: 100%; /* Full width for a modern look */
-    font-family: "Oswald", sans-serif; 
-    background-color: #131313; /* White color for the table */
 }
 
 #stats thead {
@@ -382,7 +312,8 @@ th, tr {
     height: 3rem; /* Fixed height for header cells */
 }
 
-.headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
+/* HEAD COLUMN: Sticky columns at the left of the table */
+.headcol_id, .headcol_name, .headcol_checkbox .col, .col_name {
     left: 0;
     z-index: 2; /* Ensure it's above other items */
     font-size: 16px;
@@ -415,45 +346,6 @@ th, tr {
     min-width: 5em; /* Use min-width for flexible layouts */
 }
 
-/* Hover styles for rows */
-#stats tr:hover {
-    background-color: #1d1c1c; /* Light grey background on hover */
-}
-tr{
-    font-size: 15px;
-}
-
-/* Responsive design for smaller screens */
-@media screen and (max-width: 768px) {
-    .headcol_id, .headcol_name, .headcol_checkbox {
-        width: auto; /* Allow the sticky columns to be more fluid on small screens */
-    }
-
-    #stats th, #stats td {
-        padding: 0.5rem; /* Smaller padding on small screens */
-    }
-    .headcol_id, .headcol_name, .headcol_checkbox .col,.col_name {
-        font-size: 10px;
-    }
-    .drop-container {
-        width: 100%; /* Full width for the container */
-    }
-}
-/* Base table styles */
-#stats {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #131313;
-    color: white;
-}
-
-#stats th, #stats td {
-    padding: 0.5rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-/* The rest of your existing CSS ... */
-
 /* Make the header of the first two columns sticky */
 #stats th:nth-child(1), #stats th:nth-child(2) {
     position: sticky;
@@ -480,120 +372,13 @@ tr{
     z-index: 2;
 }
 
-/* The rest of your existing CSS ... */
-
-
-/* Adjust the table for mobile devices */
-@media screen and (max-width: 768px) {
-    .headline {
-        font-size: 24px; /* Smaller font size for headlines */
-    }
-
-    .headline span {
-        font-size: 24px; /* Smaller font size for highlighted text */
-    }
-
-    #stats th, #stats td {
-        padding: 0.3rem; /* Reduce padding */
-        font-size: 14px; /* Smaller font size for table content */
-    }
-
-    .headcol_id, .headcol_name, .headcol_checkbox, .col, .col_name {
-        width: auto; /* Adjust width to be more fluid */
-    }
-
-
-    
+/* Hover styles for rows */
+#stats tr:hover {
+    background-color: #1d1c1c; /* Light grey background on hover */
 }
-/* Adjustments for Tablets and Mobile Devices */
-@media screen and (max-width: 768px) {
-    /* Reduce font size for table headers and cells to save space */
-    #stats th, #stats td {
-        padding: 0.25rem 0.5rem; /* Smaller padding to reduce space */
-        font-size: 12px; /* Smaller font size for compact display */
-    }
-
-    /* Adjust specific columns to minimize width while maintaining content visibility */
-    .headcol_id, .headcol_checkbox, .col {
-        min-width: 4em; /* Adjust minimum width as needed */
-    }
-
-    .headcol_name, .col_name {
-        min-width: 7em; /* Adjust minimum width as needed */
-    }
-
-    /* Ensure table header and row heights are adjusted to fit content snugly */
-    #stats th, tr {
-        height: auto; /* Allow height to adjust based on content, removing fixed height */
-    }
-
-    /* Adjust headline font sizes for tighter fit */
-    .headline, .headline span {
-
-        font-size: 25px; /* Smaller font size for headlines on smaller screens */
-    }
+tr {
+    font-size: 15px;
 }
-
-@media screen and (max-width: 480px) {
-    /* More aggressive space-saving measures for mobile devices */
-    #stats th, #stats td {
-        padding: 0.2rem; /* Even smaller padding */
-        font-size: 12px; /* Even smaller font size for a more compact display */
-    }
-
-    /* Further reduce minimum column widths for mobile screens */
-    .headcol_id, .headcol_checkbox, .col {
-        min-width: 3em; /* Adjust based on content */
-    }
-
-    .headcol_name, .col_name {
-        min-width: 5em; /* Adjust based on content */
-    }
-
-    /* Adjust headline and span font sizes for mobile */
-    .headline, .headline span {
-        text-shadow: none;
-        font-size: 22px; /* Adjust font size for smaller screens */
-    }
-}
-
-
-/* headline */
-.headline{
-    font-size: 30px;
-    font-weight: 800;
-    font-family: "Oswald", sans-serif;
-    letter-spacing: 1px;
-    color: white;
-    font-synthesis-style: weight;
-    text-shadow: 2px 2px gray;
-    text-align: center;
-}
-.headline span{
-    color: blanchedalmond;
-    font-size: 30px;
-    font-weight: 1000;
-    text-shadow: 2px 3px black;
-}
-.add_instruction{
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: white;
-    font-family: "Oswald", sans-serif;
-}
-
-button {
-    background-color: #4CAF50;
-    color: white;
-    width: 95%;
-    height: 120%;
-    border-radius: 10px;
-}
-
-button:hover {
-    background-color: #246925;
-}
-
 
 /* Buttons for the overall attendance values in the table */
 .overall_button {
@@ -605,14 +390,6 @@ button:hover {
 .overall_button:hover {
     background-color: #333333;
 }
-
-
-/* Face count graph styles */
-#face_count_graph {
-    width: 100%;
-    height: 150%;
-}
-
 
 /* Buttons for confirming/reverting changes to the table */
 #update_buttons {
@@ -626,4 +403,157 @@ button:hover {
 #revert_changes {
     flex: 1;
     margin: 0 5px;
+}
+
+/* FACE COUNT GRAPH STYLES */
+#face_count_graph {
+    width: 100%;
+    height: 150%;
+}
+
+
+/* ----------------------------------- RESPONSIVE STYLES ----------------------------------- */
+/* Tablet and Mobile resolutions */
+@media (max-width: 768px) {
+    body::before {
+        background-image: none; /* Remove background image */
+    }
+
+    /* Container and option bar styles */
+    .option_bar_container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .option_bar option {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #searchbar {
+        width: 100%;
+    }
+
+    /* Adjustments for smaller screens */
+    #stats th,
+    #stats td {
+        padding: 0.5rem;
+    }
+
+    .headcol_id,
+    .headcol_name,
+    .headcol_checkbox,
+    .col,
+    .col_name {
+        font-size: 10px;
+    }
+
+    /* Responsive adjustments */
+    .headline,
+    .headline span {
+        font-size: 24px;
+    }
+
+    /* Specific adjustments for smaller screens */
+    .headline,
+    .headline span {
+        font-size: 24px;
+    }
+
+    #stats th,
+    #stats td {
+        padding: 0.3rem;
+        font-size: 14px;
+    }
+
+    .headcol_id,
+    .headcol_name,
+    .headcol_checkbox,
+    .col,
+    .col_name {
+        width: auto;
+    }
+
+    /* Adjust specific columns to minimize width */
+    .headcol_id,
+    .headcol_checkbox,
+    .col {
+        min-width: 4em;
+    }
+
+    .headcol_name,
+    .col_name {
+        min-width: 7em;
+    }
+
+    /* Ensure table header and row heights are adjusted */
+    #stats th,
+    tr {
+        height: auto;
+    }
+
+    /* Adjust headline font sizes */
+    .headline,
+    .headline span {
+        font-size: 25px;
+    }
+}
+
+/* Mobile devices */
+@media screen and (max-width: 480px) {
+    /* MAIN CONTAINER */
+    .manage_container {
+        width: 95%; /* Slightly smaller width on smaller screens */
+        padding: 2rem; /* Adjust padding for smaller screens */
+    }
+
+    .manage_container select, #searchbar {
+        width: auto; /* This will ensure the select adjusts to text size */
+    }
+    .manage_container option{
+        font-size: 5px;
+    }
+
+    /* TABLE STYLES */
+    /* More aggressive space-saving measures */
+    #stats th,
+    #stats td {
+        padding: 0.2rem;
+        font-size: 12px;
+    }
+
+    /* Further reduce minimum column widths */
+    .headcol_id,
+    .headcol_checkbox,
+    .col {
+        min-width: 3em;
+    }
+
+    .headcol_name,
+    .col_name {
+        min-width: 5em;
+    }
+
+    /* Adjust headline and span font sizes */
+    .headline,
+    .headline span {
+        text-shadow: none;
+        font-size: 22px;
+    }
+
+    /* OPTION BAR */
+    .option_bar_container {
+        display: flex;
+        width: 100%; /* Full width on smaller screens */
+        flex-direction: column;/* 2 columns on smaller screens */
+    }
+    .option_bar {
+        width: 100%; /* Full width for each option */
+    }
+    .centered-elements{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
 }
