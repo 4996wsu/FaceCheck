@@ -619,12 +619,12 @@
                         if (filter === 'accessid') {
                             header  =  `<tr>
                                                 <th class = "headcol_id">Access ID</th>
-                                                <th class = "col_name">Name</th>`;
+                                                <th class = "headcol_name">Name</th>`;
                         }
                         else if (filter === 'fname' || filter === 'lname') {
                             header  =  `<tr>
                                                 <th class = "headcol_name">Name</th>
-                                                <th class = "col">Access ID</th>`;
+                                                <th class = "headcol_id">Access ID</th>`;
                         }
 
                         //  Find student with the most timestamps
@@ -682,20 +682,20 @@
                                 if (filter === 'accessid') {
                                     row  = `<tr>
                                                 <td class = "headcol_id">${currentStudent}</td>
-                                                <td class = "col_name">${userData.users[currentStudent]['fname'] + " " + 
+                                                <td class = "headcol_name">${userData.users[currentStudent]['fname'] + " " + 
                                                     userData.users[currentStudent]['lname']}</td>`;
                                 }
                                 else if (filter === 'fname') {
                                     row  = `<tr>
                                                 <td class = "headcol_name">${userData.users[currentStudent]['fname'] + " " + 
                                                     userData.users[currentStudent]['lname']}</td>
-                                                <td class = "col">${currentStudent}</td>`;
+                                                <td class = "headcol_id">${currentStudent}</td>`;
                                 }
                                 else if (filter === 'lname') {
                                     row  = `<tr>
                                                 <td class = "headcol_name">${userData.users[currentStudent]['lname'] + ", " + 
                                                     userData.users[currentStudent]['fname']}</td>
-                                                <td class = "col">${currentStudent}</td>`;
+                                                <td class = "headcol_id">${currentStudent}</td>`;
                                 }
 
                                 //  Check if current student has the selected date
