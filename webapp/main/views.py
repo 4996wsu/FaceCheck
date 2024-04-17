@@ -50,7 +50,6 @@ def stats(request):
 def manageclass(request):
     return render(request, 'main/manageclass.html')
 
-
 def clear_messages(request):
     storage = get_messages(request)
     for message in storage:
@@ -112,7 +111,7 @@ def otp_verification(request):
                     # Add user to firebase
                     add_student(request.session.get('username'), request.session.get('first_name'), request.session.get('last_name'))
                     
-                    messages.success(request, 'User created successfully')
+                    #messages.success(request, 'User created successfully')
                     # Clear the session variables related to OTP
                     del request.session['otp']
                     del request.session['otp_time']
@@ -172,6 +171,7 @@ def enroll(request):
                 messages.warning(request, "Your photo was flagged before. Please resolve it with your professors.")
             elif result == 'unknown':
                 messages.success(request, 'Successfully uploaded photo.')
+            os.remove("CSC_4996_001_W_2024.pt")
             
             return render(request, 'main/enrollment.html', {'form': form})
 

@@ -429,6 +429,9 @@ body::before {
     color: #ffffff;
     margin: 0; /* Removes default margins */
   }
+  .team-card a {
+    text-decoration: none;
+}
 
 
 
