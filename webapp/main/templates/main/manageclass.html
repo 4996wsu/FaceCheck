@@ -951,6 +951,7 @@
                             await setDoc(doc_ref, data_to_push, { merge: true });
                             //  Update locally
                             studentData = deep_merge(studentData, data_to_push);
+                            students = Object.keys(studentData.students[class_id]);
                             //  Refresh table
                             search_student();
                             data_success.push(ID);
