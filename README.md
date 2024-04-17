@@ -118,11 +118,17 @@ For all aspects of FaceCheck to function, the database must first be set up on F
 ```bash
 cd webapp
 ```
+If you are running it for the first time, please run this migrate command. 
 ```bash
 python manage.py migrate
 ```
+and to run the web application, use this command line 
 ```bash
 python manage.py runserver
+```
+use this URL to view the web application.
+```bash
+http://127.0.0.1:8000/
 ```
 ## Running the Desktop Application:
 ```bash
