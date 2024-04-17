@@ -153,10 +153,7 @@ The technology stack for this mobile application involves both front-end and bac
   
 - **Back-end:** Python -> Framework: Django
   
-- **Database:** NOSQL Host: Firebase
-
-
-## Future Potential
+- **Database:** NOSQL -> Host: Firebase
 
 
 
