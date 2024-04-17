@@ -780,6 +780,7 @@
                             await setDoc(doc_ref, updated_data);
                             //  Remove data locally
                             studentData = updated_data;
+                            console.log("UPDATED DATA: " + updated_data);
 
                             deselect_rows();
 
@@ -829,18 +830,19 @@
             //  Delete nested fields inside given data and path
             function delete_nested_fields(data, path) {
                 const keys = path.split('.');
-                let nested_data = data;
+                let nested_data = { ...data }; // Make a shallow copy to avoid mutating the original data
+                let current = nested_data;
                 for (let i = 0; i < keys.length - 1; i++) {
-                    if (!(keys[i] in nested_data)) {
+                    if (!(keys[i] in current)) {
                         // The nested field doesn't exist
                         return data;
                     }
-                    nested_data = nested_data[keys[i]];
+                    current[keys[i]] = { ...current[keys[i]] }; // Make a shallow copy of the nested object
+                    current = current[keys[i]];
                 }
                 // Remove the nested field
-                console.log(nested_data[keys[keys.length - 1]])
-                delete nested_data[keys[keys.length - 1]];
-                return data;
+                delete current[keys[keys.length - 1]];
+                return nested_data;
             }
 
 
