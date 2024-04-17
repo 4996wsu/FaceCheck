@@ -7,12 +7,12 @@
 body {
     margin: 0;
     padding: 0;
-    height: auto; /* Allow the body height to expand as needed */
-    min-height: 100vh; /* Ensure it is at least as tall as the viewport */
+    height: auto; 
+    min-height: 100vh; 
     background-image: none;
     background-color: #131313;
-    overflow-y: auto; /* Show scrollbar when content overflows */
-    overflow-x: hidden; /* Hide horizontal scrollbar */
+    overflow-y: auto; 
+    overflow-x: hidden; 
 }
 body::before {
     content: '';
@@ -90,7 +90,7 @@ form {
 
 /* SUBMIT BUTTON */
 .main_body button {
-    background-color: #4CAF50; /* Green for submit button */
+    background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -101,7 +101,7 @@ form {
 }
 
 .main_body button:hover {
-    background-color: #3e8e41; /* Darker green on hover */
+    background-color: #3e8e41; 
 }
 
 /* Style messages if present */
@@ -192,26 +192,27 @@ input[type="file"] {
     width: 50px; 
     height: auto; 
 }
+/* Upload container is placed in the center */
 .upload-container {
     display: flex;
-    align-items: center; /* Align items vertically in the center */
-    justify-content: flex-start; /* Align items to the start of the container */
+    align-items: center; 
+    justify-content: flex-start;
 }
-
+/* Ensures the text and icon are aligned properly */
 .upload-label {
     cursor: pointer;
     display: flex;
-    align-items: center; /* Ensures the text and icon are aligned properly */
+    align-items: center; 
 }
 
 .upload-icon {
-    margin-right: 10px; /* Adjust space between icon and text */
-    width: 30px; /* Adjust as needed */
-    height: auto; /* To maintain aspect ratio */
+    margin-right: 10px; 
+    width: 30px; 
+    height: auto; 
 }
-
+/* Hide the actual file input */
 #file-upload {
-    display: none; /* Hide the actual file input */
+    display: none; 
 }
 .form-group {
     display: flex;
