@@ -10,6 +10,7 @@
   - [Contributors](#contributors)
   - [Software Requirements Specification](https://waynestateprod-my.sharepoint.com/:w:/g/personal/hi6576_wayne_edu/Efd8_T9tG8lDq7v1Ug7txSwB3wWseoMIsl8G_XZdJ54nXA?e=NuUeow)
   - [Installation](#installation)
+  - [Firebase Configuration](#firebase-Configuration)
   - [Credentials you need](#credentials-you-need)
   - [Technology Stack](#technology-stack)
 
@@ -64,7 +65,7 @@ All our libraries and packages have been listed in the requirement.txt.
 ```bash
 pip install -r requirements.txt
 ```
-## Firebase Configuration 
+# Firebase Configuration 
 For all aspects of FaceCheck to function, the database must first be set up on Firebase. The following instructions describe how to set up a Firestore database and Firebase storage to work with FaceCheck, along with setting some initial data for the desktop and web applications to use.
 
 1. Create a Firebase account at https://firebase.google.com/ and create a new project. Keep all other options in the project’s creation unchanged.
