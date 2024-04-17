@@ -779,8 +779,8 @@
                             const updated_data = delete_nested_fields(studentData, path);
                             await setDoc(doc_ref, updated_data);
                             //  Remove data locally
-                            studentData = updated_data;
-                            console.log("UPDATED DATA: " + updated_data);
+                            studentData = JSON.parse(JSON.stringify(updated_data));
+                            students = Object.keys(studentData.students[class_id]);
 
                             deselect_rows();
 
