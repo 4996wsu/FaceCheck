@@ -12,7 +12,6 @@
   - [Installation](#installation)
   - [Credentials you need](#credentials-you-need)
   - [Technology Stack](#technology-stack)
-  - [Future Potential](#future-potential)
 
 
 # Overview
@@ -87,14 +86,17 @@ python desktop.py
 ```
 
 # Credentials you need
-## Username & Password
-###Student Account:
+## Student Account:
 1. Username: hi4718<br/>
+Password: sUdEN4um5mNPqh8<br/>
+2 Username: hc9082<br/>
+Password: waynestateuniversity <br/>
+3. Username: hi6576<br/>
 Password: <br/>
-2 Username: hi4718<br/>
-Password:
-3. Username: hi4718<br/>
-Password: <br/>
+## Professor Account:
+1. Username: dx6565<br/>
+Password: Password <br/>
+
 
 
 # Technology Stack
