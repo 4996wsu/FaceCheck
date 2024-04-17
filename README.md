@@ -65,7 +65,52 @@ All our libraries and packages have been listed in the requirement.txt.
 pip install -r requirements.txt
 ```
 ## Firebase Configuration 
-Please check the User Manual Second Section( Setting Up the database)
+For all aspects of FaceCheck to function, the database must first be set up on Firebase. The following instructions describe how to set up a Firestore database and Firebase storage to work with FaceCheck, along with setting some initial data for the desktop and web applications to use.
+
+1. Create a Firebase account at https://firebase.google.com/ and create a new project. Keep all other options in the project’s creation unchanged.
+2. Under Project Shortcuts, open Extensions. Open Firestore Database and Storage so that both are docked on the left-hand side of the page.
+3. Create a new database with the location set to nam5 (United States). Start the database in production mode.
+4. Start a new collection with the Collection ID of “infoCollection”. Enter “professor_doc” for the Document ID when prompted.
+5. Add a field “professors” as an array. Enter in any usernames within the array who you want to be reserved for professors. This will automatically assign the “professor” role to users who sign up with any of these usernames.
+6. Under the “Rules” tab, replace your rules with the following, or adjust them to your liking:
+
+    ```
+    rules_version = '2';
+    
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /{document=**} {
+          allow read, write: if true;
+        }
+      }
+    }
+    ```
+
+7. Open the Storage tab on the left-hand side of the page from Step 2 and set up Storage in production mode. Create the bucket.
+8. Under the “Rules” tab, replace your rules with the following, or adjust them to your liking:
+
+    ```
+    rules_version = '2';
+    
+    service firebase.storage {
+      match /b/{bucket}/o {
+        match /{allPaths=**} {
+          allow read, write: if true;
+        }
+      }
+    }
+    ```
+    
+9. On the left-hand side of the page, click the gear icon next to Project Overview, and click on Project Settings. Open the Service Accounts tab and click the radio button that says “Python”. Click “Generate new private key” and save the credentials file. Open this file and copy the contents.
+10. Navigate to the FaceCheck directory and open the ai_model directory. Open db_credentials.json and paste the contents of the credentials file. Repeat this step in the db_credentials.json file stored in the FaceCheck/webapp directory.
+11. In both the ai_model and webapp directories there should be files named database.py. Open both files.
+12. Return to the Firebase Console and open the General tab of the projects settings. Copy the Project ID and paste it into both database.py files at line 24, replacing the portion reading “facecheck-93450”.
+13. In the Firebase Console, navigate to the bottom of the page to the “Your apps” section. Create a new web app by clicking the third icon from the left, labeled as “</>”.
+14. Give the web app a nickname of your choosing. Hosting the website is not required for the application to function.
+15. When prompted to add the Firebase SDK, ensure that “npm” is selected. Copy all the credentials within the contents of the “firebaseConfig” variable.
+16. Open the FaceCheck/webapp/main/templates/main directory. Open base.html, enrollment.html, home.html, manageclass.html, and stats.html. Navigate to the script module in the code and find the “firebaseConfig” variable. Replace the contents of this variable with the contents of firebaseConfig viewed in the Firebase Console. Repeat this for each html file.
+17. Open FaceCheck/ai_mode/database.py again and find the function “reset_docs()”. Execute this function through code to populate the database with a set of default users, classes, and attendance statistics.
+
 
 ## Running the Web Application:
 ```bash
