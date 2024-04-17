@@ -15,6 +15,7 @@
   - [Technology Stack](#technology-stack)
 
 
+
 # Overview
 
 We're excited to unveil FaceCheck, our innovative solution that leverages face recognition technology to revolutionize the way attendance is recorded and managed in educational settings. Designed specifically with both students and educators in mind, FaceCheck automates the attendance process, ensuring both accuracy and efficiency.
