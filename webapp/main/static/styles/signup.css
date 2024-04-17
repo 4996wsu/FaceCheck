@@ -1,3 +1,4 @@
+/* HEADER STYLES */
 h2 {
     margin-bottom: 1rem;
     text-align: center;
@@ -22,20 +23,17 @@ hr {
     font-weight: 1000;
     text-shadow: 2px 2px black;
 }
+
+/* BODY STYLES */
 body {
     color: white;
     font-family: "Oswald", sans-serif; 
     background-image: none;
     background-color: #131313;
-}
-
-body {
     margin: 0;
     padding: 0;
     height: auto; /* Allow the body height to expand as needed */
     min-height: 100vh; /* Ensure it is at least as tall as the viewport */
-    background-image: none;
-    background-color: #131313;
     overflow-y: auto; /* Show scrollbar when content overflows */
     overflow-x: hidden; /* Hide horizontal scrollbar */
     font-size: 18px;
@@ -69,6 +67,7 @@ body::before {
     padding-bottom: 2em;
 }
 
+/* LINKS AND BUTTONS */
 a {
     color: #62d668;
     font-family: "Oswald", sans-serif;
@@ -107,6 +106,7 @@ a:hover {
     background-color: #246925;
 }
 
+/* CARD STYLES */
 #card {
     color: white;
     background: linear-gradient(to right, rgba(36, 37, 36, 0.8), rgba(106, 102, 102, 0.9));
@@ -122,6 +122,7 @@ a:hover {
     font-size: 25px;
 }
 
+/* INPUT FIELD STYLES */
 #id_username, #id_email, #id_password1, #id_password2, #id_first_name, #id_last_name, #showpass {
     background-color: #131313;
     color: white;
@@ -139,6 +140,17 @@ a:hover {
     padding-bottom: 10px;
 }
 
+/* OTHER STYLES */
+.invalid-feedback {
+    color: #ff3347;
+    text-shadow: 1px 1px 2px black;
+}
+
+input::placeholder {
+    color: #999;
+}
+
+/* RESPONSIVE STYLES */
 @media (min-width: 1280px) {
     #id_first_name,
     #id_last_name {
@@ -188,13 +200,4 @@ a:hover {
     #showpass {
         margin: 0 auto;
     }
-}
-
-.invalid-feedback {
-    color: #ff3347;
-    text-shadow: 1px 1px 2px black;
-}
-
-input::placeholder {
-    color: #999;
 }
