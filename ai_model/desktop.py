@@ -277,12 +277,15 @@ def stop_attendance():
     attendance_button.pack(pady=20)  
 
     messagebox.showinfo("Attendance", "Attendance has ended.")
+    os.remove(f'{global_class_id}.pt')
+
 
     # Check for low attendance students
     if global_class_id:  # Check if global_class_id has been set
         check_low_attendance_students(global_class_id) 
     else:
         print("No class ID was set. No low attendance check performed.")
+    
 
 
 
