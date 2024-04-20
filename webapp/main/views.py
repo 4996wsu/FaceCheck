@@ -164,26 +164,34 @@ def enroll(request):
             image_url = upload_image_to_firebase(image)
             # Get the username of the user
             name = request.user.username
-            #name the file as the username
+            #name the file as the username.update student photo includes cropping and encoding the face. check presprocess.py and database.py for more details
             result = update_student_photo(name, image_url)
+            #delete the initial image from firebase
             delete_file_from_firebase(image.name)
             # Success message and error handling        
             
+            # If the image is invalid means there are more than one face in the image
             if result == "error":
                 messages.warning(request, 'Photo is invalid. Please upload a photo with one face in it.')
+            # If the image is flagged means the image is matched with another person's image
             elif result == 'flagged':
                 messages.warning(request, "Your photo has matched with another person's photo. Please resolve it with your professors.")
+            # If the image is flagged before means the image is already flagged
             elif result == 'flagged_before':
                 messages.warning(request, "Your photo was flagged before. Please resolve it with your professors.")
+            # If the image is unknown means the image is successfully uploaded
             elif result == 'unknown':
                 messages.success(request, 'Successfully uploaded photo.')
-            os.remove("CSC_4996_001_W_2024.pt")
             
+            os.remove("CSC_4996_001_W_2024.pt")
+            # Redirect to the enrollment page
             return render(request, 'main/enrollment.html', {'form': form})
 
         else:
             return HttpResponse("Invalid form.")
     else:
+        # If the form is not submitted
         form = ImageUploadForm()
+    # Render the enrollment page
     return render(request, 'main/enrollment.html', {'form': form})
 
