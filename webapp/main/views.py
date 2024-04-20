@@ -150,17 +150,22 @@ def delete_file_from_firebase(file_name):
     blob.delete()
 
 def enroll(request):
-    
+    # Clear messages when the page is loaded
     clear_messages(request)
+    # If the form is submitted
     if request.method == 'POST':
+        # Get the form data(image file)
         form = ImageUploadForm(request.POST, request.FILES)
+        # If the form is valid
         if form.is_valid():
+            # Get the image file
             image = form.cleaned_data['image']
+            # Upload the image to Firebase Storage
             image_url = upload_image_to_firebase(image)
+            # Get the username of the user
             name = request.user.username
-            
+            #name the file as the username
             result = update_student_photo(name, image_url)
-            print("result", result)
             delete_file_from_firebase(image.name)
             # Success message and error handling        
             
