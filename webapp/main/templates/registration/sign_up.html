@@ -1,80 +1,81 @@
-{% extends "main/base.html" %}
+{% extends "main/base.html" %}  <!-- Extending base template -->
 
-{% block title %}Sign Up{% endblock %}
+{% block title %}Sign Up{% endblock %}  <!-- Setting the title for this page -->
 
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags %}  <!-- Loading crispy forms tags -->
 
-{% block content %}
-<link rel="stylesheet" href="../static/styles/signup.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-<HASH>" crossorigin="anonymous" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
-    
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card" id="card">
-                <div class="card-header">Sign Up</div>
+{% block content %}  <!-- Beginning of content block -->
 
-                <div class="card-body">
-                    <form id="sign_up" method="post">
-                        {% csrf_token %}
-                        <div class="form-group row">
+<link rel="stylesheet" href="../static/styles/signup.css">  <!-- Linking to custom signup CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-<HASH>" crossorigin="anonymous" />  <!-- Linking to Font Awesome for icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">  <!-- Preconnecting to Google Fonts -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  <!-- Preconnecting to Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">  <!-- Importing Oswald font -->
+
+<div class="container">  <!-- Container for signup form -->
+    <div class="row justify-content-center">  <!-- Row for centering content -->
+        <div class="col-md-6">  <!-- Column for content -->
+            <div class="card" id="card">  <!-- Card for signup -->
+                <div class="card-header">Sign Up</div>  <!-- Card header -->
+
+                <div class="card-body">  <!-- Card body for form -->
+                    <form id="sign_up" method="post">  <!-- Form for signing up -->
+                        {% csrf_token %}  <!-- CSRF token -->
+                        <div class="form-group row">  <!-- Form group row for username -->
                             <div class="col-md-6">
-                                {{ form.username|as_crispy_field }}
+                                {{ form.username|as_crispy_field }}  <!-- Username input field -->
                             </div>
                             <div class="col-md-2" id="email_text">
-                                @wayne.edu
+                                @wayne.edu  <!-- Static email suffix -->
                             </div>
                         </div>
-                        <div class="form-group row">
+                        <div class="form-group row">  <!-- Form group row for first and last name -->
                             <div class="col-md-6">
-                                {{ form.first_name|as_crispy_field }}
+                                {{ form.first_name|as_crispy_field }}  <!-- First name input field -->
                             </div>
                             <div class="col-md-6">
-                                {{ form.last_name|as_crispy_field }}
+                                {{ form.last_name|as_crispy_field }}  <!-- Last name input field -->
                             </div>
                         </div>
-                        <!-- {{ form.email|as_crispy_field }} -->
-                        <div class="form-group row">
+                        <!-- {{ form.email|as_crispy_field }} -->  <!-- Email input field (commented out) -->
+                        <div class="form-group row">  <!-- Form group row for passwords -->
                             <div class="col-md-6">
-                                {{ form.password1|as_crispy_field }}
+                                {{ form.password1|as_crispy_field }}  <!-- Password input field -->
                             </div>
                             <div class="col-md-6">
-                                {{ form.password2|as_crispy_field }}
+                                {{ form.password2|as_crispy_field }}  <!-- Password confirmation input field -->
                             </div>
                             <div class="col-md-2">
                                 <div class="input-group">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" id="showpass">
-                                            <i class="fas fa-eye" id="password-eye"></i>
+                                            <i class="fas fa-eye" id="password-eye"></i>  <!-- Icon for toggling password visibility -->
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <ul id="pass-helptext">
+                        <ul id="pass-helptext">  <!-- List of password help text -->
                             <li>Your password can’t be too similar to your other personal information.</li>
                             <li>Your password must contain at least 8 characters.</li>
                             <li>Your password can’t be a commonly used password.</li>
                             <li>Your password can’t be entirely numeric.</li>
                         </ul>
-                        <div class="input-group mt-3"></div>
-                        <button type="submit" class="btn btn-primary" id="submit_btn">Register</button>
+                        <div class="input-group mt-3"></div>  <!-- Empty input group -->
+                        <button type="submit" class="btn btn-primary" id="submit_btn">Register</button>  <!-- Submit button -->
                     </form>
                 </div>
 
-                <div id="links">
-                    <p> Have an account? Log in <a href="{% url 'login' %}">Here</a></p>
-                    <p>Return <a href="{% url 'home' %}" id="link_home">Home</a></p>
+                <div id="links">  <!-- Links section -->
+                    <p> Have an account? Log in <a href="{% url 'login' %}">Here</a></p>  <!-- Link to login page -->
+                    <p>Return <a href="{% url 'home' %}" id="link_home">Home</a></p>  <!-- Link to home page -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+<script>  <!-- JavaScript for toggling password visibility -->
     document.addEventListener('DOMContentLoaded', function() {
         const togglePasswordButton = document.querySelector('.toggle-password');
         const passwordFields = document.querySelectorAll('[name="password1"], [name="password2"]');
@@ -125,4 +126,5 @@
         }
     });
 </script>
-{% endblock %}
+
+{% endblock %}  <!-- End of content block -->

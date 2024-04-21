@@ -37,16 +37,19 @@ def duplicate_faces(embedding_list, known_embeddings, name_list,name, threshold=
 
         #if the recognized name is not unknown and is not the same as the name of the photo then flag the photo
         if recognized_names[0] != "Unknown" and recognized_names[0] != name:
+            #if the photo is already flagged then return flagged_before
             if (check_picture_status(name)==False):
                 return 'flagged_before'
+            #if the photo is not flagged then flag the photo
             else:
                 update_photo_status_batch(name,"Flagged")
                 update_photo_status_batch(recognized_names[0],"Flagged")
-                print(recognized_names[0])
-                print("HERE")
+                #print(recognized_names[0])
+                #print("HERE")
                 return 'flagged'
         #else put it as pending
         else:
+            #if the photo is already flagged then return flagged_before
             if (check_picture_status(name)==False):
                 return 'flagged_before'
             #can be changed to pending only if the photo is not flagged

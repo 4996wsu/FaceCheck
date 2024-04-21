@@ -44,18 +44,24 @@ def predict_face_names(img):
                 min_dist_idx = dist_list.index(min_dist)
                 # Get the corresponding name
                 recognized_name = name_list[min_dist_idx]
+                # Print the recognized name and distance
                 print(f"Recognized {recognized_name} with distance {min_dist:.2f}")
+                # Append the recognized name to the list
                 recognized_names.append(recognized_name)
             else:
+                # If distance is above threshold, it's an unknown face
                 print(f"Unknown face with distance {min_dist:.2f}")
                 recognized_names.append("Unknown")
-
     return recognized_names
 
 # Iterate through the images in the directory and predict the face names
 for image_path in glob.glob(os.path.join(test_dir, '*')):
+    # Load the image
     img = Image.open(image_path).convert('RGB')
+    # Predict the face names
     names = predict_face_names(img)
+
+    #results of the prediction
     if names:
         print(f"Recognized face names in {os.path.basename(image_path)}: {', '.join(names)}")
     else:

@@ -21,27 +21,44 @@ cred_path = 'db_credentials.json'
 def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709):
     # Load the MTCNN face detector
     mtcnn = MTCNN(keep_all=True, device=device, min_face_size=min_face_size, thresholds=thresholds, factor=factor)
+    #this will read the image from the path. adn the path will be the link of the image in the firebase
     frame = cv2.imread(image_path)
+    # Check if the frame is empty
     if frame is None:
         raise FileNotFoundError(f"The specified image_path does not exist or is not accessible: {image_path}")
+    # Convert the frame from BGR to RGB
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # Detect faces in the frame
     faces, _ = mtcnn.detect(frame_rgb)
     
     # If a face is detected and only one face is in the frame, then crop the face
     if faces is not None and len(faces) == 1:
+        # Get the coordinates of the face
         face = faces[0]
+        # Convert the coordinates to integers, x1, y1, x2, y2 are the coordinates of the bounding box
         x1, y1, x2, y2 = [int(coord) for coord in face]
         # Ensure coordinates are within image bounds
+        # Ensure that x1 and y1 are not less than 0. If they are, set them to 0.
         x1, y1 = max(0, x1), max(0, y1)
+
+        # Ensure that x2 does not exceed the width of the frame (frame_rgb.shape[1]) and y2 does not exceed the height of the frame (frame_rgb.shape[0]).
+        # If they do, set x2 to the frame width and y2 to the frame height.
         x2, y2 = min(frame_rgb.shape[1], x2), min(frame_rgb.shape[0], y2)
+        # Ensure the crop dimensions are valid
         if x2 <= x1 or y2 <= y1:
             return None  # Invalid crop dimensions
+        # Crop the face from the frame
         cropped_face = frame_rgb[y1:y2, x1:x2]
+    
+        # Check if the cropped face is empty
         if cropped_face.size == 0:
             return None  # Cropped face is empty
+        # Convert the cropped face from RGB to BGR
         cropped_face_bgr = cv2.cvtColor(cropped_face, cv2.COLOR_RGB2BGR)
+        # Return the cropped face
         return cropped_face_bgr
     else:
+        # No face detected or multiple faces detected
         return None
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -49,10 +66,12 @@ device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Function to extract the face embeddings of the cropped face
 def face_encode(cropped_face, device):
+    # Initialize the list to store the embeddings
     embedding_list = [] 
+    # Load the InceptionResnetV1 model
     resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
 
-    # Define transformations
+    # Define transformations For the face image to be compatible with the model
     preprocess = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize(160),  # Resize the image to the size expected by the model
@@ -65,8 +84,9 @@ def face_encode(cropped_face, device):
 
     # Get the embedding
     emb = resnet(cropped_face_tensor.to(device))
+    # Append the embedding to the list of embeddings
     embedding_list.append(emb.detach())
-
+    # Return the list of embeddings
     return embedding_list
 
 
@@ -93,7 +113,7 @@ def make_pt_file(embedding_list, name_list):
 
     # Get the URL of the blob
     url = blob.public_url
-    print(url)
+    ## Return the URL
     return url
 
 

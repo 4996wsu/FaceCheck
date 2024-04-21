@@ -40,17 +40,30 @@ def detect_and_crop_face(image_path, device='cpu', min_face_size=20, thresholds=
     if faces is not None and len(faces) == 1:
         face = faces[0]
         # Get the coordinates of faces to crop
+        #x1, y1, x2, y2 are the coordinates of the bounding box
         x1, y1, x2, y2 = [int(coord) for coord in face]
+
+        # Ensure that x1 and y1 are not less than 0. If they are, set them to 0.
         x1, y1 = max(0, x1), max(0, y1)
+
+        # Ensure that x2 does not exceed the width of the frame (frame_rgb.shape[1]) and y2 does not exceed the height of the frame (frame_rgb.shape[0]).
+        # If they do, set x2 to the frame width and y2 to the frame height.
         x2, y2 = min(frame_rgb.shape[1], x2), min(frame_rgb.shape[0], y2)
+
+        # Ensure the crop dimensions are valid
         if x2 <= x1 or y2 <= y1:
             return None  # Invalid crop dimensions
+        # Crop the face from the frame
         cropped_face = frame_rgb[y1:y2, x1:x2]
+        # Check if the cropped face is empty
         if cropped_face.size == 0:
             return None  # Cropped face is empty
+        # Convert the cropped face from RGB to BGR
         cropped_face_bgr = cv2.cvtColor(cropped_face, cv2.COLOR_RGB2BGR)
+        # Return the cropped face
         return cropped_face_bgr
     else:
+        # No face detected or multiple faces detected return None
         return None
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -58,6 +71,7 @@ device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def face_encode(cropped_face, device):
+    #intialize the embedding list
     embedding_list = [] 
     #Initialize the model
     resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
@@ -75,8 +89,9 @@ def face_encode(cropped_face, device):
 
     # Get the embedding
     emb = resnet(cropped_face_tensor.to(device))
+    # Append the embedding to the list of embeddings
     embedding_list.append(emb.detach())
-
+    # Return the list of embeddings
     return embedding_list
 
 # Save the embeddings and names to a .pt file

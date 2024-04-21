@@ -20,43 +20,61 @@ from database import get_name, get_class_name
 from database import update_class_photo,getTime
 
 # Global variables
+#attendance_running is set to False
+#this will be helpful to start and end the attendance process
+#this works as a flagging system
 global attendance_running
 attendance_running = False
+
+#global_class_id will help us to store the class information throughout the session
 global_class_id = ""
 
 
 
 # Firebase setup
 if not firebase_admin._apps:
+    # Path to your Firebase service account JSON file which has the credentials
     cred_path = 'db_credentials.json'
+    # Initialize the Firebase Admin SDK
     cred = credentials.Certificate(cred_path)
+    # Initialize the Firebase Admin SDK with the credentials and the storage bucket
     firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
 # Initialize Firestore DB
 db = firestore.client()
 
 #function to get resource path(pictures)
+#this will be helpful if you want to get a exe version of the application
 def resource_path(relative_path):
     try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
+        # If not running as a PyInstaller executable, use the current working directory
         base_path = os.path.abspath(".")
+        # Return the full path to the resource
     return os.path.join(base_path, relative_path)
 
 #function to validate class id
 def class_id_validation(class_id):
+    # Get the class document which has the class information
     doc = get_doc("class_doc")
+    #get the list of classes
     class_list = list(doc['classes'].keys())
+    #check if the class id is in the class list
     if class_id in class_list:
         return True, doc['classes'][class_id]
     return False, None
 
 #function to get the validate the class time
 def time_validation(class_info):
+    # Get the current day of the week
     now = datetime.now()
+    #get the week day
     week_day = now.strftime("%A")
+    #check if the week day is in the schedule
     if week_day in class_info['schedule']:
 
-        # change the format
+        # change the format to match the format of the datetime object
         class_start_new = class_info['schedule'][week_day][0].replace('.', ':')
         class_end_new = class_info['schedule'][week_day][1].replace('.', ':')
 
@@ -71,6 +89,7 @@ def time_validation(class_info):
         # It gives professor 15 minutes more time to start the class
         if class_start_time - timedelta(minutes=15) <= now <= class_end_time:
             return True
+    #if the class is not in the schedule then return False
     return False
 
 
@@ -81,6 +100,7 @@ def attempt_start_attendance():
     global global_class_id  # Refer to the global variable
 
     # Validate the user's selections
+    #these are the dropdown menus
     if any([
         subject_combobox.get() == "Select subject",
         course_number_combobox.get() == "Select course number",
@@ -93,6 +113,7 @@ def attempt_start_attendance():
 
     #change the format of term code
     term_code_mapping = {"Summer": "S", "Winter": "W", "Fall": "F"}
+    #get the term code
     selected_term_code = term_code_mapping.get(term_combobox.get(), None)
     # Check if the term code is valid
     if selected_term_code is None:
@@ -108,19 +129,23 @@ def attempt_start_attendance():
     # Check if the class ID exists
     exists, class_data = class_id_validation(class_id)
     if not exists:
+        # If the class ID does not exist, show an error message
         messagebox.showerror("Error", "Class ID does not exist. Please enter a valid one.")
         return
     # retrieve the class embedding
     global_class_id = class_id
+    #check if the classs already has the class embedding then download it
     if retrieve_class_embedding(class_id) != "NO ENCODING":
         download_file_combine(retrieve_class_embedding(class_id), f'{class_id}.pt')
     # If the class embedding does not exist, combine the PT files and save that in the database
     else:
+        # Combine the PT files for the class if it does not exist
         combine_pt_files(class_id) 
     
     #GET THE CLASS INFO
     class_name =get_class_name(class_id)
     class_id_label.config(text=f"{class_name}")
+#IF THE attendance has been started then show the end attendance button
     attendance_button.pack_forget()
     end_attendance_button.pack(pady=20)
 
@@ -156,7 +181,7 @@ def start_attendance(class_id):
             # Capture the frame from the webcam
             ret, frame = cam.read()
             if not ret:
-                print("Failed to grab frame, try again")
+                #print("Failed to grab frame, try again")
                 continue
             # Resize the frame for better performance
             current_time = datetime.now()
@@ -168,24 +193,27 @@ def start_attendance(class_id):
             cv2.imshow('Live Attendance Monitoring', annotated_frame)
 
             # Update the attendance every 10 seconds(Chnage the time to 10 seconds for testing purpose)
+            #change this to 3minutes in production
             if (current_time - last_update_time) >= timedelta(seconds=10):
                 #get the date and time
                 date= getDate()
                 time=getTime()
         
-                print(f"Updating attendance for {len(set(recognized_names))} faces")
+                #print(f"Updating attendance for {len(set(recognized_names))} faces")
 
                 # Update the class photo and attendance
                 update_class_photo(class_id, frame,date,time)
+                #update the attendance using the recognized names
                 update_attendance(set(recognized_names), class_id,date,time)
                 recognized_names = []
                 last_update_time = current_time
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
+        # Release the webcam and destroy the windows
         cam.release()
         cv2.destroyAllWindows()
+
     # Start the attendance process in a new thread
     threading.Thread(target=attendance_process).start()
 
@@ -221,6 +249,7 @@ def reset_ui():
 
 #function to clear the window
 def clear_window():
+    # Clear the window by removing all widgets
     for widget in root.pack_slaves():
         widget.pack_forget()
 
@@ -229,33 +258,40 @@ def clear_window():
 def show_low_attendance_options(student_ids):
     # Clear the window to show the low attendance options
     clear_window()
-
+    #show the message that attention is needed
     attention_label = Label(root, text="Attention Needed!", font=("Helvetica", 16, "bold"), pady=20)
     attention_label.pack()
 
+    #show the instructions to select the students
     subtitle_label = Label(root, text="Please select IDs to adjust attendance", font=("Helvetica", 14), pady=10)
     subtitle_label.pack()
     names=get_name(student_ids)
     # Create a checkbox for each student
     global checkbox_vars
+    #create a dictionary of student ids and their respective checkbox variables
     checkbox_vars = {student_id: tk.IntVar() for student_id in student_ids}
-
+    #create a frame to show the list of students
     list_frame = tk.Frame(root)
     list_frame.pack(pady=20)
     i=0
+    #show the list of students with low attendance
     for student_id, var in checkbox_vars.items():
         tk.Checkbutton(list_frame, text=f"{names[i]} {student_id} ", variable=var, font=("Helvetica", 14)).pack(anchor=tk.CENTER)
         i=i+1
     # submit button for the low attendance students
     global submit_button
+    #create a submit button to submit the attendance of the students
     submit_button = Button(root, text="Submit", font=("Helvetica", 16), command=process_manual_attendance)
     submit_button.pack(pady=20)
+
+
 
 
 #function to check the low attendance students
 def check_low_attendance_students(section):
     # Get the low attendance students from the database.py file
     low_attendance_students = get_low_attendance_students(section)
+    # Check if there are low attendance students
     if low_attendance_students:
         # Show the low attendance students as options
         show_low_attendance_options(low_attendance_students)
@@ -275,8 +311,9 @@ def stop_attendance():
     # Hide the end attendance button 
     end_attendance_button.pack_forget()
     attendance_button.pack(pady=20)  
-
+    # Show a message box to indicate that the attendance has ended
     messagebox.showinfo("Attendance", "Attendance has ended.")
+    # Remove the PT file for the class
     os.remove(f'{global_class_id}.pt')
 
 
@@ -284,42 +321,54 @@ def stop_attendance():
     if global_class_id:  # Check if global_class_id has been set
         check_low_attendance_students(global_class_id) 
     else:
-        print("No class ID was set. No low attendance check performed.")
+        reset_ui()
+        #print("No class ID was set. No low attendance check performed.")
     
 
 
 
 #function to process the manual selection of students
 def process_manual_attendance():
+    #global class id will be helpful to get the class id and change the attendance of the students
     global global_class_id  
 
     # Use the globally stored class_id
     class_id = global_class_id
+    # Get the selected students from the checkboxes
     selected_students = [student_id for student_id, var in checkbox_vars.items() if var.get() == 1]
     all_students = checkbox_vars.keys()
+    
 
     # Process each student, setting attendance based on selection
     for student_id in all_students:
+        # Check if the student is selected
         isSelected = student_id in selected_students
         # Call update_overall_attendance from the database.py file
+        #this will update the attendance of the students
         update_overall_attendance(class_id, student_id, isSelected, getDate())
 
-    print("Selected students:", selected_students)
+    #print("Selected students:", selected_students)
     # Reset the UI for the new session
     reset_ui()
 
 # Custom combobox class to set the font size for the dropdown menus
 class CustomCombobox(ttk.Combobox):
+    # Custom combobox class to set the font size for the dropdown menus
     def __init__(self, parent, values, font_size, **kwargs):
+        # Set the font size for the dropdown menus
         self.font_size = font_size
+        # Set the font for the dropdown menus
         self.font = ("Helvetica", self.font_size)
+        # Initialize the dropdown menus
         super().__init__(parent, values=values, font=self.font, **kwargs)
+        # Set the font for the dropdown menus
         self.option_add('*TCombobox*Listbox.Font', self.font)
 
 
 
 # UI Setup
 root = tk.Tk()
+# Set the title and geometry of the window
 root.title("Enrollment and Attendance App")
 root.geometry("1000x600")
 
@@ -329,6 +378,7 @@ photo = ImageTk.PhotoImage(my_image)
 image_label = Label(root, image=photo)
 image_label.pack(pady=20)
 
+# Initial label for selecting class information
 class_id_label = Label(root, text="Select Your Class Information", font=("Helvetica", 16, "bold"))
 class_id_label.pack()
 
@@ -368,7 +418,9 @@ year_combobox.pack(side=tk.LEFT, padx=10)
 attendance_button = Button(root, text="Start Attendance", font=("Helvetica", 16), command=attempt_start_attendance)
 attendance_button.pack(pady=20)
 
+# End attendance button
 end_attendance_button = Button(root, text="End Attendance", font=("Helvetica", 16), command=stop_attendance)
 end_attendance_button.pack_forget()
 
+# Run the main loop
 root.mainloop()

@@ -1,10 +1,13 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
+<!-- FONTS AND STYLE SHEETS -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../static/styles/enroll.css">
+
+<!-- Loading spinner icon -->
 <style>
     .spinner {
         border: 4px solid rgba(0,0,0,.1);
@@ -20,10 +23,13 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    </style>
-    
+</style>
+
+<!-- Main container -->
 <div class="centered-container">
+    <!-- Main body -->
     <div class="main_body">
+        <!-- Enrollment instructions -->
         <div class="enroll_msg">
             <div id = "requirements_msg">
             <label>Enroll yourself in FaceCheck</label>
@@ -40,6 +46,7 @@
             <!-- IMAGE CONTAINER  -->
             <div id="photo-container"></div>
         </div>
+        <!-- Image upload form -->
         <div class="enroll_form">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -56,6 +63,7 @@
                 <button type="submit" class="submit-button">Upload</button>
                 <div class="spinner" style="display: none;"></div>
             </form>
+            <!-- Success/error messages -->
             {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
@@ -68,6 +76,7 @@
 </div>
 
 
+<!-- Change the submit button to a spinner once clicked -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('.enroll_form form');
@@ -82,11 +91,8 @@
             submitButton.style.display = 'none';
         });
     });
-    </script>
-    
-    
-    
-    
+</script>
+
 
 <!--  JAVASCRIPT CODE  -->
 <script type="module">
@@ -95,6 +101,7 @@
     import { getFirestore, doc, collection, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 
+    //  Set Firebase credentials
     const firebaseConfig = {
         apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
         authDomain: "facecheck-93450.firebaseapp.com",
@@ -105,9 +112,6 @@
         measurementId: "G-FH3W7GY9NH"
     };
 
-    
-    
-
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
@@ -115,25 +119,32 @@
     const storage = getStorage();
     const colRef = collection(db, "infoCollection")
 
+    //  Get snapshots of each document
     const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
     const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
     const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
     if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
+        //  Save the data from each doc snapshot
         let studentData = studentSnapshot.data();
         let classData = classSnapshot.data();
         let userData = userSnapshot.data();
 
+        //  Get current username and current users
         var username = "{{ user.username }}";
         let users = Object.keys(userData.users);
 
+        //  Show the user's photo if it exists
         show_photo();
 
         async function show_photo() {
+            //  Check if the current user exists in the Firebase db
             if (users.includes(username)) {
+                //  Check if a photo exists
                 if (userData.users[username]['picture'] != "NO PHOTO") {
+                    //  Use a promise to await a response from the db with a photo URL
                     const photoPromise = new Promise(async (resolve, reject) => {
                         try {
-                            const storageRef = ref(storage, username + "_photo");
+                            const storageRef = ref(storage, username + "_photo");   // Photo is always named "[user]_photo"
                             const photoUrl = await getDownloadURL(storageRef);
                             resolve({ photoUrl, student: username });
                         } catch (error) {
@@ -142,9 +153,9 @@
                         }
                     });
 
+                    // Once the promise is fulfilled, continue
                     photoPromise.then(result => {
                         const { photoUrl, timestamp } = result;
-                        console.log(photoUrl);
 
                         // Create an img element
                         const imgElement = document.createElement('img');
@@ -157,6 +168,7 @@
                         // Append the img element to the photo container
                         photoContainer.appendChild(imgElement);
 
+                        //  Hide the photo requirements text
                         document.getElementById('requirements_msg').style.display = 'none';
                     })
                     .catch(result => {
