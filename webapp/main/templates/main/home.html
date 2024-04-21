@@ -1,30 +1,31 @@
-{% extends 'main/base.html' %}
-{% block title %}Home Page{% endblock %}
+{% extends 'main/base.html' %}  <!-- Extending base template -->
 
-{% load static %} 
-<!-- Load the static tag library -->
+{% block title %}Home Page{% endblock %}  <!-- Setting the title for this page -->
 
-{% block content %}
-<link rel="stylesheet" href="../static/styles/style3.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+{% load static %}  <!-- Load the static tag library -->
+
+{% block content %}  <!-- Beginning of content block -->
+
+<link rel="stylesheet" href="../static/styles/style3.css">  <!-- Linking to custom CSS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">  <!-- Preconnecting to Google Fonts -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  <!-- Preconnecting to Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">  <!-- Importing Oswald font -->
 
 <!-- Hero Banner -->
-<div class="hero-banner text-white main">
-    <div class="hero-container container ">
-        <h1 class="display-4 gradient-text">Welcome to FaceCheck</h1>
-        <p class="lead">Revolutionizing Classroom Attendance</p>
-        <hr class="my-4">
-        <p>Taking attendance is typically inconvenient, time-consuming, and repetitive. <br>
+<div class="hero-banner text-white main">  <!-- Hero banner section -->
+    <div class="hero-container container">  <!-- Hero container -->
+        <h1 class="display-4 gradient-text">Welcome to FaceCheck</h1>  <!-- Main heading -->
+        <p class="lead">Revolutionizing Classroom Attendance</p>  <!-- Subheading -->
+        <hr class="my-4">  <!-- Horizontal rule -->
+        <p>Taking attendance is typically inconvenient, time-consuming, and repetitive. <br>  <!-- Description -->
             FaceCheck evolves the current process by allowing professors to take attendance much faster 
             and with far less human involvement.</p>
-        {% if not user.is_authenticated %}
+        {% if not user.is_authenticated %}  <!-- Conditional display for unauthenticated users -->
         <!-- These will only appear if the user is not authenticated -->
         <p>
             Get started now by creating an account or logging in.
         </p>
-        <div class="buttons">
+        <div class="buttons">  <!-- Buttons for login and sign up -->
             <a class="btn btn-primary btn-md" href="{% url 'login' %}" role="button">Log In</a>
             <a class="btn btn-primary btn-md signup" href="{% url 'sign_up' %}" role="button">Sign Up</a>
         </div>
@@ -32,53 +33,49 @@
     </div>
 </div>
 
-<hr class="my-4">
-<div class="about_us">
-    <div class="content_container">
-        <div class="image">
-            <img src="../static/images/face1.png" alt="Team Photo">
-        </div>
-        <div class="content">
-            <h2 class=" gradient-text">Our Vision</h2>
-        <p>Our vision is to create a seamless and efficient attendance-taking process that benefits both educators and students. By automating the process, we aim to save time, reduce errors, and improve overall classroom engagement. With FaceCheck, we hope to transform the way attendance is managed in educational settings.</p>
+<hr class="my-4">  <!-- Horizontal rule -->
 
+<div class="about_us">  <!-- About us section -->
+    <div class="content_container">  <!-- Content container -->
+        <div class="image">  <!-- Image container -->
+            <img src="../static/images/face1.png" alt="Team Photo">  <!-- Team photo -->
         </div>
-        
+        <div class="content">  <!-- Content section -->
+            <h2 class="gradient-text">Our Vision</h2>  <!-- Vision heading -->
+            <p>Our vision is to create a seamless and efficient attendance-taking process that benefits both educators and students. By automating the process, we aim to save time, reduce errors, and improve overall classroom engagement. With FaceCheck, we hope to transform the way attendance is managed in educational settings.</p>  <!-- Vision description -->
+        </div>
     </div>
 </div>
-<hr class="my-4">
-<div class="team">
-    <div class="content">
-        <h2 class="gradient-text">Meet Our Team</h2>
+
+<hr class="my-4">  <!-- Horizontal rule -->
+
+<div class="team">  <!-- Team section -->
+    <div class="content">  <!-- Content container -->
+        <h2 class="gradient-text">Meet Our Team</h2>  <!-- Team heading -->
+    </div>
+    <div class="team-photo">  <!-- Team photo container -->
 
     </div>
-    <div class="team-photo">
-
-    </div>
-    <div class="cards">
-        <div class="team-card">
-            <img src="../static/images/hi6576.jpg" alt="">
-            <h3></h3>
-            <h3><a href="https://www.linkedin.com/in/mohamad-h-6800a0112/">Mohammad Hachem</a></h3>
-            <p>Product Manager</p>
-          </div>
-          <div class="team-card">
-            <img src="../static/images/minhaj.jpg" alt="">
-
-            <h3><a href="https://www.linkedin.com/in/ahmed-minhaj/">Ahmed Minhaj</a></h3>
-
-            <p>Backend Lead</p>
-          </div>
-          <div class="team-card">
-            <img src="../static/images/aafnan.jpg" alt="">
-
-            <h3><a href="https://www.linkedin.com/in/aafnanmahmood">Aafnan Mahmood</a></h3>
-            <p>Database Lead</p>
-          </div>
-          
+    <div class="cards">  <!-- Team cards container -->
+        <div class="team-card">  <!-- Team card for each member -->
+            <img src="../static/images/hi6576.jpg" alt="">  <!-- Member photo -->
+            <h3><a href="https://www.linkedin.com/in/mohamad-h-6800a0112/">Mohammad Hachem</a></h3>  <!-- Member name with LinkedIn link -->
+            <p>Product Manager</p>  <!-- Member role -->
+        </div>
+        <div class="team-card">  <!-- Team card for each member -->
+            <img src="../static/images/minhaj.jpg" alt="">  <!-- Member photo -->
+            <h3><a href="https://www.linkedin.com/in/ahmed-minhaj/">Ahmed Minhaj</a></h3>  <!-- Member name with LinkedIn link -->
+            <p>Backend Lead</p>  <!-- Member role -->
+        </div>
+        <div class="team-card">  <!-- Team card for each member -->
+            <img src="../static/images/aafnan.jpg" alt="">  <!-- Member photo -->
+            <h3><a href="https://www.linkedin.com/in/aafnanmahmood">Aafnan Mahmood</a></h3>  <!-- Member name with LinkedIn link -->
+            <p>Database Lead</p>  <!-- Member role -->
+        </div>
     </div>
 </div>
-<script>
+
+<script>  <!-- JavaScript for image animation on scroll -->
     document.addEventListener('scroll', function() {
         var image = document.querySelector('.image img');
         if (window.scrollY > 100) { // Adjust trigger point as needed
@@ -86,7 +83,7 @@
         } else {
           image.style.transform = 'translateX(-80%)'; // Moves the image out of view
         }
-      });
-      
+    });
 </script>
-{% endblock %}
+
+{% endblock %}  <!-- End of content block -->

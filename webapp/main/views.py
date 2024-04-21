@@ -31,7 +31,7 @@ from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.contrib.messages import get_messages
 
-# Create your views here.
+# Custom Password Reset Views
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset.html'
 
@@ -41,37 +41,43 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 class CustomPasswordResetComplete(PasswordResetCompleteView):
     template_name = 'registration/password_done.html'
 
+# Home page view
 def home(request):
     return render(request, 'main/home.html')
 
+# Stats page view
 def stats(request):
     return render(request, 'main/stats.html')
 
+# Manage Class page view
 def manageclass(request):
     return render(request, 'main/manageclass.html')
 
+# Function to clear messages from the request
 def clear_messages(request):
     storage = get_messages(request)
     for message in storage:
         pass
 
+# Sign up view
 def sign_up(request):
     clear_messages(request)
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
+            # Process the sign-up form data
             clear_messages(request)
-            user = form.save(commit=False)  # Don't save the user yet
+            user = form.save(commit=False)
             otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
-            request.session['otp'] = otp  # Store the OTP in the session
+            # Store sign-up information in session
+            request.session['otp'] = otp
             request.session['username'] = form.cleaned_data.get('username')
-            #request.session['email'] = form.cleaned_data.get('email')
             request.session['email'] = form.cleaned_data.get('username') + '@wayne.edu'
             request.session['password'] = form.cleaned_data.get('password1')
             request.session['first_name'] = form.cleaned_data.get('first_name')
             request.session['last_name'] = form.cleaned_data.get('last_name')
-            request.session['otp_time'] = str(datetime.now())  # Store the current time
-            
+            request.session['otp_time'] = str(datetime.now())
+            # Send OTP to the user's email
             send_mail(
                 'Verification Code',
                 f'Your verification code is {otp}.\nDo not share this information with anyone else.',
@@ -81,6 +87,7 @@ def sign_up(request):
             )
             return redirect('otp_verification')  # Redirect to OTP verification view
         else:
+            # Handle form errors
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -88,6 +95,7 @@ def sign_up(request):
         form = RegisterForm()
     return render(request, 'registration/sign_up.html', {'form': form})
 
+# OTP verification view
 def otp_verification(request):
     clear_messages(request)
     if request.method == 'POST':
@@ -95,12 +103,14 @@ def otp_verification(request):
         otp_time_str = request.session.get('otp_time')
         if otp_time_str:
             otp_time = datetime.strptime(otp_time_str, '%Y-%m-%d %H:%M:%S.%f')
-            if datetime.now() - otp_time > timedelta(minutes=2):  # Check if more than 2 minutes have passed
+            # Check if more than 2 minutes have passed since OTP generation
+            if datetime.now() - otp_time > timedelta(minutes=2):
                 messages.error(request, 'OTP expired. Please sign up again.')
-                # Redirect to the signup page
                 return redirect('sign-up')
+            # Verify OTP
             elif otp == str(request.session.get('otp')):
                 try:
+                    # Create user if OTP is correct
                     User.objects.create_user(
                         username=request.session.get('username'),
                         email=request.session.get('email'),
@@ -110,9 +120,7 @@ def otp_verification(request):
                     )
                     # Add user to firebase
                     add_student(request.session.get('username'), request.session.get('first_name'), request.session.get('last_name'))
-                    
-                    #messages.success(request, 'User created successfully')
-                    # Clear the session variables related to OTP
+                    # Clear session variables related to OTP
                     del request.session['otp']
                     del request.session['otp_time']
                     return redirect('login')
@@ -126,17 +134,16 @@ def otp_verification(request):
             return redirect('signup')
     return render(request, 'registration/otp_verification.html')
 
-
+# Firebase initialization
 if not firebase_admin._apps:
     cred_fp = str(Path.cwd()) + "\db_credentials.json"
     cred = credentials.Certificate(cred_fp)
     firebase_admin.initialize_app(cred, {'storageBucket': 'facecheck-93450.appspot.com'})
 
+# Function to upload image to Firebase storage
 def upload_image_to_firebase(file):
-    # Create a Firebase Storage reference
     bucket = storage.bucket()
-
-    blob = bucket.blob( file.name)
+    blob = bucket.blob(file.name)
     blob.upload_from_string(
         file.read(),
         content_type=file.content_type
@@ -144,10 +151,12 @@ def upload_image_to_firebase(file):
     blob.make_public()
     return blob.public_url
 
+# Function to delete file from Firebase storage
 def delete_file_from_firebase(file_name):
     bucket = storage.bucket()
     blob = bucket.blob(file_name)
     blob.delete()
+
 
 def enroll(request):
     # Clear messages when the page is loaded

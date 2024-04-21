@@ -2,28 +2,20 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Define a model to store user information
 class Users(models.Model):
-    username = models.CharField(max_length=30)
-    email = models.EmailField(max_length=30)
-    password = models.CharField(max_length=30)
-    firstName = models.CharField(max_length=30)
-    lastName = models.CharField(max_length=30)
-    attendance = models.IntegerField(max_length=1)
+    username = models.CharField(max_length=30)  # Field to store the username
+    email = models.EmailField(max_length=30)  # Field to store the email address
+    password = models.CharField(max_length=30)  # Field to store the password (consider using hashing for security)
+    firstName = models.CharField(max_length=30)  # Field to store the first name of the user
+    lastName = models.CharField(max_length=30)  # Field to store the last name of the user
+    attendance = models.IntegerField(max_length=1)  # Field to store the attendance status (e.g., 0 or 1)
 
-
-# class UserProfile
+# Define a model to represent posts or articles
 class Post(models.Model):
-    title = models.CharField(max_length=100)
-    content = models.TextField()
-    date_created = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=100)  # Field to store the title of the post
+    content = models.TextField()  # Field to store the content of the post
+    date_created = models.DateTimeField(auto_now_add=True)  # Field to store the date and time of post creation
 
     def __str__(self):
-        return self.title
-
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     photo = models.ImageField(upload_to='profile_photos')
-
-#     def __str__(self):
-#         return self.user.username
+        return self.title  # Return the title of the post as its string representation
