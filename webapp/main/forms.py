@@ -45,6 +45,6 @@ class RegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
+# Form for uploading images
 class ImageUploadForm(forms.Form):
     image = forms.ImageField(label='Upload your photo', label_suffix='')

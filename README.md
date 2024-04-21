@@ -142,10 +142,10 @@ python desktop.py
 ## Student Account:
 1. Username: hi4718<br/>
 Password: sUdEN4um5mNPqh8<br/>
-2 Username: hc9082<br/>
+2. Username: hc9082<br/>
 Password: waynestateuniversity <br/>
 3. Username: hi6576<br/>
-Password: <br/>
+Password: sUdEN4um5mNPqh8<br/>
 ## Professor Account:
 1. Username: dx6565<br/>
 Password: Password <br/>

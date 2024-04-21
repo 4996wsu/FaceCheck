@@ -12,7 +12,7 @@ class Users(models.Model):
     attendance = models.IntegerField(max_length=1)
 
 
-
+# class UserProfile
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
