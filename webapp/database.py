@@ -408,7 +408,7 @@ def retrieve_class_embedding(section):
     # Return link to the encoding/embedding file
     return doc['classes'][section]['class_encoding']
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Download the file from the url and save it as the section name
 def download_file_combine(url, section):
     # Download the file from the URL
@@ -514,7 +514,7 @@ def update_class_encoding(section, file):
     else:
         print("Error: Encoding update is not needed for '" + section + "'.")
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Combine all the pt/encoding/embedding files of the students in the class and make a class pt file, then save it as the class name
 # section represents the class section/class ID
 def combine_pt_files(section):

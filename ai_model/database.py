@@ -696,7 +696,7 @@ def update_class_encoding_status(section, value):
     key = 'classes.' + section + '.class_encoding_update'
     update_doc(class_doc, key, value)
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Combine all the pt/encoding/embedding files of the students in the class and make a class pt file, then save it as the class name
 # section represents the class section/class ID
 def combine_pt_files(section):
@@ -717,7 +717,7 @@ def combine_pt_files(section):
     # upload the file to the firebase using section as the dict key and the pt file name as the dict value
     update_class_encoding(section, f'{section}.pt')
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Download the file from the url and save it as the section name
 def download_file_combine(url, section):
     # Download the file from the URL
@@ -731,7 +731,7 @@ def download_file_combine(url, section):
     
     print(f"File downloaded and saved as {section}")
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Return the low attendance students (students who were present for less than 50% of timestamps)
 def get_low_attendance_students(section):
     # Get today's date in the same format as the attendance records
@@ -783,7 +783,7 @@ def get_low_attendance_students(section):
     # Return the list of low attendance students
     return low_attendance_students
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Get the class id and returns the subjects, course numbers, class sections, terms, 
 # and years so that we can use it as a dropdown menu
 def get_class_id(doc_id):
@@ -820,7 +820,7 @@ def get_class_id(doc_id):
     
     return subjects, course_numbers, class_sections, terms, years
 
-# This function was written by Ahmed Minaj
+# This function was written by Ahmed Minhaj
 # Return the full names of the students
 def get_name(names):
     # Get the contents of the user document in Firebase as a dictionary object
