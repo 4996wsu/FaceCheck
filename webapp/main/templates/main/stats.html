@@ -21,6 +21,7 @@
             <div id = "input_fields">
                 <!-- Option drop-down menus -->
                 <div class="option_bar_container">
+                    <!-- Semester drop-down menu -->
                     <div class="drop-container">
                         <select name="semester_select" id="semester_select" class="option_bar" onchange="change_semester()">
                             <option value="default">Semester</option>
@@ -28,6 +29,7 @@
                         <img class="drop-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" alt="circled-chevron-down"/>
                     </div>
 
+                    <!-- Class ID drop-down menu -->
                     <div class="drop-container">
                         <select name="class_id_select" id="class_id_select" class="option_bar" disabled onchange="change_class()">
                             <option value="default">Class</option>
@@ -35,6 +37,7 @@
                         <img class="drop-icon" src="https://img.icons8.com/ios-filled/50/FFFFFF/circled-chevron-down.png" alt="circled-chevron-down"/>
                     </div>
 
+                    <!-- Date drop-down menu -->
                     <div class="drop-container">
                         <select name="date_select" id="date_select" class="option_bar" onchange="change_date()" disabled>
                             <option value="default">Date</option>
@@ -72,6 +75,7 @@
                     </table>
                 </div>
 
+                <!-- Buttons to confirm/revert changes to overall attendance -->
                 <div id = "update_buttons">
                     <button id = "confirm_changes" onClick="confirm_changes()">Confirm chages</button>
                     <button id = "revert_changes" onClick = "revert_changes()">Revert chages</button>
@@ -96,6 +100,7 @@
     <!-- JAVASCIPT CODE -->
     <script src="https://cdn.anychart.com/releases/8.12.0/js/anychart-base.min.js" type="text/javascript"></script>
     <script type="module">
+        //  Imports from Firebase
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -182,6 +187,7 @@
 
 
         /* --------------------------------------------------  DATABASE CODE  --------------------------------------------------*/
+        //  Firebase credentials
         const firebaseConfig = {
           apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
           authDomain: "facecheck-93450.firebaseapp.com",
@@ -197,15 +203,19 @@
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
         const storage = getStorage();
+        // Reference to collection in Firestore where docs are stored
         const colRef = collection(db, "infoCollection")
 
+        // Save snapshots of each doc
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
         const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
-        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
+        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()) {
+            // Save data from snapshots
             let studentData = studentSnapshot.data();
             let classData = classSnapshot.data();
             let userData = userSnapshot.data();
+            // Save references to HTML elements on webpage
             let date_select = document.getElementById("date_select");
             let semester_select = document.getElementById("semester_select");
             let class_select = document.getElementById("class_id_select");
@@ -213,22 +223,30 @@
             let filter = document.getElementById('filter_select').value;
             let error_msg = document.getElementById('errors');
 
-            //  Save identifier keys and write initial table based on inputs
+            //  Save username
             var username = "{{ user.username }}";
             console.log("Logged in as:", username);
+
+            //  Values storing different filters
             var date = 'N/A';
             var semester = 'N/A';
             var class_id = 'N/A';
+
+            //  Lists of students/classes/users
             var students;   //  This is initialized with a value after a class is chosen
             var classes = get_class_list();
             var users = Object.keys(userData.users);
+
+            //  Write the semester drop-down menu
             write_semester_menu();
 
             //  Initialize a temporary data variable in case the user makes changes to overall attendance
             var tempStudentData = JSON.parse(JSON.stringify(studentData));
 
             //  Does user have access to this page?
+            //  Check if user is logged in
             if (username != "") {
+                //  Check if user is a professor
                 if (userData.users[username]['role'] === "professor") {
                     document.getElementById("main-content").style.display = "block";
                     document.getElementById("access-denied").style.display = "none";
@@ -245,9 +263,11 @@
 
             //  Get class list based on which professor is logged in
             function get_class_list() {
+                //  Save a list of classes from the Firebase data
                 var classes = Object.keys(classData.classes);
                 let final_class_list = [];
 
+                //  Save classes which are assigned to the professor currently logged in
                 for (let class_id of classes) {
                     if (classData.classes[class_id]['professor'] === username) {
                         final_class_list.push(class_id);
@@ -293,6 +313,7 @@
 
                     // Add semesters to drop down meny
                     for (var i = 0; i < semester_arr.length; i++) {
+                        //  Split the naming convention used in Firebase
                         let arr = semester_arr[i].split('_');
                         var semester;
 
@@ -317,12 +338,14 @@
 
             //  Handle semester select menu
             function change_semester() {
+                //  Save input value from semester drop-down menu
                 let input = semester_select.value;
                 if (input != "N/A") {
-                    semester = input;
-                    console.log(semester);
-                    class_id = 'N/A';
+                    semester = input;   //  Set semester to value from menu
+                    class_id = 'N/A';   //  Reset class selection
                     write_class_menu();
+
+                    //  Toggle drop-down menus for class and date
                     class_select.removeAttribute("disabled");
                     date_select.setAttribute("disabled", "disabled");
 
@@ -351,11 +374,13 @@
 
             //  Write contents of class ID menu
             function write_class_menu() {
-                // Create default value
+                //  Remove all options from class drop-down menu
                 removeOptions(class_select);
+                //  Get list of classes
                 let class_list = classes;
                 class_list.sort();
 
+                // Create default value
                 var default_option = document.createElement('option');
                 default_option.value = 0;
                 default_option.innerHTML = "Class"
@@ -365,6 +390,7 @@
                 class_select.appendChild(default_option);
 
                 for (var i = 0; i < class_list.length; i++) {
+                    //  Split class name based on naming convention from Firebase
                     let class_arr = class_list[i].split('_');
                     var s = '';
 
@@ -378,10 +404,13 @@
 
                     //  Check if current class is part of the selected semester
                     if (semester === s) {
+                        //  Get keys from Firebase containing class info
                         let info = Object.keys(classData.classes[class_list[i]]);
+                        //  Split class name based on naming convention, replace '_' with ' '
                         let arr = class_list[i].split("_");
                         let id = arr[0] + " " + arr[1] + " " + arr[2];
 
+                        //  Create option in drop-down menu for class
                         var option = document.createElement('option');
                         option.value = class_list[i];
                         option.innerHTML = id + " | " + classData.classes[class_list[i]]['class_name'];
@@ -392,16 +421,19 @@
 
             //  Handle class select menu
             function change_class() {
+                //  Get input value for class select drop-down menu
                 let input = class_select.value;
                 if (input != "N/A") {
+                    //  Check if attendance data exists for this class
                     if (studentData.students[input] !== undefined) {
+                        //  Set values for class ID & list of students
                         class_id = input;
-                        console.log(class_id);
                         students = Object.keys(studentData.students[class_id]);
-                        console.log("Number of students: " + students.length);
+                        //  Reset chosen date and enable & write date drop-down menu
                         date = 'N/A';
                         write_date_menu();
                         date_select.removeAttribute("disabled");
+                        //  Set error message to show instructions since the table cannot show
                         error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
 
                         //  Update temporary studentData and hide buttons.
@@ -427,7 +459,7 @@
                     let student_list = (Object.keys(studentData.students[class_id])).filter(item => item !== 'class_photos');
                     //student_list.sort();
 
-                    //  Pick student with the most timestamps and use that to populate the date list
+                    //  Pick student with the most timestamps in student_doc for that class
                     var chosen_student = student_list[0];
                     for (let student of student_list) {
                         if (Object.keys(studentData.students[class_id][student]['attendance']).length > 
@@ -436,6 +468,7 @@
                             }
                     }
 
+                    //  Use the student with the most timestamps to populate the date menu
                     let date_list = Object.keys(studentData.students[class_id][chosen_student]['attendance']);
                     date_list.sort();
 
@@ -452,8 +485,11 @@
                     //  00/00/0000 is an empty date in the database, added just to initialize
                     //  a new student. The loop starts from 1 to avoid including this date.
                     for (var i = 1; i < date_list.length; i++) {
+                        //  Create a new option in the menu
                         var option = document.createElement('option');
                         option.value = date_list[i];
+                        //  Parse the date and format it properly, since it is stored in Firebase as
+                        //  MM_DD_YYYY
                         let dateArr = date_list[i].split("_");
                         option.innerHTML = dateArr[0] + "/" + dateArr[1] + "/" + dateArr[2];
                         date_select.appendChild(option);
@@ -466,6 +502,7 @@
 
             //  Handle date select menu
             function change_date() {
+                //  Save value of date drop-down menu
                 let input = date_select.value;
                 if (input != "N/A") {
                     date = input;
@@ -484,8 +521,9 @@
 
             //  Handle search filter menu
             function change_filter() {
+                //  Get the chosen filter from the drop-down menu
                 filter = document.getElementById('filter_select').value;
-                console.log("Selected filter: " + filter);
+                //  Change the placeholder text based on chosen filter
                 let searchbar = document.getElementById('searchbar');
                 if (filter === 'accessid')
                     searchbar.placeholder = "Ex: hc9082";
@@ -494,12 +532,14 @@
                 else if (filter === 'lname')
                     searchbar.placeholder = "Enter last name";
 
+                //  Update table using chosen filter
                 search_student();
             }
             window.change_filter = change_filter;
 
             //  Handle search bar
             function search_student() {
+                //  Get the value entered into the search bar
                 let input = document.getElementById('searchbar').value;
 
                 if (input === "" && (date != 'N/A')) {
@@ -507,12 +547,14 @@
                 }
                 else if (date != 'N/A') {
                     input = input.toLowerCase();
+                    //  Save a list of students who satisfy the search query
                     let found_students = [];
                 
                     //  Check for substring based on filter
                     if (filter === 'accessid') {
                         for (let i = 0; i < students.length; i++) {
                             if (students[i].toLowerCase().includes(input)) {
+                                //  Add student to the list of found students
                                 found_students.push(students[i]);
                             }
                         }
@@ -521,21 +563,26 @@
                         for (let i = 0; i < students.length; i++) {
                             let currentStudent = students[i];
                             if (userData['users'][currentStudent][filter].toLowerCase().includes(input)) {
+                                //  Add student to the list of found students
                                 found_students.push(students[i]);
                             }
                         }
                     }
 
+                    //  If students were found, write the table with the found students
                     if (found_students.length > 0) {
                         write_table(found_students);
                     }
+                    //  Otherwise empty the table and inform the user
                     else {
                         empty_table();
                         error_msg.innerHTML = "No users found.";
                     }
                 }
                 else {
+                    //  Hide the face count graph if a table is not created
                     document.getElementById("face_count_graph").innerHTML = "";
+                    //  Show instructions if table cannot be written
                     error_msg.innerHTML = "Select a semester, class, and date to show attendance data.";
                     empty_table();
                 }
@@ -550,6 +597,7 @@
 
             //  Sort students based on filter and return access ID order. Used for write_table()
             function sort_by_filter(accessIDs) {
+                // Stores the access ID, first name, and last name of each student into this array
                 let studentInfoArr = [];
 
                 for (let i = 0; i < accessIDs.length; i++) {
@@ -561,6 +609,7 @@
                     studentInfoArr.push(s);
                 }
 
+                //  Sort the array based on the chosen filter
                 if (filter === 'accessid') 
                     studentInfoArr.sort((a, b) => a.id.localeCompare(b.id));
                 else if (filter === 'fname') 
@@ -568,6 +617,7 @@
                 else if (filter === 'lname') 
                     studentInfoArr.sort((a, b) => a.lname.localeCompare(b.lname));
 
+                //  Return just the Access IDs after sorting is complete
                 return studentInfoArr.map(user => user.id);
             }
 
@@ -592,7 +642,7 @@
                     for (let time of photo_timestamps) {
                         let data = studentData.students[class_id]['class_photos'][date][time];
                         if (data) {
-                            // Get class photo URL
+                            // Get class photo URLs and set promises
                             const photoPromise = new Promise(async (resolve, reject) => {
                                 try {
                                     const storageRef = ref(storage, class_id + "/" + date + "/" + time + "_photo");
@@ -614,8 +664,9 @@
                         // Clear the table content before adding new entries
                         empty_table();
 
-                        let header = '';
                         //  ----- Table header -----
+                        //  Set an empty header and fill it
+                        let header = '';
                         if (filter === 'accessid') {
                             header  =  `<tr>
                                                 <th class = "headcol_id">Access ID</th>
@@ -649,8 +700,12 @@
                         let other_items = timestamps.filter(item => item !== 'Overall');
                         timestamps = overall_item.concat(other_items);
 
+                        //  Add Overall to header
                         header += '<th class = "col">Overall</th>';
+
+                        //  Write out timestamps
                         for (let key of other_items) {
+                            //  Parse timestamps into regular 12 Hour time, since they are written as HH_MM_SS in 24 Hour time
                             let timeArr = key.split("_");
                             if (parseInt(timeArr[0]) > 12) {
                                 timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
@@ -698,12 +753,15 @@
                                                 <td class = "headcol_id">${currentStudent}</td>`;
                                 }
 
-                                //  Check if current student has the selected date
+                                //  Check if current student has the selected date in their attendance data
                                 if (studentData.students[class_id][currentStudent]['attendance'][date] !== undefined) {
                                     let attendance = studentData.students[class_id][currentStudent]['attendance'][date];
 
+                                    //  Save all the student's timestamps
                                     let student_timestamps = Object.keys(attendance);
                                     student_timestamps.sort();
+
+                                    //  Write attendance results for the student
                                     for (let key of timestamps) {
                                         let value = ""
                                         // This if statement checks if a student does not have a timestamp for a given time,
@@ -758,6 +816,7 @@
                         }
                         row += '<td class = "col"></td>'
 
+                        //  Add View Photo buttons for each timestamp where present
                         if (studentData.students[class_id]['class_photos'][date] !== undefined) {
                             let photo_timestamps = Object.keys(studentData.students[class_id]['class_photos'][date]);
                             photo_timestamps.sort();
@@ -821,7 +880,9 @@
 
             //  Change overall attendance
             function change_overall_attendance(accessid, date, time) {
+                //  Save ID of the student's overall attendance button for that date and time
                 let btn = document.getElementById(`overall_button_${accessid}_${date}_${time}`)
+                // Will be used to save the value of overall attendance
                 var value;
 
                 //  Toggle button text content and save value
@@ -846,7 +907,10 @@
 
             //  Check if student data has been modified on webapp
             function show_buttons() {
+                //  Get ID of buttons for confirm/revert changes
                 let div = document.getElementById("update_buttons");
+                //  If changes have been made to the data (studentData =/= tempStudentData), show the buttons 
+                //  for confirm/revert changes. Otherwise hide them
                 if (!deep_equal(studentData, tempStudentData)) {
                     div.style.display = "flex";
                     console.log("Showing buttons");
@@ -892,9 +956,9 @@
                 let timestamps = (Object.keys(studentData.students[class_id][accessIDs[0]]['attendance'][date])).filter(item => item !== 'Overall');
                 timestamps.sort();
 
-                var data = [];
+                var data = [];      //  Stores each face count
                 for (let i = 0; i < timestamps.length; i++) {
-                    //  Get face count
+                    //  Get face count for each timestamp
                     let face_count = 0;
                     for (let accessID of accessIDs) {
                         if (studentData.students[class_id][accessID]['attendance'][date] !== undefined)
@@ -907,7 +971,7 @@
                             console.log("Face count :: Cannot get date for " + accessID);
                     }
 
-                    // Format time
+                    // Format time as HH_MM_SS in 12 Hr time
                     let timeArr = timestamps[i].split("_");
                     if (parseInt(timeArr[0]) > 12) {
                         timeArr[0] = (parseInt(timeArr[0]) - 12) + "";
@@ -921,10 +985,11 @@
                         timeArr[2] = "AM"
                     }
                     let time = timeArr[0] + ":" + timeArr[1] + " " + timeArr[2];
-                    console.log("Face count for " + time + ": " + face_count);
+                    //  Add timestamp to data
                     data.push([time, face_count]);
                 }
 
+                // Remove the face count graph
                 document.getElementById("face_count_graph").innerHTML = "";
 
                 //  Create graph
