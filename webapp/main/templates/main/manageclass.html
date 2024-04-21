@@ -2,6 +2,7 @@
 {% block title %}Manage Class{% endblock %}
 
 {% block content %}
+    <!-- FONTS AND STYLE SHEETS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
@@ -12,8 +13,8 @@
         <h2 class="headline"><span class="span">Classroom Management</span></h2><hr>
 
         <div class="contain-body">
-            <!-- Tab selection buttons -->
             <div class="manage_container">
+                <!-- Tab selection buttons -->
                 <div class="tab">
                     <button class="tablinks" onclick="openTab(event, 'tab_manage_class')" id="defaultOpen">Manage Students</button>
                     <button class="tablinks" onclick="openTab(event, 'tab_add_students')">Add New Students</button>
@@ -75,12 +76,14 @@
                         <hr>                        
                         <a id = "notification"></a>
                         <p id = "errors">Select a semester and class to manage a class.</p>
+                        <!-- Class table -->
                         <div id = "stats_table" style="overflow-x:auto;">
                             <table id = "stats">
                                 <thead id="thead"></thead>
                                 <tbody id="tbody"></tbody>
                             </table>
                         </div>
+                        <!-- Actions for once the user has made a selection -->
                         <select id="actions" name="actions" onchange="select_action()" disabled>
                             <option value="" style="display: none;">-- Select an action --</option>
                             <option value="accept">Accept Photo</option>
@@ -106,9 +109,12 @@
                             <tbody>
                             </tbody>
                         </table>
+                        <!-- Add a student to the Add Students list -->
                         <button class="add-button" onclick="add_student_row()">&plus;</button>
                         <br>
+                        <!-- Submit the list -->
                         <button class="submit-button" onclick="submit_table()">Submit</button><br>
+                        <!-- Empty elements to store success/error messages when submitted -->
                         <a id = "add_student_results"></a>
                         <a id = "add_student_errors"></a>
                     </div>
@@ -126,6 +132,7 @@
 
     <!-- JAVASCIPT CODE -->
     <script type="module">
+        // Import from Firebase
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
         import { initializeApp, } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -155,7 +162,7 @@
             var dropContainer = document.querySelector('.drop-container');
             var filterContainer = document.getElementById('filter-container');
             
-            // Check if the active tab is 'tab_add_students', hide search and select containers if true
+            // Check if the active tab is 'tab_add_students', hide search, filter, and select containers if true
             if (tabName === 'tab_add_students') {
                 if(searchContainer) searchContainer.style.display = 'none';
                 if(selectContainer) selectContainer.style.display = 'none';
@@ -232,6 +239,7 @@
       
 
         /* --------------------------------------------------  DATABASE CODE  --------------------------------------------------*/
+        //  Firebase credentials
         const firebaseConfig = {
             apiKey: "AIzaSyAthInO0LFnRTXY9L2b7XUsLWO_UBXWg0c",
             authDomain: "facecheck-93450.firebaseapp.com",
@@ -242,20 +250,26 @@
             measurementId: "G-FH3W7GY9NH"
         };
           
+        //  Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
         const storage = getStorage();
+        //  Create reference to the collection containing each docs
         const colRef = collection(db, "infoCollection");
 
+        //  Do queries to access each doc and save as snapshots
         const studentSnapshot = await getDoc(doc(db, "infoCollection", "student_doc"));
         const classSnapshot = await getDoc(doc(db, "infoCollection", "class_doc"));
         const userSnapshot = await getDoc(doc(db, "infoCollection", "user_doc"));
 
-        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()){
+        // If the docs exist, continue
+        if (studentSnapshot.exists() && classSnapshot.exists() && userSnapshot.exists()) {
+            //  Save data from doc snapshots
             let studentData = studentSnapshot.data();
             let classData = classSnapshot.data();
             let userData = userSnapshot.data();
+            //  Save refrences to elements in the HTML page
             let semester_select = document.getElementById("semester_select");
             let class_select = document.getElementById("class_id_select");
             let table = document.getElementById('stats');
@@ -265,20 +279,28 @@
             let add_student_results = document.getElementById('add_student_results');
             let add_student_errors = document.getElementById('add_student_errors');
 
-            //  Save identifier keys and write initial table based on inputs
+            //  Save currently logged in user
             var username = "{{ user.username }}";
             console.log("Logged in as:", username);
+
+            //  Save key variables
             var semester = 'N/A';
             var class_id = 'N/A';
             var students;   //  This is initialized with a value after a class is chosen
             var classes = get_class_list();
+            //  Save list of users
             var users = Object.keys(userData.users);
+            //  Get any selected users
             var selected_rows = get_selected_rows();
+            //  Add a blank row to the Add Students list by default
             add_student_row();
+            //  Write the semester drop-down menu
             write_semester_menu();
 
             //  Does user have access to this page?
+            //  Check if the user is logged in
             if (username != "") {
+                //  If the user DOES exist, check their role and show/hide pages
                 if (userData.users[username]['role'] === "professor") {
                     document.getElementById("main-content").style.display = "block";
                     document.getElementById("access-denied").style.display = "none";
@@ -295,9 +317,11 @@
 
             //  Get class list based on which professor is logged in
             function get_class_list() {
+                //  Save all classes to variable
                 var classes = Object.keys(classData.classes);
                 let final_class_list = [];
 
+                //  Get all classes assigned to that professor
                 for (let class_id of classes) {
                     if (classData.classes[class_id]['professor'] === username) {
                         final_class_list.push(class_id);
@@ -324,6 +348,7 @@
                     var semester_arr = [];
 
                     for (let class_id of classes) {
+                        //  Split class name from Firebase into an array
                         let class_arr = class_id.split('_');
                         var semester;
                         // Use a temporary naming scheme YYYY_Semester # to ensure that
@@ -354,6 +379,7 @@
                         else if (arr[1] === "3")
                             semester = "Fall " + arr[0];
 
+                        //  Add as an option to the semester drop-down meny
                         var option = document.createElement('option');
                         option.value = semester;
                         option.innerHTML = semester;
@@ -367,14 +393,16 @@
 
             //  Handle semester select menu
             function change_semester() {
+                //  Get the selected value
                 let input = semester_select.value;
+                //  Write class drop-down menu if the selection is valid
                 if (input != "N/A") {
                     semester = input;
-                    console.log(semester);
                     class_id = 'N/A';
                     write_class_menu();
                     class_select.removeAttribute("disabled");
 
+                    //  This will automatically cause the table to hide
                     search_student();
                 }
                 else {
@@ -399,6 +427,7 @@
                 class_select.appendChild(default_option);
 
                 for (var i = 0; i < class_list.length; i++) {
+                    //  Split the naming convention for each class so it can be named properly
                     let class_arr = class_list[i].split('_');
                     var s = '';
 
@@ -412,10 +441,12 @@
 
                     //  Check if current class is part of the selected semester
                     if (semester === s) {
+                        //  Split naming convention into array
                         let info = Object.keys(classData.classes[class_list[i]]);
                         let arr = class_list[i].split("_");
                         let id = arr[0] + " " + arr[1] + " " + arr[2];
 
+                        //  Create as an option in the class drop-down menu
                         var option = document.createElement('option');
                         option.value = class_list[i];
                         option.innerHTML = id + " | " + classData.classes[class_list[i]]['class_name'];
@@ -434,13 +465,15 @@
                         students = Object.keys(studentData.students[class_id]);
                         console.log("Number of students: " + students.length);
 
-                        // deselect any selected rows
+                        // Deselect any selected rows
                         deselect_rows();
                     
+                        //  Run this function to automatically hide the table when the class is changed
                         search_student();
                     }
                     else {
                         console.log("Error: Class '" + input + "' does not exist in the attendance database.");
+                        //  Update the error message on the page
                         error_msg.innerHTML = "No data exists for this class.";
                     }
                 }
@@ -452,8 +485,10 @@
 
             //  Handle search filter menu
             function change_filter() {
+                //  Get the value of the filter in the respective drop-down menu
                 filter = document.getElementById('filter_select').value;
-                console.log("Selected filter: " + filter);
+                
+                //  Change the placeholder text of the searchbar depending on the chosen filter
                 let searchbar = document.getElementById('searchbar');
                 if (filter === 'accessid')
                     searchbar.placeholder = "Ex: hc9082";
@@ -461,14 +496,14 @@
                     searchbar.placeholder = "Enter first name";
                 else if (filter === 'lname')
                     searchbar.placeholder = "Enter last name";
+
+                //  Search for the student using the updated filter
                 search_student();
             }
             window.change_filter = change_filter;
 
             //  Handle search bar
             function search_student() {
-                console.log("Searching...")
-
                 //  Get search input
                 let input = document.getElementById('searchbar').value;
 
@@ -477,15 +512,16 @@
                 action_menu.selectedIndex = 0;
                 action_menu.disabled = true;
 
-                //  Handle
+                //  Handle search bar
                 if (input === "" && (class_id != 'N/A')) {
                     write_manage_table(students);
                 }
                 else if (class_id != 'N/A') {
                     input = input.toLowerCase();
-                    let found_students = [];
+                    let found_students = [];        //  Saves list of students who satisfy the search criteria
                 
                     //  Check for substring based on filter
+                    //  If a substing is found, add to found_students
                     if (filter === 'accessid') {
                         for (let i = 0; i < students.length; i++) {
                             if (students[i].toLowerCase().includes(input)) {
@@ -502,14 +538,17 @@
                         }
                     }
 
+                    //  If students are found, write the table with the found students
                     if (found_students.length > 0) {
                         write_manage_table(found_students);
                     }
+                    //  Otherwise, empty the table and show an error message
                     else {
                         empty_table();
                         error_msg.innerHTML = "No users found.";
                     }
                 }
+                //  Show the default instructions
                 else {
                     error_msg.innerHTML = "Select a semester and class to manage a class.";
                     empty_table();
@@ -526,6 +565,7 @@
 
             //  Sort students based on filter and return access ID order. Used for write_manage_table()
             function sort_by_filter(accessIDs) {
+                //  This stores the access id, first name, and last name for each student to be sorted
                 let studentInfoArr = [];
 
                 for (let i = 0; i < accessIDs.length; i++) {
@@ -537,6 +577,7 @@
                     studentInfoArr.push(s);
                 }
 
+                //  Sort depending on chosen filter
                 if (filter === 'accessid') 
                     studentInfoArr.sort((a, b) => a.id.localeCompare(b.id));
                 else if (filter === 'fname') 
@@ -544,12 +585,13 @@
                 else if (filter === 'lname') 
                     studentInfoArr.sort((a, b) => a.lname.localeCompare(b.lname));
 
+                //  Return back just Access IDs in the order sorted with previously
                 return studentInfoArr.map(user => user.id);
             }
 
             //  Create table
             async function write_manage_table(accessIDs) {
-                console.log("Writing manage table");
+                //  Reset error message
                 error_msg.innerHTML = "";
 
                 // Create an array to store promises for fetching photo URLs
@@ -566,7 +608,7 @@
                 for (let currentStudent of students) {
                     let data = userData.users[currentStudent];
                     if (data) {
-                        // Get student photo URL
+                        // Get student photo URLs using a promise. 
                         const photoPromise = new Promise(async (resolve, reject) => {
                             try {
                                 const storageRef = ref(storage, currentStudent + "_photo");
@@ -588,6 +630,7 @@
                         // Clear the table content before adding new entries
                         empty_table();
             
+                        //  Header element for the table
                         let header = `<tr><th class = "headcol_checkbox"></th>`;
                         // ----- Table header -----
                         if (filter === 'accessid') {
@@ -598,6 +641,7 @@
                                       <th class = "col">Access ID</th>`;
                         }
                         header += '<th class = "col">Photo</th><th class = "col">Status</th></tr>';
+                        //  Add header to table
                         table.innerHTML += header;
             
                         // Loop through results and add them to table rows accordingly
@@ -630,6 +674,7 @@
                                             <td class = "col">${student}</td>`;
                                 }
             
+                                //  Add view photo button
                                 if (userData.users[student]['picture'] === "NO PHOTO") {
                                     row += 
                                         `<td class="col">N/A</td>`;
@@ -640,8 +685,10 @@
                                             View</button></td>`;
                                 }
                                 
+                                //  Add photo status
                                 row += `<td class="col">${status}</td></tr>`
 
+                                //  Add everything to table
                                 table.innerHTML += row;
                             }
                         }
@@ -657,10 +704,11 @@
 
             //  Handle checkbox changed
             function checkbox_changed(accessid) {
+                //  Save the ID for the checkbox element and whether it is checked
                 const checkbox = document.getElementById(`checkbox_${accessid}`);
                 const isChecked = checkbox.checked;
-                console.log(`Checkbox for student ${accessid} is checked: ${isChecked}`);
-
+                
+                //  Save selected rows and check if the action menu should be toggled
                 selected_rows = get_selected_rows();
                 toggle_action_menu();
             }
@@ -669,14 +717,19 @@
 
             //  Get all selected rows
             function get_selected_rows() {
+                //  Store which rows were selected by the user
                 var selected_rows = [];
+                //  Get all IDs for checkboxes
                 const checkboxes = document.getElementsByName('select_checkbox');
+
+                //  Get all selected checkboxes
                 checkboxes.forEach(checkbox => {
                     if (checkbox.checked) {
                         selected_rows.push(checkbox.value);
                     }
                 });
-                console.log(selected_rows);
+                
+                //  Return just the selected rows
                 return selected_rows;
             }
 
@@ -684,7 +737,7 @@
             //  Select a set of rows automatically
             //  Can also be used to re-select rows after a search
             function select_rows(selected_rows) {
-                console.log("SELECTED ROWS: " + selected_rows)
+                // For all the selected rows, re-check them if they exist
                 for (let i = 0; i < selected_rows.length; i++) {
                     console.log(`checkbox_${selected_rows[i]}`);
                     if (document.getElementById(`checkbox_${selected_rows[i]}`) !== undefined) {
@@ -694,11 +747,13 @@
                         console.log(`checkbox_${selected_rows[i]} does not exist.`)
                     }
                 }
+                //  Check if the action menu should be toggled
                 toggle_action_menu();
             }
 
             //  Automatically deselect any selected rows
             function deselect_rows() {
+                //  Save IDs for all checkboxes and set the checked value for each to false
                 const checkboxes = document.getElementsByName('select_checkbox');
                 checkboxes.forEach(checkbox => {
                     checkbox.checked = false;
@@ -710,7 +765,9 @@
 
             //  Toggle action menu
             function toggle_action_menu() {
+                //  Get ID of action drop-down menu
                 const action_menu = document.getElementById(`actions`);
+                //  If rows are selected, enable the menu. Disable otherwise
                 if (get_selected_rows().length > 0)
                     action_menu.disabled = false;
                 else
@@ -720,23 +777,32 @@
 
             //  Select action
             async function select_action() {
+                //  Save reference to the student doc in FIrebase
                 const doc_ref = doc(db, "infoCollection", "student_doc");
+                //  Save ID of action select menu and the value of it
                 var action_select = document.getElementById('actions');
                 var action = action_select.value;
+                //  Get selected IDs
                 var accessids = get_selected_rows();
+                //  Will store the data to push to Firebase
                 var data_to_push;
+                //  Will be use to update status message on webpage if needed
                 var msg = "";
 
                 if (action == "remove_student") {
+                    //  Open confirmation window and set action to none if declined.
+                    //  Setting the action to none will stop any action from happening in the following code
                     if (!confirm("Are you sure you want to remove these students?"))
                         action = "none";
                 }
 
+                //  Do selected action for each selected user
                 for (let accessid of accessids) {
                     console.log("Changing status of " + accessid + " to: " + action);
 
                     switch (action) {
                         case "accept":
+                            //  Set data to push to Firebase
                             data_to_push = {
                                 'students': {
                                     [class_id]: {
@@ -749,6 +815,7 @@
                             msg = "<br>Selected student photos listed as Accepted.";
                             break;
                         case "reject":
+                            //  Set data to push to Firebase
                             data_to_push = {
                                 'students': {
                                     [class_id]: {
@@ -761,6 +828,7 @@
                             msg = "<br>Selected student photos listed as Rejected.";
                             break;
                         case "flag":
+                            //  Set data to push to Firebase
                             data_to_push = {
                                 'students': {
                                     [class_id]: {
@@ -773,15 +841,17 @@
                             msg = "<br>Selected student photos listed as Flagged.";
                             break;
                         case "remove_student":
+                            //  Path in student doc which contains the student's information
                             const path = `students.${class_id}.${accessid}`;
 
-                            //  Remove data from Firebase
+                            //  Remove data from Firebase document
                             const updated_data = delete_nested_fields(studentData, path);
                             await setDoc(doc_ref, updated_data);
-                            //  Remove data locally
+                            //  Remove data locally and reassign studentData and students list to reflect changes
                             studentData = JSON.parse(JSON.stringify(updated_data));
                             students = Object.keys(studentData.students[class_id]);
 
+                            //  De-select all rows
                             deselect_rows();
 
                             msg = "<br>Selected students have been deleted.";
@@ -868,16 +938,22 @@
             
             //  Add row to new student table
             function add_student_row() {
+                //  Get ID of Add Student table
                 var table = document.getElementById("add_student_table").getElementsByTagName('tbody')[0];
+                //  Insert new row
                 var newRow = table.insertRow();
+                //  Add cells to row
                 var cell1 = newRow.insertCell(0);
                 var cell2 = newRow.insertCell(1);
+                // Create input field for access ID to be entered
                 var idInput = document.createElement("input");
                 idInput.type = "text";
                 idInput.placeholder = "Ex: hc9082";
                 cell1.appendChild(idInput);
+                // Create delete button to delete the row
                 var deleteButton = document.createElement("button");
                 deleteButton.innerHTML = "&#x1F5D1";
+                // Code to execute when delete button is clicked
                 deleteButton.onclick = function() {
                     // Find the parent row and delete it
                     var row = this.parentNode.parentNode;
@@ -890,8 +966,9 @@
 
             //  Submit new student request
             function submit_table() {
+                //  Get ID of Add Student table
                 var table = document.getElementById("add_student_table");
-                var data = [];
+                var data = [];      //  Stores non-empty table data
                 for (var i = table.rows.length - 1; i > 0; i--) {
                     var accessid = table.rows[i].cells[0].getElementsByTagName("input")[0].value;
                     
@@ -904,6 +981,7 @@
                         data.push({ "accessid": accessid });
                     }
                 }
+                //  If a class is selected, try to add the students
                 if (class_id != 'N/A')
                     add_new_students(data);
                 else
@@ -914,22 +992,23 @@
 
             //  Add new student
             async function add_new_students(data) {
-                console.log(data);
+                //  Users who were successfully or unsuccessfully added
                 var data_success = [];
                 var data_error = [];
 
                 //  Loop through data to check if students exist and not already in the class
                 for (let student in data) {
-                    let ID = data[student].accessid;
+                    let ID = data[student].accessid;    // Stores Access ID
                     if (ID in userData.users) {
+                        //  If the user does not already exist
                         if (!(ID in studentData.students[class_id])) {
-                            console.log(ID + " exists.");
 
+                            //  Check if the user has a photo uploaded and set the status accordingly
                             var status = "N/A";
                             if (userData.users[ID]['picture'] != 'NO PHOTO') {
                                 status = "Pending";
                             }
-
+                            //  Set data to push to Firebase
                             const data_to_push = {
                                 'students': {
                                     [class_id]: {
@@ -946,7 +1025,7 @@
                                 }
                             };
 
-                            //  Update in Firebase
+                            //  Update in Firebase in student doc
                             const doc_ref = doc(db, "infoCollection", "student_doc");
                             await setDoc(doc_ref, data_to_push, { merge: true });
                             //  Update locally
@@ -954,15 +1033,20 @@
                             students = Object.keys(studentData.students[class_id]);
                             //  Refresh table
                             search_student();
+                            //  Add access ID to success messages
                             data_success.push(ID);
                         }
                         else {
+                            //  Student already in class
                             console.log(ID + " is already a student in " + class_id + ".");
+                            //  Add access ID to error messages
                             data_error.push(ID + ": Already a student in this class.");
                         }
                     }
                     else {
+                        //  Student does not exist
                         console.log(ID + " does not exist.");
+                        //  Add access ID to error messages
                         data_error.push(ID + ": Student does not exist.");
                     }
                 }
@@ -971,6 +1055,7 @@
                 data_success.sort();
                 data_error.sort();
 
+                //  Write success messages
                 var results = "";
                 if (data_success.length > 0) {
                     results += "Successfully added:<br>";
@@ -979,6 +1064,7 @@
                 }
                 add_student_results.innerHTML = results;
 
+                //  Write error messages
                 var errors = "";
                 if (data_error.length > 0) {
                     errors += "Errors:<br>";
